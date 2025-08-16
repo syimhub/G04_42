@@ -5,174 +5,107 @@
     android:layout_height="match_parent"
     android:background="#F5F5F5">
 
-    <!-- Header with pet image and app name -->
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:gravity="center"
-        android:paddingTop="32dp"
-        android:paddingBottom="8dp">
-
-        <ImageView
-            android:layout_width="100dp"
-            android:layout_height="100dp"
-            android:src="@drawable/cat"
-            android:contentDescription="Pet Image"
-            android:scaleType="centerCrop"
-             />
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="FeedMate"
-            android:textSize="28sp"
-            android:textStyle="bold"
-            android:textColor="@color/orange"
-            android:layout_marginTop="8dp" />
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Smart Feeding Made Easy"
-            android:textSize="14sp"
-            android:textColor="#555"
-            android:layout_marginTop="2dp" />
-    </LinearLayout>
-
-    <!-- Dashboard Content -->
-    <ScrollView
-        android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_marginTop="170dp"
-        android:layout_above="@id/bottom_navigation">
+        android:orientation="vertical">
 
+        <!-- Header with pet image and app name -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:padding="16dp">
+            android:gravity="center"
+            android:paddingTop="32dp"
+            android:paddingBottom="8dp">
 
-            <!-- Welcome text -->
+            <ImageView
+                android:layout_width="100dp"
+                android:layout_height="100dp"
+                android:src="@drawable/cat"
+                android:contentDescription="Pet Image"
+                android:scaleType="centerCrop" />
+
             <TextView
-                android:id="@+id/tvWelcome"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Welcome!"
-                android:textSize="22sp"
+                android:text="FeedMate"
+                android:textSize="28sp"
                 android:textStyle="bold"
-                android:textColor="#333"
-                android:layout_marginBottom="16dp" />
+                android:textColor="@color/orange"
+                android:layout_marginTop="8dp" />
 
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Smart Feeding Made Easy"
+                android:textSize="14sp"
+                android:textColor="#555"
+                android:layout_marginTop="2dp" />
 
+            <Button
+                android:id="@+id/btnConnectFeeder"
+                android:layout_width="wrap_content"
+                android:layout_height="48dp"
+                android:layout_marginTop="16dp"
+                android:backgroundTint="@color/orange"
+                android:text="Connect to Feeder"
+                android:textColor="@android:color/white"
+                android:textStyle="bold"
+                app:cornerRadius="24dp" />
+        </LinearLayout>
 
+        <!-- Dashboard Content -->
+        <ScrollView
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:padding="16dp"
+            android:clipToPadding="false"
+            android:paddingBottom="72dp">
 
-
-
-
-            <!-- Food Level Card -->
-            <com.google.android.material.card.MaterialCardView
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="12dp"
-                app:cardCornerRadius="18dp"
-                app:cardElevation="6dp"
-                app:strokeColor="@color/orange"
-                app:strokeWidth="2dp">
+                android:orientation="vertical">
 
-                <LinearLayout
+                <!-- Welcome text -->
+                <TextView
+                    android:id="@+id/tvWelcome"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Welcome!"
+                    android:textSize="22sp"
+                    android:textStyle="bold"
+                    android:textColor="#333"
+                    android:layout_marginBottom="16dp" />
+
+                <!-- Food Level Card -->
+                <com.google.android.material.card.MaterialCardView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:padding="20dp">
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Food Level"
-                        android:textSize="18sp"
-                        android:textStyle="bold"
-                        android:textColor="@color/orange" />
-
-                    <TextView
-                        android:id="@+id/tvFoodLevel"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Loading..."
-                        android:textSize="16sp"
-                        android:textColor="#555"
-                        android:layout_marginTop="4dp" />
-                </LinearLayout>
-            </com.google.android.material.card.MaterialCardView>
-
-            <!-- Food Weight Card -->
-            <com.google.android.material.card.MaterialCardView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="12dp"
-                app:cardCornerRadius="18dp"
-                app:cardElevation="6dp"
-                app:strokeColor="@color/teal_700"
-                app:strokeWidth="2dp">
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:padding="20dp">
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Food Weight"
-                        android:textSize="18sp"
-                        android:textStyle="bold"
-                        android:textColor="@color/teal_700" />
-
-                    <TextView
-                        android:id="@+id/tvFoodWeight"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Loading..."
-                        android:textSize="16sp"
-                        android:textColor="#555"
-                        android:layout_marginTop="4dp" />
-                </LinearLayout>
-            </com.google.android.material.card.MaterialCardView>
-
-            <!-- Next Feeding Time Card -->
-            <com.google.android.material.card.MaterialCardView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="16dp"
-                app:cardCornerRadius="18dp"
-                app:cardElevation="6dp"
-                app:strokeColor="@color/orange"
-                app:strokeWidth="2dp">
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:padding="20dp"
-                    android:gravity="center_vertical">
+                    android:layout_marginBottom="12dp"
+                    app:cardCornerRadius="18dp"
+                    app:cardElevation="6dp"
+                    app:strokeColor="@color/orange"
+                    app:strokeWidth="2dp">
 
                     <LinearLayout
-                        android:layout_width="0dp"
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:orientation="vertical">
+                        android:orientation="vertical"
+                        android:padding="20dp">
 
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="Next Feeding Time"
+                            android:text="Food Level"
                             android:textSize="18sp"
                             android:textStyle="bold"
                             android:textColor="@color/orange" />
 
                         <TextView
-                            android:id="@+id/tvNextFeedingTime"
+                            android:id="@+id/tvFoodLevel"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="Loading..."
@@ -180,60 +113,138 @@
                             android:textColor="#555"
                             android:layout_marginTop="4dp" />
                     </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
 
-                    <ImageView
-                        android:id="@+id/btnEditFeedingTime"
-                        android:layout_width="32dp"
-                        android:layout_height="32dp"
-                        android:src="@drawable/baseline_edit_24"
-                        android:contentDescription="Edit Feeding Time"
-                        android:tint="@color/orange"
-                        android:background="?attr/selectableItemBackgroundBorderless"
-                        android:padding="4dp" />
+                <!-- Food Weight Card -->
+                <com.google.android.material.card.MaterialCardView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="12dp"
+                    app:cardCornerRadius="18dp"
+                    app:cardElevation="6dp"
+                    app:strokeColor="@color/teal_700"
+                    app:strokeWidth="2dp">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:padding="20dp">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Food Weight"
+                            android:textSize="18sp"
+                            android:textStyle="bold"
+                            android:textColor="@color/teal_700" />
+
+                        <TextView
+                            android:id="@+id/tvFoodWeight"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Loading..."
+                            android:textSize="16sp"
+                            android:textColor="#555"
+                            android:layout_marginTop="4dp" />
+                    </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
+
+                <!-- Next Feeding Time Card -->
+                <com.google.android.material.card.MaterialCardView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="16dp"
+                    app:cardCornerRadius="18dp"
+                    app:cardElevation="6dp"
+                    app:strokeColor="@color/orange"
+                    app:strokeWidth="2dp">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:padding="20dp"
+                        android:gravity="center_vertical">
+
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:orientation="vertical">
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Next Feeding Time"
+                                android:textSize="18sp"
+                                android:textStyle="bold"
+                                android:textColor="@color/orange" />
+
+                            <TextView
+                                android:id="@+id/tvNextFeedingTime"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Loading..."
+                                android:textSize="16sp"
+                                android:textColor="#555"
+                                android:layout_marginTop="4dp" />
+                        </LinearLayout>
+
+                        <ImageView
+                            android:id="@+id/btnEditFeedingTime"
+                            android:layout_width="32dp"
+                            android:layout_height="32dp"
+                            android:src="@drawable/baseline_edit_24"
+                            android:contentDescription="Edit Feeding Time"
+                            android:tint="@color/orange"
+                            android:background="?attr/selectableItemBackgroundBorderless"
+                            android:padding="4dp" />
+                    </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
+
+                <!-- Divider -->
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:background="#DDD"
+                    android:layout_marginBottom="12dp" />
+
+                <!-- Buttons Row -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center"
+                    android:layout_marginTop="8dp">
+
+                    <Button
+                        android:id="@+id/btnManualFeed"
+                        android:layout_width="0dp"
+                        android:layout_height="48dp"
+                        android:layout_weight="1"
+                        android:text="Feed Now"
+                        android:backgroundTint="@color/orange"
+                        android:textColor="@android:color/white"
+                        android:textStyle="bold"
+                        android:layout_marginEnd="8dp"
+                        app:cornerRadius="24dp" />
+
+                    <Button
+                        android:id="@+id/btnHistory"
+                        android:layout_width="0dp"
+                        android:layout_height="48dp"
+                        android:layout_weight="1"
+                        android:text="View History"
+                        android:backgroundTint="@color/teal_700"
+                        android:textColor="@android:color/white"
+                        android:textStyle="bold"
+                        android:layout_marginStart="8dp"
+                        app:cornerRadius="24dp" />
                 </LinearLayout>
-            </com.google.android.material.card.MaterialCardView>
-
-            <!-- Divider -->
-            <View
-                android:layout_width="match_parent"
-                android:layout_height="1dp"
-                android:background="#DDD"
-                android:layout_marginBottom="12dp" />
-
-            <!-- Buttons Row -->
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:gravity="center"
-                android:layout_marginTop="8dp">
-
-                <Button
-                    android:id="@+id/btnManualFeed"
-                    android:layout_width="0dp"
-                    android:layout_height="48dp"
-                    android:layout_weight="1"
-                    android:text="Feed Now"
-                    android:backgroundTint="@color/orange"
-                    android:textColor="@android:color/white"
-                    android:textStyle="bold"
-                    android:layout_marginEnd="8dp"
-                    app:cornerRadius="24dp" />
-
-                <Button
-                    android:id="@+id/btnHistory"
-                    android:layout_width="0dp"
-                    android:layout_height="48dp"
-                    android:layout_weight="1"
-                    android:text="View History"
-                    android:backgroundTint="@color/teal_700"
-                    android:textColor="@android:color/white"
-                    android:textStyle="bold"
-                    android:layout_marginStart="8dp"
-                    app:cornerRadius="24dp" />
             </LinearLayout>
-        </LinearLayout>
-    </ScrollView>
+        </ScrollView>
+    </LinearLayout>
 
     <!-- Bottom Navigation -->
     <com.google.android.material.bottomnavigation.BottomNavigationView
@@ -241,8 +252,10 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="bottom"
+        android:background="@color/white"
         app:menu="@menu/bottom_nav_menu"
-        
-        android:background="@color/white" />
+        app:itemIconTint="@color/nav_item_color"
+        app:itemTextColor="@color/nav_item_color"
+        app:layout_behavior="@string/hide_bottom_view_on_scroll_behavior" />
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>
