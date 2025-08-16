@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "694979616661",
+    "project_id": "feedmate-pet-feeder-system",
+    "storage_bucket": "feedmate-pet-feeder-system.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:694979616661:android:9d019de2a7f46873e4a09c",
+        "android_client_info": {
+          "package_name": "com.example.feedmatepetfeedersystem"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBShID6oTkWAmpdYpLJmJ3YEKdMCSuovMU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
