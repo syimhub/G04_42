@@ -14,7 +14,6 @@ import com.google.firebase.auth.FirebaseUser;
 public class SignUpActivity extends AppCompatActivity {
 
     private EditText signupEmail, signupPassword;
-    private Button signupButton;
     private FirebaseAuth mAuth;
 
     @Override
@@ -24,7 +23,7 @@ public class SignUpActivity extends AppCompatActivity {
 
         signupEmail = findViewById(R.id.signup_email);
         signupPassword = findViewById(R.id.signup_password);
-        signupButton = findViewById(R.id.signup_button);
+        Button signupButton = findViewById(R.id.signup_button);
 
         mAuth = FirebaseAuth.getInstance();
 
@@ -37,7 +36,7 @@ public class SignUpActivity extends AppCompatActivity {
                 return;
             }
 
-            if (password.length() < 6) { // Firebase requires min 6 chars
+            if (password.length() < 6) { // Firebase requires min 6 chars for password
                 Toast.makeText(SignUpActivity.this, "Password must be at least 6 characters", Toast.LENGTH_SHORT).show();
                 return;
             }
@@ -53,7 +52,13 @@ public class SignUpActivity extends AppCompatActivity {
                                 finish();
                             }
                         } else {
-                            Toast.makeText(SignUpActivity.this, "Signup failed: " + task.getException().getMessage(), Toast.LENGTH_LONG).show();
+                            String errorMessage = (task.getException() != null)
+                                    ? task.getException().getMessage()
+                                    : "Unknown error occurred";
+
+                            Toast.makeText(SignUpActivity.this,
+                                    "Signup failed: " + errorMessage,
+                                    Toast.LENGTH_LONG).show();
                         }
                     });
         });
