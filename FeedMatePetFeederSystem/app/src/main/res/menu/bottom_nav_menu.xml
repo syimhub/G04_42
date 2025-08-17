@@ -10,8 +10,8 @@
         android:title="Home"/>
 
     <item
-        android:id="@+id/nav_history"
+        android:id="@+id/nav_logout"
         android:icon="@drawable/baseline_history_24"
-        android:title="History"/>
+        android:title="Logout"/>
 
 </menu>

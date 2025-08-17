@@ -1,16 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.coordinatorlayout.widget.CoordinatorLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#F5F5F5">
+    android:background="#F5F5F5"
+    android:fitsSystemWindows="true">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical">
 
-        <!-- Header: User Profile Picture -->
+        <!-- Profile Header with clickable image for changing photo -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -19,13 +22,29 @@
             android:paddingTop="32dp"
             android:paddingBottom="16dp">
 
-            <ImageView
-                android:id="@+id/imgUser"
-                android:layout_width="120dp"
-                android:layout_height="120dp"
-                android:src="@drawable/ic_user_placeholder"
-                android:contentDescription="User Profile"
-                android:scaleType="centerCrop" />
+            <FrameLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="8dp">
+
+                <ImageView
+                    android:id="@+id/imgUser"
+                    android:layout_width="120dp"
+                    android:layout_height="120dp"
+                    android:src="@drawable/ic_user_placeholder"
+                    android:contentDescription="User Profile"
+                    android:scaleType="centerCrop"
+                    android:background="@drawable/circle_background"
+                    android:padding="4dp"/>
+
+                <ImageView
+                    android:layout_width="32dp"
+                    android:layout_height="32dp"
+                    android:src="@drawable/ic_edit"
+                    android:layout_gravity="bottom|end"
+                    android:background="?attr/selectableItemBackgroundBorderless"
+                    android:contentDescription="Edit photo"/>
+            </FrameLayout>
 
             <TextView
                 android:id="@+id/tvUserName"
@@ -34,7 +53,8 @@
                 android:text="User Name"
                 android:textSize="22sp"
                 android:textStyle="bold"
-                android:textColor="#333" />
+                android:textColor="#333"
+                tools:text="John Doe" />
 
             <TextView
                 android:id="@+id/tvUserEmail"
@@ -42,38 +62,40 @@
                 android:layout_height="wrap_content"
                 android:text="user@email.com"
                 android:textSize="14sp"
-                android:textColor="#777" />
+                android:textColor="#777"
+                tools:text="john.doe@example.com" />
         </LinearLayout>
 
         <!-- Scrollable content -->
-        <ScrollView
+        <androidx.core.widget.NestedScrollView
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:layout_weight="1"
-            android:padding="16dp"
+            android:paddingHorizontal="16dp"
             android:clipToPadding="false"
-            android:paddingBottom="72dp">
+            android:fillViewport="true">
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="vertical">
+                android:orientation="vertical"
+                android:paddingBottom="72dp">
 
                 <!-- Pet Information Card -->
                 <com.google.android.material.card.MaterialCardView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginBottom="16dp"
-                    app:cardCornerRadius="18dp"
-                    app:cardElevation="6dp"
+                    app:cardCornerRadius="12dp"
+                    app:cardElevation="2dp"
                     app:strokeColor="@color/orange"
-                    app:strokeWidth="2dp">
+                    app:strokeWidth="1dp">
 
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:orientation="vertical"
-                        android:padding="20dp">
+                        android:padding="16dp">
 
                         <TextView
                             android:layout_width="wrap_content"
@@ -86,38 +108,50 @@
                         <com.google.android.material.textfield.TextInputLayout
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:layout_marginTop="8dp">
+                            android:layout_marginTop="12dp"
+                            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                            app:boxStrokeColor="@color/orange"
+                            app:hintTextColor="@color/orange">
 
                             <com.google.android.material.textfield.TextInputEditText
                                 android:id="@+id/editPetName"
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
-                                android:hint="Pet Name" />
+                                android:hint="Pet Name"
+                                android:textSize="16sp"
+                                tools:text="Fluffy" />
                         </com.google.android.material.textfield.TextInputLayout>
 
+                        <!-- Similar improved TextInputLayouts for other pet fields -->
                         <com.google.android.material.textfield.TextInputLayout
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:layout_marginTop="8dp">
+                            android:layout_marginTop="12dp"
+                            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                            app:boxStrokeColor="@color/orange">
 
                             <com.google.android.material.textfield.TextInputEditText
                                 android:id="@+id/editPetAge"
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
                                 android:hint="Pet Age"
-                                android:inputType="number" />
+                                android:inputType="number"
+                                tools:text="3" />
                         </com.google.android.material.textfield.TextInputLayout>
 
                         <com.google.android.material.textfield.TextInputLayout
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:layout_marginTop="8dp">
+                            android:layout_marginTop="12dp"
+                            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                            app:boxStrokeColor="@color/orange">
 
                             <com.google.android.material.textfield.TextInputEditText
                                 android:id="@+id/editPetBreed"
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
-                                android:hint="Pet Breed" />
+                                android:hint="Pet Breed"
+                                tools:text="Golden Retriever" />
                         </com.google.android.material.textfield.TextInputLayout>
                     </LinearLayout>
                 </com.google.android.material.card.MaterialCardView>
@@ -127,16 +161,16 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginBottom="16dp"
-                    app:cardCornerRadius="18dp"
-                    app:cardElevation="6dp"
+                    app:cardCornerRadius="12dp"
+                    app:cardElevation="2dp"
                     app:strokeColor="@color/teal_700"
-                    app:strokeWidth="2dp">
+                    app:strokeWidth="1dp">
 
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:orientation="vertical"
-                        android:padding="20dp">
+                        android:padding="16dp">
 
                         <TextView
                             android:layout_width="wrap_content"
@@ -146,69 +180,92 @@
                             android:textStyle="bold"
                             android:textColor="@color/teal_700" />
 
+                        <!-- Improved TextInputLayouts with better visual cues -->
                         <com.google.android.material.textfield.TextInputLayout
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:layout_marginTop="8dp">
+                            android:layout_marginTop="12dp"
+                            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                            app:boxStrokeColor="@color/teal_700">
 
                             <com.google.android.material.textfield.TextInputEditText
                                 android:id="@+id/editName"
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
-                                android:hint="Full Name" />
+                                android:hint="Full Name"
+                                android:textSize="16sp"
+                                tools:text="John Doe" />
                         </com.google.android.material.textfield.TextInputLayout>
 
                         <com.google.android.material.textfield.TextInputLayout
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:layout_marginTop="8dp">
+                            android:layout_marginTop="12dp"
+                            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                            app:boxStrokeColor="@color/teal_700">
 
                             <com.google.android.material.textfield.TextInputEditText
                                 android:id="@+id/editEmail"
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
                                 android:hint="Email"
-                                android:inputType="textEmailAddress" />
+                                android:inputType="textEmailAddress"
+                                tools:text="john.doe@example.com" />
                         </com.google.android.material.textfield.TextInputLayout>
 
                         <com.google.android.material.textfield.TextInputLayout
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:layout_marginTop="8dp">
+                            android:layout_marginTop="12dp"
+                            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                            app:boxStrokeColor="@color/teal_700"
+                            app:passwordToggleEnabled="true"
+                            app:passwordToggleTint="@color/teal_700">
 
                             <com.google.android.material.textfield.TextInputEditText
                                 android:id="@+id/editPassword"
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
                                 android:hint="Password"
-                                android:inputType="textPassword" />
+                                android:inputType="textPassword"
+                                tools:text="••••••••" />
                         </com.google.android.material.textfield.TextInputLayout>
                     </LinearLayout>
                 </com.google.android.material.card.MaterialCardView>
 
-                <!-- Upload Pet Image Button -->
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/btn_upload_pet_image"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Upload Pet Photo"
-                    android:layout_gravity="center"
-                    android:layout_marginTop="8dp"
-                    app:cornerRadius="24dp" />
-
-                <!-- Save Button -->
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/btnSave"
+                <!-- Action Buttons -->
+                <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="Save Changes"
-                    android:layout_marginTop="16dp"
-                    android:textColor="@android:color/white"
-                    app:backgroundTint="@color/orange"
-                    app:cornerRadius="24dp" />
+                    android:orientation="horizontal"
+                    android:layout_marginTop="8dp">
 
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btn_upload_pet_image"
+                        android:layout_width="0dp"
+                        android:layout_height="48dp"
+                        android:layout_weight="1"
+                        android:text="Change Photo"
+                        android:textColor="@color/teal_700"
+                        android:layout_marginEnd="4dp"
+                        app:cornerRadius="24dp"
+                        app:strokeColor="@color/teal_700"
+                        app:strokeWidth="1dp"
+                        style="@style/Widget.MaterialComponents.Button.OutlinedButton" />
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btnSave"
+                        android:layout_width="0dp"
+                        android:layout_height="48dp"
+                        android:layout_weight="1"
+                        android:text="Save Changes"
+                        android:textColor="@android:color/white"
+                        android:layout_marginStart="4dp"
+                        app:backgroundTint="@color/orange"
+                        app:cornerRadius="24dp" />
+                </LinearLayout>
             </LinearLayout>
-        </ScrollView>
+        </androidx.core.widget.NestedScrollView>
     </LinearLayout>
 
     <!-- Bottom Navigation -->
