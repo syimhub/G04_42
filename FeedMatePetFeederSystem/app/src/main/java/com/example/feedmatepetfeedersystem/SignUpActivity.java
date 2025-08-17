@@ -25,17 +25,17 @@ public class SignUpActivity extends AppCompatActivity {
         signupEmail = findViewById(R.id.signup_email);
         signupPassword = findViewById(R.id.signup_password);
         Button signupButton = findViewById(R.id.signup_button);
-        TextView loginRedirectText = findViewById(R.id.loginRedirectText); // 👈 Login redirect text
+        TextView loginRedirectText = findViewById(R.id.loginRedirectText);
 
         mAuth = FirebaseAuth.getInstance();
 
-        // 🔹 Redirect to LoginActivity when user clicks "Already a user? Login"
+        // Redirect to login when clicking "Already a user? Login"
         loginRedirectText.setOnClickListener(v -> {
             startActivity(new Intent(SignUpActivity.this, LoginActivity.class));
-            finish(); // close sign up screen so they don’t come back with back button
+            finish();
         });
 
-        // 🔹 Handle signup button click
+        // Handle signup button click
         signupButton.setOnClickListener(v -> {
             String email = signupEmail.getText().toString().trim();
             String password = signupPassword.getText().toString().trim();
@@ -45,7 +45,7 @@ public class SignUpActivity extends AppCompatActivity {
                 return;
             }
 
-            if (password.length() < 6) { // Firebase requires min 6 chars
+            if (password.length() < 6) {
                 Toast.makeText(SignUpActivity.this, "Password must be at least 6 characters", Toast.LENGTH_SHORT).show();
                 return;
             }
@@ -55,9 +55,26 @@ public class SignUpActivity extends AppCompatActivity {
                         if (task.isSuccessful()) {
                             FirebaseUser user = mAuth.getCurrentUser();
                             if (user != null) {
-                                Toast.makeText(SignUpActivity.this, "Signup successful!", Toast.LENGTH_SHORT).show();
-                                startActivity(new Intent(SignUpActivity.this, LoginActivity.class));
-                                finish();
+                                // Send verification email
+                                user.sendEmailVerification()
+                                        .addOnCompleteListener(verifyTask -> {
+                                            if (verifyTask.isSuccessful()) {
+                                                Toast.makeText(SignUpActivity.this,
+                                                        "Signup successful! Please check your email to verify your account.",
+                                                        Toast.LENGTH_LONG).show();
+
+                                                mAuth.signOut(); // Sign out until verified
+                                                startActivity(new Intent(SignUpActivity.this, LoginActivity.class));
+                                                finish();
+                                            } else {
+                                                String errorMessage = (verifyTask.getException() != null)
+                                                        ? verifyTask.getException().getMessage()
+                                                        : "Failed to send verification email";
+                                                Toast.makeText(SignUpActivity.this,
+                                                        errorMessage,
+                                                        Toast.LENGTH_LONG).show();
+                                            }
+                                        });
                             }
                         } else {
                             String errorMessage = (task.getException() != null)
