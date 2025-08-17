@@ -2,10 +2,9 @@ package com.example.feedmatepetfeedersystem;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.view.MenuItem;
-import android.widget.Toast;
+import android.widget.TextView;
 
-import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
@@ -17,48 +16,50 @@ public class ProfileUserActivity extends AppCompatActivity {
     private FirebaseAuth mAuth;
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_profile_user); // 👈 use your profile XML file
+        setContentView(R.layout.activity_profile_user);
 
         mAuth = FirebaseAuth.getInstance();
         FirebaseUser currentUser = mAuth.getCurrentUser();
 
-        if (currentUser == null) {
-            // User not logged in, redirect to login
-            startActivity(new Intent(ProfileUserActivity.this, LoginActivity.class));
-            finish();
-            return;
+        TextView tvUserEmail = findViewById(R.id.tvUserEmail);
+        TextView tvUserName = findViewById(R.id.tvUserName);
+
+        if (currentUser != null) {
+            if (currentUser.getEmail() != null) {
+                tvUserEmail.setText(currentUser.getEmail());
+            }
+            if (currentUser.getDisplayName() != null && !currentUser.getDisplayName().isEmpty()) {
+                tvUserName.setText(currentUser.getDisplayName());
+            }
         }
 
-        // Bottom Navigation setup
         BottomNavigationView bottomNavigationView = findViewById(R.id.bottom_navigation);
-
-        // ✅ Highlight Profile by default
         bottomNavigationView.setSelectedItemId(R.id.nav_profile);
 
-        // Handle navigation clicks
-        bottomNavigationView.setOnItemSelectedListener(new BottomNavigationView.OnItemSelectedListener() {
-            @Override
-            public boolean onNavigationItemSelected(@NonNull MenuItem item) {
-                int itemId = item.getItemId();
+        bottomNavigationView.setOnItemSelectedListener(item -> {
+            int itemId = item.getItemId();
 
-                if (itemId == R.id.nav_home) {
-                    startActivity(new Intent(ProfileUserActivity.this, UserDashboardActivity.class));
-                    overridePendingTransition(0, 0);
-                    return true;
-                } else if (itemId == R.id.nav_profile) {
-                    // Already in Profile
-                    return true;
-                } else if (itemId == R.id.nav_logout) {
-                    mAuth.signOut();
-                    Toast.makeText(ProfileUserActivity.this, "Logged out", Toast.LENGTH_SHORT).show();
-                    startActivity(new Intent(ProfileUserActivity.this, LoginActivity.class));
-                    finish();
-                    return true;
-                }
-                return false;
+            if (itemId == R.id.nav_home) {
+                Intent intent = new Intent(ProfileUserActivity.this, UserDashboardActivity.class);
+                intent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
+                startActivity(intent);
+                overridePendingTransition(0, 0);
+                finish();
+                return true;
+            } else if (itemId == R.id.nav_profile) {
+                return true; // already here
+            } else if (itemId == R.id.nav_logout) {
+                mAuth.signOut();
+                Intent intent = new Intent(ProfileUserActivity.this, LoginActivity.class);
+                intent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
+                startActivity(intent);
+                overridePendingTransition(0, 0);
+                finish();
+                return true;
             }
+            return false;
         });
     }
 }

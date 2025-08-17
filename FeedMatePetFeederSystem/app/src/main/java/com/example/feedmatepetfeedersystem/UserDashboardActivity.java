@@ -34,27 +34,29 @@ public class UserDashboardActivity extends AppCompatActivity {
 
         // Bottom Navigation setup
         BottomNavigationView bottomNavigationView = findViewById(R.id.bottom_navigation);
-
-        // ✅ Highlight Home by default
         bottomNavigationView.setSelectedItemId(R.id.nav_home);
 
-        // Handle navigation clicks
         bottomNavigationView.setOnItemSelectedListener(new BottomNavigationView.OnItemSelectedListener() {
             @Override
             public boolean onNavigationItemSelected(@NonNull MenuItem item) {
                 int itemId = item.getItemId();
 
                 if (itemId == R.id.nav_home) {
-                    // Already in Home
-                    return true;
+                    return true; // already here
                 } else if (itemId == R.id.nav_profile) {
-                    startActivity(new Intent(UserDashboardActivity.this, ProfileUserActivity.class));
-                    overridePendingTransition(0, 0);
+                    Intent intent = new Intent(UserDashboardActivity.this, ProfileUserActivity.class);
+                    intent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
+                    startActivity(intent);
+                    overridePendingTransition(0, 0); // disable transition
+                    finish();
                     return true;
                 } else if (itemId == R.id.nav_logout) {
                     mAuth.signOut();
                     Toast.makeText(UserDashboardActivity.this, "Logged out", Toast.LENGTH_SHORT).show();
-                    startActivity(new Intent(UserDashboardActivity.this, LoginActivity.class));
+                    Intent intent = new Intent(UserDashboardActivity.this, LoginActivity.class);
+                    intent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
+                    startActivity(intent);
+                    overridePendingTransition(0, 0);
                     finish();
                     return true;
                 }
