@@ -41,7 +41,7 @@ public class SignUpActivity extends AppCompatActivity {
             String password = signupPassword.getText().toString().trim();
 
             if (email.isEmpty() || password.isEmpty()) {
-                Toast.makeText(SignUpActivity.this, "Fill all fields", Toast.LENGTH_SHORT).show();
+                Toast.makeText(SignUpActivity.this, "Please fill in email and password", Toast.LENGTH_SHORT).show();
                 return;
             }
 
