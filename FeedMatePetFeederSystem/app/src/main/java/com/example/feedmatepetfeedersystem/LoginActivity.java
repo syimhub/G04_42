@@ -15,6 +15,9 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException;
 import com.google.firebase.auth.FirebaseAuthInvalidUserException;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 
 public class LoginActivity extends AppCompatActivity {
 
@@ -35,20 +38,15 @@ public class LoginActivity extends AppCompatActivity {
 
         mAuth = FirebaseAuth.getInstance();
 
-        // Disable password & login until email is provided (enforces “enter email first”).
+        // Disable password & login until email is provided
         loginPassword.setEnabled(false);
         loginButton.setEnabled(false);
 
-        // Enable password only when email has text; enable login only when both have text.
+        // Enable password and login button dynamically
         loginEmail.addTextChangedListener(simpleWatcher(() -> {
             boolean hasEmail = !loginEmail.getText().toString().trim().isEmpty();
             loginPassword.setEnabled(hasEmail);
-            if (!hasEmail) {
-                loginPassword.setText("");
-                loginButton.setEnabled(false);
-            } else {
-                loginButton.setEnabled(!loginPassword.getText().toString().trim().isEmpty());
-            }
+            loginButton.setEnabled(hasEmail && !loginPassword.getText().toString().trim().isEmpty());
         }));
 
         loginPassword.addTextChangedListener(simpleWatcher(() -> {
@@ -84,17 +82,8 @@ public class LoginActivity extends AppCompatActivity {
             String email = loginEmail.getText().toString().trim();
             String password = loginPassword.getText().toString().trim();
 
-            // Validation per your rules
-            if (email.isEmpty() && password.isEmpty()) {
-                Toast.makeText(this, "Email and password is required", Toast.LENGTH_SHORT).show();
-                return;
-            }
-            if (email.isEmpty()) {
-                Toast.makeText(this, "Email and password is required", Toast.LENGTH_SHORT).show();
-                return;
-            }
-            if (password.isEmpty()) {
-                Toast.makeText(this, "Password is required", Toast.LENGTH_SHORT).show();
+            if (email.isEmpty() || password.isEmpty()) {
+                Toast.makeText(this, "Email and password are required", Toast.LENGTH_SHORT).show();
                 return;
             }
 
@@ -104,30 +93,53 @@ public class LoginActivity extends AppCompatActivity {
                             FirebaseUser user = mAuth.getCurrentUser();
                             if (user != null) {
 
-                                 if (!user.isEmailVerified()) {
-                                     Toast.makeText(this, "Please verify your email before logging in.", Toast.LENGTH_LONG).show();
-                                     mAuth.signOut();
-                                     return;
-                                 }
-                                Toast.makeText(this, "Login successful!", Toast.LENGTH_SHORT).show();
-                                startActivity(new Intent(this, UserDashboardActivity.class));
-                                finish();
+                                if (!user.isEmailVerified()) {
+                                    Toast.makeText(this, "Please verify your email before logging in.", Toast.LENGTH_LONG).show();
+                                    mAuth.signOut();
+                                    return;
+                                }
+
+                                // Get user info from Realtime Database
+                                FirebaseDatabase db = FirebaseDatabase.getInstance("https://feedmate-pet-feeder-system-default-rtdb.asia-southeast1.firebasedatabase.app/");
+                                DatabaseReference dbRef = db.getReference("users");
+                                String uid = user.getUid();
+
+                                dbRef.child(uid).get().addOnCompleteListener(dbTask -> {
+                                    if (dbTask.isSuccessful()) {
+                                        DataSnapshot snapshot = dbTask.getResult();
+                                        if (snapshot.exists()) {
+                                            User userProfile = snapshot.getValue(User.class);
+                                            if (userProfile != null) {
+                                                String role = userProfile.role;
+
+                                                Toast.makeText(this, "Login successful!", Toast.LENGTH_SHORT).show();
+
+                                                // Redirect based on role
+                                                if ("admin".equals(role)) {
+                                                    startActivity(new Intent(this, AdminDashboardActivity.class));
+                                                } else {
+                                                    startActivity(new Intent(this, UserDashboardActivity.class));
+                                                }
+                                                finish();
+                                            } else {
+                                                Toast.makeText(this, "Failed to read user info", Toast.LENGTH_SHORT).show();
+                                            }
+                                        } else {
+                                            Toast.makeText(this, "User info not found in database", Toast.LENGTH_SHORT).show();
+                                        }
+                                    } else {
+                                        Toast.makeText(this, "Failed to read user info: " +
+                                                        (dbTask.getException() != null ? dbTask.getException().getMessage() : "Unknown error"),
+                                                Toast.LENGTH_SHORT).show();
+                                    }
+                                });
                             }
                         } else {
-                            // Map Firebase exceptions to your required messages
                             Exception e = task.getException();
                             if (e instanceof FirebaseAuthInvalidUserException) {
-                                // Email not registered
-                                Toast.makeText(this, "Email does not exists", Toast.LENGTH_LONG).show();
+                                Toast.makeText(this, "Email does not exist", Toast.LENGTH_LONG).show();
                             } else if (e instanceof FirebaseAuthInvalidCredentialsException) {
-                                // Usually wrong password (or bad format). Check error code if needed.
-                                String code = ((FirebaseAuthInvalidCredentialsException) e).getErrorCode();
-                                if ("ERROR_WRONG_PASSWORD".equals(code)) {
-                                    Toast.makeText(this, "Wrong password", Toast.LENGTH_LONG).show();
-                                } else {
-                                    // Fallback for other credential errors
-                                    Toast.makeText(this, "Wrong password", Toast.LENGTH_LONG).show();
-                                }
+                                Toast.makeText(this, "Wrong password", Toast.LENGTH_LONG).show();
                             } else {
                                 Toast.makeText(this, "Login failed", Toast.LENGTH_LONG).show();
                             }
@@ -136,7 +148,6 @@ public class LoginActivity extends AppCompatActivity {
         });
     }
 
-    // Small helper to avoid verbose TextWatcher code
     private TextWatcher simpleWatcher(Runnable afterChange) {
         return new TextWatcher() {
             @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) {}

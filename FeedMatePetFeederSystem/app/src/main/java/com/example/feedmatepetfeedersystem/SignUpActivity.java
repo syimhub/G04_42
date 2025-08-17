@@ -11,6 +11,8 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 
 public class SignUpActivity extends AppCompatActivity {
 
@@ -35,7 +37,6 @@ public class SignUpActivity extends AppCompatActivity {
             finish();
         });
 
-        // Handle signup button click
         signupButton.setOnClickListener(v -> {
             String email = signupEmail.getText().toString().trim();
             String password = signupPassword.getText().toString().trim();
@@ -56,34 +57,48 @@ public class SignUpActivity extends AppCompatActivity {
                             FirebaseUser user = mAuth.getCurrentUser();
                             if (user != null) {
                                 // Send verification email
-                                user.sendEmailVerification()
-                                        .addOnCompleteListener(verifyTask -> {
-                                            if (verifyTask.isSuccessful()) {
-                                                Toast.makeText(SignUpActivity.this,
-                                                        "Signup successful! Please check your email to verify your account.",
-                                                        Toast.LENGTH_LONG).show();
+                                user.sendEmailVerification().addOnCompleteListener(verifyTask -> {
+                                    if (verifyTask.isSuccessful()) {
+                                        Toast.makeText(SignUpActivity.this,
+                                                "Signup successful! Please check your email to verify your account.",
+                                                Toast.LENGTH_LONG).show();
 
+                                        // Save user info to Realtime Database
+                                        FirebaseDatabase db = FirebaseDatabase.getInstance("https://feedmate-pet-feeder-system-default-rtdb.asia-southeast1.firebasedatabase.app/");
+                                        DatabaseReference dbRef = db.getReference("users");
+                                        String uid = user.getUid();
+                                        User userProfile = new User(user.getEmail(), "user"); // default role: user
+
+                                        dbRef.child(uid).setValue(userProfile).addOnCompleteListener(dbTask -> {
+                                            if (dbTask.isSuccessful()) {
+                                                Toast.makeText(SignUpActivity.this, "User saved successfully!", Toast.LENGTH_SHORT).show();
                                                 mAuth.signOut(); // Sign out until verified
                                                 startActivity(new Intent(SignUpActivity.this, LoginActivity.class));
                                                 finish();
                                             } else {
-                                                String errorMessage = (verifyTask.getException() != null)
-                                                        ? verifyTask.getException().getMessage()
-                                                        : "Failed to send verification email";
                                                 Toast.makeText(SignUpActivity.this,
-                                                        errorMessage,
+                                                        "Failed to save user info: " +
+                                                                (dbTask.getException() != null
+                                                                        ? dbTask.getException().getMessage()
+                                                                        : "Unknown error"),
                                                         Toast.LENGTH_LONG).show();
                                             }
                                         });
+
+                                    } else {
+                                        String errorMessage = (verifyTask.getException() != null)
+                                                ? verifyTask.getException().getMessage()
+                                                : "Failed to send verification email";
+                                        Toast.makeText(SignUpActivity.this, errorMessage, Toast.LENGTH_LONG).show();
+                                    }
+                                });
                             }
                         } else {
                             String errorMessage = (task.getException() != null)
                                     ? task.getException().getMessage()
                                     : "Unknown error occurred";
 
-                            Toast.makeText(SignUpActivity.this,
-                                    "Signup failed: " + errorMessage,
-                                    Toast.LENGTH_LONG).show();
+                            Toast.makeText(SignUpActivity.this, "Signup failed: " + errorMessage, Toast.LENGTH_LONG).show();
                         }
                     });
         });
