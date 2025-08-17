@@ -143,13 +143,14 @@ public class UserDashboardActivity extends AppCompatActivity {
     }
 
     private void sendFeedCommand() {
-        String url = "http://" + esp32Ip + "/position/0"; // Move to feeding position
+        // First move to feeding position (0 degrees)
+        String feedUrl = "http://" + esp32Ip + "/position/0";
 
-        Request request = new Request.Builder()
-                .url(url)
+        Request feedRequest = new Request.Builder()
+                .url(feedUrl)
                 .build();
 
-        httpClient.newCall(request).enqueue(new Callback() {
+        httpClient.newCall(feedRequest).enqueue(new Callback() {
             @Override
             public void onFailure(Call call, IOException e) {
                 runOnUiThread(() ->
@@ -160,10 +161,40 @@ public class UserDashboardActivity extends AppCompatActivity {
             }
 
             @Override
-            public void onResponse(Call call, Response response) {
-                runOnUiThread(() -> {
-                    // Update food levels after feeding
-                    updateFoodLevels();
+            public void onResponse(Call call, Response response) throws IOException {
+                // After feeding, wait a moment then return to home position
+                try {
+                    Thread.sleep(1500); // Wait 1.5 seconds for food to dispense
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+
+                // Now send command to return to home position (90 degrees)
+                String returnUrl = "http://" + esp32Ip + "/position/90";
+                Request returnRequest = new Request.Builder()
+                        .url(returnUrl)
+                        .build();
+
+                httpClient.newCall(returnRequest).enqueue(new Callback() {
+                    @Override
+                    public void onFailure(Call call, IOException e) {
+                        runOnUiThread(() ->
+                                Toast.makeText(UserDashboardActivity.this,
+                                        "Return failed: " + e.getMessage(),
+                                        Toast.LENGTH_SHORT).show()
+                        );
+                    }
+
+                    @Override
+                    public void onResponse(Call call, Response response) {
+                        runOnUiThread(() -> {
+                            // Update food levels after feeding
+                            updateFoodLevels();
+                            Toast.makeText(UserDashboardActivity.this,
+                                    "Feeding completed!",
+                                    Toast.LENGTH_SHORT).show();
+                        });
+                    }
                 });
             }
         });
