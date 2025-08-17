@@ -13,7 +13,7 @@
         android:layout_height="match_parent"
         android:orientation="vertical">
 
-        <!-- Profile Header with clickable image for changing photo -->
+        <!-- Profile Header -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -34,14 +34,14 @@
                     android:src="@drawable/ic_user_placeholder"
                     android:contentDescription="User Profile"
                     android:scaleType="centerCrop"
-                    android:background="@drawable/circle_background"
                     android:padding="4dp"/>
 
                 <ImageView
+                    android:id="@+id/btnEditPhoto"
                     android:layout_width="32dp"
                     android:layout_height="32dp"
-                    android:src="@drawable/ic_edit"
                     android:layout_gravity="bottom|end"
+                    android:src="@drawable/baseline_edit_24"
                     android:background="?attr/selectableItemBackgroundBorderless"
                     android:contentDescription="Edit photo"/>
             </FrameLayout>
@@ -122,7 +122,6 @@
                                 tools:text="Fluffy" />
                         </com.google.android.material.textfield.TextInputLayout>
 
-                        <!-- Similar improved TextInputLayouts for other pet fields -->
                         <com.google.android.material.textfield.TextInputLayout
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
@@ -180,7 +179,6 @@
                             android:textStyle="bold"
                             android:textColor="@color/teal_700" />
 
-                        <!-- Improved TextInputLayouts with better visual cues -->
                         <com.google.android.material.textfield.TextInputLayout
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
@@ -212,24 +210,33 @@
                                 android:inputType="textEmailAddress"
                                 tools:text="john.doe@example.com" />
                         </com.google.android.material.textfield.TextInputLayout>
+                    </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
 
-                        <com.google.android.material.textfield.TextInputLayout
+                <!-- Change Password Button Card -->
+                <com.google.android.material.card.MaterialCardView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="16dp"
+                    app:cardCornerRadius="12dp"
+                    app:cardElevation="2dp">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:padding="16dp">
+
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/btnChangePassword"
                             android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:layout_marginTop="12dp"
-                            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
-                            app:boxStrokeColor="@color/teal_700"
-                            app:passwordToggleEnabled="true"
-                            app:passwordToggleTint="@color/teal_700">
-
-                            <com.google.android.material.textfield.TextInputEditText
-                                android:id="@+id/editPassword"
-                                android:layout_width="match_parent"
-                                android:layout_height="wrap_content"
-                                android:hint="Password"
-                                android:inputType="textPassword"
-                                tools:text="••••••••" />
-                        </com.google.android.material.textfield.TextInputLayout>
+                            android:layout_height="48dp"
+                            android:text="Change Password"
+                            android:textColor="@android:color/white"
+                            app:backgroundTint="#FF5722"
+                            app:cornerRadius="8dp"
+                            app:icon="@drawable/baseline_lock_24"
+                            app:iconTint="@android:color/white"/>
                     </LinearLayout>
                 </com.google.android.material.card.MaterialCardView>
 
