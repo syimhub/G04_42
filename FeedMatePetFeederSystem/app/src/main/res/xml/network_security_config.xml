@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<network-security-config>
+    <!-- Allow cleartext for local ESP32 communication -->
+    <domain-config cleartextTrafficPermitted="true">
+        <domain includeSubdomains="true">10.114.113.127</domain> <!-- Your ESP32 IP -->
+    </domain-config>
+
+    <!-- Trust user-added certificates -->
+    <trust-anchors>
+        <certificates src="user" />
+    </trust-anchors>
+</network-security-config>

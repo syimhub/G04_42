@@ -28,7 +28,7 @@ public class UserDashboardActivity extends AppCompatActivity {
     private TextView tvNextFeedingTime;
     private OkHttpClient httpClient;
     private boolean isConnected = false;
-    private String esp32Ip = "192.168.1.100"; // Replace with your ESP32's IP
+    private String esp32Ip = "10.114.113.127";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
