@@ -42,7 +42,7 @@ public class LoginActivity extends AppCompatActivity {
         loginPassword.setEnabled(false);
         loginButton.setEnabled(false);
 
-        // Enable password and login button dynamically
+        // Enable password & login dynamically
         loginEmail.addTextChangedListener(simpleWatcher(() -> {
             boolean hasEmail = !loginEmail.getText().toString().trim().isEmpty();
             loginPassword.setEnabled(hasEmail);
@@ -128,9 +128,7 @@ public class LoginActivity extends AppCompatActivity {
                                             Toast.makeText(this, "User info not found in database", Toast.LENGTH_SHORT).show();
                                         }
                                     } else {
-                                        Toast.makeText(this, "Failed to read user info: " +
-                                                        (dbTask.getException() != null ? dbTask.getException().getMessage() : "Unknown error"),
-                                                Toast.LENGTH_SHORT).show();
+                                        Toast.makeText(this, "Failed to read user info", Toast.LENGTH_SHORT).show();
                                     }
                                 });
                             }
