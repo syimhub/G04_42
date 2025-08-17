@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -24,9 +25,17 @@ public class SignUpActivity extends AppCompatActivity {
         signupEmail = findViewById(R.id.signup_email);
         signupPassword = findViewById(R.id.signup_password);
         Button signupButton = findViewById(R.id.signup_button);
+        TextView loginRedirectText = findViewById(R.id.loginRedirectText); // 👈 Login redirect text
 
         mAuth = FirebaseAuth.getInstance();
 
+        // 🔹 Redirect to LoginActivity when user clicks "Already a user? Login"
+        loginRedirectText.setOnClickListener(v -> {
+            startActivity(new Intent(SignUpActivity.this, LoginActivity.class));
+            finish(); // close sign up screen so they don’t come back with back button
+        });
+
+        // 🔹 Handle signup button click
         signupButton.setOnClickListener(v -> {
             String email = signupEmail.getText().toString().trim();
             String password = signupPassword.getText().toString().trim();
@@ -36,12 +45,11 @@ public class SignUpActivity extends AppCompatActivity {
                 return;
             }
 
-            if (password.length() < 6) { // Firebase requires min 6 chars for password
+            if (password.length() < 6) { // Firebase requires min 6 chars
                 Toast.makeText(SignUpActivity.this, "Password must be at least 6 characters", Toast.LENGTH_SHORT).show();
                 return;
             }
 
-            // Create user in Firebase Authentication
             mAuth.createUserWithEmailAndPassword(email, password)
                     .addOnCompleteListener(task -> {
                         if (task.isSuccessful()) {

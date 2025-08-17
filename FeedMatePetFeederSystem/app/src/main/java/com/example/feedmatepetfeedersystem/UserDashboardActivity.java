@@ -1,24 +1,65 @@
 package com.example.feedmatepetfeedersystem;
 
+import android.content.Intent;
 import android.os.Bundle;
 
-import androidx.activity.EdgeToEdge;
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.graphics.Insets;
-import androidx.core.view.ViewCompat;
-import androidx.core.view.WindowInsetsCompat;
+
+import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+
+import android.view.MenuItem;
+import android.widget.Toast;
 
 public class UserDashboardActivity extends AppCompatActivity {
+
+    private FirebaseAuth mAuth;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        EdgeToEdge.enable(this);
         setContentView(R.layout.activity_user_dashboard);
-        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
-            Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
-            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
-            return insets;
+
+        mAuth = FirebaseAuth.getInstance();
+        FirebaseUser currentUser = mAuth.getCurrentUser();
+
+        if (currentUser == null) {
+            // User not logged in, redirect to LoginActivity
+            startActivity(new Intent(UserDashboardActivity.this, LoginActivity.class));
+            finish();
+            return;
+        }
+
+        // Bottom Navigation setup
+        BottomNavigationView bottomNavigationView = findViewById(R.id.bottom_navigation);
+
+        // ✅ Highlight Home by default
+        bottomNavigationView.setSelectedItemId(R.id.nav_home);
+
+        // Handle navigation clicks
+        bottomNavigationView.setOnItemSelectedListener(new BottomNavigationView.OnItemSelectedListener() {
+            @Override
+            public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+                int itemId = item.getItemId();
+
+                if (itemId == R.id.nav_home) {
+                    // Already in Home
+                    return true;
+                } else if (itemId == R.id.nav_profile) {
+                    startActivity(new Intent(UserDashboardActivity.this, ProfileUserActivity.class));
+                    overridePendingTransition(0, 0);
+                    return true;
+                } else if (itemId == R.id.nav_logout) {
+                    mAuth.signOut();
+                    Toast.makeText(UserDashboardActivity.this, "Logged out", Toast.LENGTH_SHORT).show();
+                    startActivity(new Intent(UserDashboardActivity.this, LoginActivity.class));
+                    finish();
+                    return true;
+                }
+                return false;
+            }
         });
     }
 }
