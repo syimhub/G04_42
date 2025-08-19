@@ -8,6 +8,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.widget.ImageView;
 
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -37,12 +38,15 @@ public class LoginActivity extends AppCompatActivity {
         TextView tvForgotPassword = findViewById(R.id.forgotPasswordText);
 
         mAuth = FirebaseAuth.getInstance();
+        ImageView topImage = findViewById(R.id.topImage);
+        topImage.setOnClickListener(v -> {
+            Intent intent = new Intent(LoginActivity.this, AdminLoginActivity.class);
+            startActivity(intent);
+        });
 
-        // Disable password & login until email is provided
         loginPassword.setEnabled(false);
         loginButton.setEnabled(false);
 
-        // Enable password & login dynamically
         loginEmail.addTextChangedListener(simpleWatcher(() -> {
             boolean hasEmail = !loginEmail.getText().toString().trim().isEmpty();
             loginPassword.setEnabled(hasEmail);
@@ -55,13 +59,11 @@ public class LoginActivity extends AppCompatActivity {
             loginButton.setEnabled(ready);
         }));
 
-        // Go to Sign Up
         tvSignupRedirect.setOnClickListener(v -> {
             startActivity(new Intent(LoginActivity.this, SignUpActivity.class));
             finish();
         });
 
-        // Forgot Password
         tvForgotPassword.setOnClickListener(v -> {
             String email = loginEmail.getText().toString().trim();
             if (email.isEmpty()) {
@@ -77,7 +79,6 @@ public class LoginActivity extends AppCompatActivity {
             });
         });
 
-        // Login
         loginButton.setOnClickListener(v -> {
             String email = loginEmail.getText().toString().trim();
             String password = loginPassword.getText().toString().trim();
@@ -99,7 +100,6 @@ public class LoginActivity extends AppCompatActivity {
                                     return;
                                 }
 
-                                // Get user info from Realtime Database
                                 FirebaseDatabase db = FirebaseDatabase.getInstance("https://feedmate-pet-feeder-system-default-rtdb.asia-southeast1.firebasedatabase.app/");
                                 DatabaseReference dbRef = db.getReference("users");
                                 String uid = user.getUid();
@@ -112,14 +112,14 @@ public class LoginActivity extends AppCompatActivity {
                                             if (userProfile != null) {
                                                 String role = userProfile.role;
 
-                                                Toast.makeText(this, "Login successful!", Toast.LENGTH_SHORT).show();
-
-                                                // Redirect based on role
                                                 if ("admin".equals(role)) {
-                                                    startActivity(new Intent(this, AdminDashboardActivity.class));
-                                                } else {
-                                                    startActivity(new Intent(this, UserDashboardActivity.class));
+                                                    Toast.makeText(this, "Admins must use the admin login page.", Toast.LENGTH_LONG).show();
+                                                    mAuth.signOut();
+                                                    return;
                                                 }
+
+                                                Toast.makeText(this, "Login successful!", Toast.LENGTH_SHORT).show();
+                                                startActivity(new Intent(this, UserDashboardActivity.class));
                                                 finish();
                                             } else {
                                                 Toast.makeText(this, "Failed to read user info", Toast.LENGTH_SHORT).show();
