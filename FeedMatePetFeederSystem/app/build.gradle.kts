@@ -45,8 +45,12 @@ dependencies {
     androidTestImplementation(libs.espresso.core)
     implementation(libs.material)
 
+    implementation(libs.glide)
+    annotationProcessor(libs.glideCompiler)
+
     implementation(platform(libs.firebase.bom)) // Ensure firebase library use compatible versions
     implementation(libs.firebase.auth)       // For login & signup
     implementation(libs.firebase.database)  // If you want to store feeding schedules/logs
+    implementation(libs.firebase.storage)
 
 }

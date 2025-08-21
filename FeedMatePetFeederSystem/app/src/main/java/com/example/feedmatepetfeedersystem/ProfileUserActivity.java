@@ -1,10 +1,14 @@
 package com.example.feedmatepetfeedersystem;
 
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.net.Uri;
 import android.os.Bundle;
+import android.provider.MediaStore;
 import android.util.Log;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -12,6 +16,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.bumptech.glide.Glide;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.textfield.TextInputLayout;
 import com.google.firebase.auth.FirebaseAuth;
@@ -21,23 +26,30 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
 public class ProfileUserActivity extends AppCompatActivity {
 
     private static final String TAG = "ProfileUserActivity";
-
-    // ✅ Use your full database URL (copy from console > Data tab)
     private static final String DB_URL =
             "https://feedmate-pet-feeder-system-default-rtdb.asia-southeast1.firebasedatabase.app/";
 
     private FirebaseAuth mAuth;
     private DatabaseReference userRef;
+    private StorageReference storageRef;
 
     private EditText editPetName, editPetAge, editPetBreed, editFullName, editEmail;
     private TextView tvUserName, tvUserEmail;
+    private ImageView imgUser, btnEditPhoto;
+
+    private Uri selectedImageUri;
+    private static final int PICK_IMAGE_REQUEST = 1001;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -53,13 +65,15 @@ public class ProfileUserActivity extends AppCompatActivity {
             return;
         }
 
-
         FirebaseDatabase db = FirebaseDatabase.getInstance(DB_URL);
         userRef = db.getReference("users").child(currentUser.getUid());
+        storageRef = FirebaseStorage.getInstance().getReference("profileImages");
 
-        // UI references
+        // UI
         tvUserName = findViewById(R.id.tvUserName);
         tvUserEmail = findViewById(R.id.tvUserEmail);
+        imgUser = findViewById(R.id.imgUser);
+        btnEditPhoto = findViewById(R.id.btnEditPhoto);
 
         TextInputLayout petNameLayout = findViewById(R.id.petNameLayout);
         TextInputLayout petAgeLayout = findViewById(R.id.petAgeLayout);
@@ -72,18 +86,19 @@ public class ProfileUserActivity extends AppCompatActivity {
         editFullName = findViewById(R.id.editName);
         editEmail = findViewById(R.id.editEmail);
 
-        // Display email in header
+        // Show email
         if (currentUser.getEmail() != null) {
             tvUserEmail.setText(currentUser.getEmail());
             editEmail.setText(currentUser.getEmail());
         }
 
-        // Enable edit on pencil click
+        // Pencil icons
         petNameLayout.setEndIconOnClickListener(v -> enableEditing(editPetName));
         petAgeLayout.setEndIconOnClickListener(v -> enableEditing(editPetAge));
         petBreedLayout.setEndIconOnClickListener(v -> enableEditing(editPetBreed));
         fullNameLayout.setEndIconOnClickListener(v -> enableEditing(editFullName));
 
+        // Load user info
         userRef.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
@@ -93,18 +108,17 @@ public class ProfileUserActivity extends AppCompatActivity {
                 if (!snapshot.hasChild("petAge")) updates.put("petAge", "");
                 if (!snapshot.hasChild("petBreed")) updates.put("petBreed", "");
                 if (!snapshot.hasChild("fullName")) updates.put("fullName", "");
-                if (!snapshot.hasChild("role")) updates.put("role", "user"); // keep role
+                if (!snapshot.hasChild("role")) updates.put("role", "user");
                 if (!snapshot.hasChild("email")) updates.put("email", mAuth.getCurrentUser().getEmail());
 
-                if (!updates.isEmpty()) {
-                    userRef.updateChildren(updates);
-                }
+                if (!updates.isEmpty()) userRef.updateChildren(updates);
 
-                // 🔹 Now load into fields
+                // Load fields
                 String petName = snapshot.child("petName").getValue(String.class);
                 String petAge = snapshot.child("petAge").getValue(String.class);
                 String petBreed = snapshot.child("petBreed").getValue(String.class);
                 String fullName = snapshot.child("fullName").getValue(String.class);
+                String profileUrl = snapshot.child("profileImageUrl").getValue(String.class);
 
                 if (petName != null) editPetName.setText(petName);
                 if (petAge != null) editPetAge.setText(petAge);
@@ -112,6 +126,17 @@ public class ProfileUserActivity extends AppCompatActivity {
                 if (fullName != null) {
                     editFullName.setText(fullName);
                     tvUserName.setText(fullName);
+                }
+
+                // Profile picture with fallback
+                if (profileUrl != null && !profileUrl.isEmpty()) {
+                    Glide.with(ProfileUserActivity.this)
+                            .load(profileUrl)
+                            .placeholder(R.drawable.ic_user_placeholder)
+                            .error(R.drawable.ic_user_placeholder)
+                            .into(imgUser);
+                } else {
+                    imgUser.setImageResource(R.drawable.ic_user_placeholder);
                 }
             }
 
@@ -124,8 +149,7 @@ public class ProfileUserActivity extends AppCompatActivity {
             }
         });
 
-
-        // ✅ Save changes
+        // Save button
         findViewById(R.id.btnSave).setOnClickListener(v -> {
             String petName = editPetName.getText().toString().trim();
             String petAge = editPetAge.getText().toString().trim();
@@ -150,7 +174,10 @@ public class ProfileUserActivity extends AppCompatActivity {
                     });
         });
 
-        // Bottom navigation
+        // Profile picture change
+        btnEditPhoto.setOnClickListener(v -> openImageChooser());
+
+        // Bottom nav
         BottomNavigationView bottomNavigationView = findViewById(R.id.bottom_navigation);
         bottomNavigationView.setSelectedItemId(R.id.nav_profile);
         bottomNavigationView.setOnItemSelectedListener(item -> {
@@ -158,6 +185,7 @@ public class ProfileUserActivity extends AppCompatActivity {
             if (id == R.id.nav_home) {
                 startActivity(new Intent(this, UserDashboardActivity.class));
                 finish();
+                overridePendingTransition(0, 0);
                 return true;
             } else if (id == R.id.nav_profile) {
                 return true;
@@ -165,17 +193,71 @@ public class ProfileUserActivity extends AppCompatActivity {
                 mAuth.signOut();
                 startActivity(new Intent(this, LoginActivity.class));
                 finish();
+                overridePendingTransition(0, 0);
                 return true;
             }
             return false;
         });
     }
 
+    // Enable editing text
     private void enableEditing(EditText et) {
         et.setEnabled(true);
         et.requestFocus();
         et.setSelection(et.getText().length());
         InputMethodManager imm = (InputMethodManager) getSystemService(INPUT_METHOD_SERVICE);
         if (imm != null) imm.showSoftInput(et, InputMethodManager.SHOW_IMPLICIT);
+    }
+
+    // Image chooser
+    private void openImageChooser() {
+        Intent intent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+        intent.setType("image/*");
+        startActivityForResult(Intent.createChooser(intent, "Select Picture"), PICK_IMAGE_REQUEST);
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == PICK_IMAGE_REQUEST && resultCode == RESULT_OK && data != null && data.getData() != null) {
+            selectedImageUri = data.getData();
+
+            String fileType = getContentResolver().getType(selectedImageUri);
+            if (fileType != null && (fileType.equals("image/jpeg") || fileType.equals("image/png"))) {
+                uploadProfileImage(selectedImageUri);
+            } else {
+                Toast.makeText(this, "Wrong picture format", Toast.LENGTH_SHORT).show();
+            }
+        }
+    }
+
+    private void uploadProfileImage(Uri imageUri) {
+        try {
+            // Resize & compress
+            Bitmap bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), imageUri);
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            bitmap.compress(Bitmap.CompressFormat.JPEG, 70, baos); // 70% quality
+            byte[] imageData = baos.toByteArray();
+
+            StorageReference fileRef = storageRef.child(mAuth.getCurrentUser().getUid() + ".jpg");
+            fileRef.putBytes(imageData)
+                    .addOnSuccessListener(taskSnapshot -> fileRef.getDownloadUrl().addOnSuccessListener(downloadUrl -> {
+                        userRef.child("profileImageUrl").setValue(downloadUrl.toString());
+                        Glide.with(ProfileUserActivity.this)
+                                .load(downloadUrl)
+                                .placeholder(R.drawable.ic_user_placeholder)
+                                .error(R.drawable.ic_user_placeholder)
+                                .into(imgUser);
+                        Toast.makeText(this, "Successfully changed", Toast.LENGTH_SHORT).show();
+                    }))
+                    .addOnFailureListener(e -> {
+                        Toast.makeText(this, "Upload failed: " + e.getMessage(), Toast.LENGTH_LONG).show();
+                        Log.e(TAG, "Upload failed", e);
+                    });
+
+        } catch (IOException e) {
+            e.printStackTrace();
+            Toast.makeText(this, "Image processing failed", Toast.LENGTH_LONG).show();
+        }
     }
 }
