@@ -1,11 +1,15 @@
 package com.example.feedmatepetfeedersystem;
 
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.util.Log;
+import android.view.MotionEvent;
+import android.view.View;
+import android.graphics.Rect;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -26,10 +30,7 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
-import com.google.firebase.storage.FirebaseStorage;
-import com.google.firebase.storage.StorageReference;
 
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
@@ -42,11 +43,10 @@ public class ProfileUserActivity extends AppCompatActivity {
 
     private FirebaseAuth mAuth;
     private DatabaseReference userRef;
-    private StorageReference storageRef;
 
     private EditText editPetName, editPetAge, editPetBreed, editFullName, editEmail;
     private TextView tvUserName, tvUserEmail;
-    private ImageView imgUser, btnEditPhoto;
+    private ImageView imgUser;
 
     private Uri selectedImageUri;
     private static final int PICK_IMAGE_REQUEST = 1001;
@@ -67,13 +67,11 @@ public class ProfileUserActivity extends AppCompatActivity {
 
         FirebaseDatabase db = FirebaseDatabase.getInstance(DB_URL);
         userRef = db.getReference("users").child(currentUser.getUid());
-        storageRef = FirebaseStorage.getInstance().getReference("profileImages");
 
         // UI
         tvUserName = findViewById(R.id.tvUserName);
         tvUserEmail = findViewById(R.id.tvUserEmail);
         imgUser = findViewById(R.id.imgUser);
-        btnEditPhoto = findViewById(R.id.btnEditPhoto);
 
         TextInputLayout petNameLayout = findViewById(R.id.petNameLayout);
         TextInputLayout petAgeLayout = findViewById(R.id.petAgeLayout);
@@ -118,7 +116,7 @@ public class ProfileUserActivity extends AppCompatActivity {
                 String petAge = snapshot.child("petAge").getValue(String.class);
                 String petBreed = snapshot.child("petBreed").getValue(String.class);
                 String fullName = snapshot.child("fullName").getValue(String.class);
-                String profileUrl = snapshot.child("profileImageUrl").getValue(String.class);
+                String profileBase64 = snapshot.child("profileImageBase64").getValue(String.class);
 
                 if (petName != null) editPetName.setText(petName);
                 if (petAge != null) editPetAge.setText(petAge);
@@ -128,13 +126,15 @@ public class ProfileUserActivity extends AppCompatActivity {
                     tvUserName.setText(fullName);
                 }
 
-                // Profile picture with fallback
-                if (profileUrl != null && !profileUrl.isEmpty()) {
-                    Glide.with(ProfileUserActivity.this)
-                            .load(profileUrl)
-                            .placeholder(R.drawable.ic_user_placeholder)
-                            .error(R.drawable.ic_user_placeholder)
-                            .into(imgUser);
+                // Profile picture (stored as Base64)
+                if (profileBase64 != null && !profileBase64.isEmpty()) {
+                    try {
+                        byte[] decoded = android.util.Base64.decode(profileBase64, android.util.Base64.DEFAULT);
+                        Bitmap bitmap = android.graphics.BitmapFactory.decodeByteArray(decoded, 0, decoded.length);
+                        imgUser.setImageBitmap(bitmap);
+                    } catch (Exception e) {
+                        imgUser.setImageResource(R.drawable.ic_user_placeholder);
+                    }
                 } else {
                     imgUser.setImageResource(R.drawable.ic_user_placeholder);
                 }
@@ -174,8 +174,8 @@ public class ProfileUserActivity extends AppCompatActivity {
                     });
         });
 
-        // Profile picture change
-        btnEditPhoto.setOnClickListener(v -> openImageChooser());
+        // Profile picture change (click image directly)
+        imgUser.setOnClickListener(v -> openImageChooser());
 
         // Bottom nav
         BottomNavigationView bottomNavigationView = findViewById(R.id.bottom_navigation);
@@ -209,6 +209,29 @@ public class ProfileUserActivity extends AppCompatActivity {
         if (imm != null) imm.showSoftInput(et, InputMethodManager.SHOW_IMPLICIT);
     }
 
+    // Tap outside → disable editing
+    @Override
+    public boolean dispatchTouchEvent(MotionEvent ev) {
+        if (ev.getAction() == MotionEvent.ACTION_DOWN) {
+            View v = getCurrentFocus();
+            if (v instanceof EditText) {
+                Rect outRect = new Rect();
+                v.getGlobalVisibleRect(outRect);
+                if (!outRect.contains((int) ev.getRawX(), (int) ev.getRawY())) {
+                    // Hide keyboard
+                    InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+                    if (imm != null) {
+                        imm.hideSoftInputFromWindow(v.getWindowToken(), 0);
+                    }
+                    // Clear focus and disable editing again
+                    v.clearFocus();
+                    v.setEnabled(false);
+                }
+            }
+        }
+        return super.dispatchTouchEvent(ev);
+    }
+
     // Image chooser
     private void openImageChooser() {
         Intent intent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
@@ -224,32 +247,27 @@ public class ProfileUserActivity extends AppCompatActivity {
 
             String fileType = getContentResolver().getType(selectedImageUri);
             if (fileType != null && (fileType.equals("image/jpeg") || fileType.equals("image/png"))) {
-                uploadProfileImage(selectedImageUri);
+                saveImageAsBase64(selectedImageUri);
             } else {
                 Toast.makeText(this, "Wrong picture format", Toast.LENGTH_SHORT).show();
             }
         }
     }
 
-    private void uploadProfileImage(Uri imageUri) {
+    // Save as Base64 into Realtime DB
+    private void saveImageAsBase64(Uri imageUri) {
         try {
-            // Resize & compress
             Bitmap bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), imageUri);
-            ByteArrayOutputStream baos = new ByteArrayOutputStream();
-            bitmap.compress(Bitmap.CompressFormat.JPEG, 70, baos); // 70% quality
-            byte[] imageData = baos.toByteArray();
+            java.io.ByteArrayOutputStream baos = new java.io.ByteArrayOutputStream();
+            bitmap.compress(Bitmap.CompressFormat.JPEG, 70, baos);
+            byte[] imageBytes = baos.toByteArray();
+            String encodedImage = android.util.Base64.encodeToString(imageBytes, android.util.Base64.DEFAULT);
 
-            StorageReference fileRef = storageRef.child(mAuth.getCurrentUser().getUid() + ".jpg");
-            fileRef.putBytes(imageData)
-                    .addOnSuccessListener(taskSnapshot -> fileRef.getDownloadUrl().addOnSuccessListener(downloadUrl -> {
-                        userRef.child("profileImageUrl").setValue(downloadUrl.toString());
-                        Glide.with(ProfileUserActivity.this)
-                                .load(downloadUrl)
-                                .placeholder(R.drawable.ic_user_placeholder)
-                                .error(R.drawable.ic_user_placeholder)
-                                .into(imgUser);
+            userRef.child("profileImageBase64").setValue(encodedImage)
+                    .addOnSuccessListener(unused -> {
+                        imgUser.setImageBitmap(bitmap);
                         Toast.makeText(this, "Successfully changed", Toast.LENGTH_SHORT).show();
-                    }))
+                    })
                     .addOnFailureListener(e -> {
                         Toast.makeText(this, "Upload failed: " + e.getMessage(), Toast.LENGTH_LONG).show();
                         Log.e(TAG, "Upload failed", e);
