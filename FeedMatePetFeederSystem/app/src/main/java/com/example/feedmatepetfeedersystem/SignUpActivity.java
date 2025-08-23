@@ -1,7 +1,10 @@
 package com.example.feedmatepetfeedersystem;
 
+import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.os.Bundle;
+import android.text.InputType;
+import android.view.MotionEvent;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
@@ -18,7 +21,9 @@ public class SignUpActivity extends AppCompatActivity {
 
     private EditText signupEmail, signupPassword;
     private FirebaseAuth mAuth;
+    private boolean isPasswordVisible = false; // track password visibility
 
+    @SuppressLint("ClickableViewAccessibility")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -31,18 +36,56 @@ public class SignUpActivity extends AppCompatActivity {
 
         mAuth = FirebaseAuth.getInstance();
 
-        // Redirect to login when clicking "Already a user? Login"
+        // 🔹 Handle eye icon toggle inside password field
+        signupPassword.setOnTouchListener((v, event) -> {
+            final int DRAWABLE_RIGHT = 2; // right drawable index
+            if (event.getAction() == MotionEvent.ACTION_UP) {
+                if (event.getRawX() >= (signupPassword.getRight()
+                        - signupPassword.getCompoundDrawables()[DRAWABLE_RIGHT].getBounds().width())) {
+
+                    if (isPasswordVisible) {
+                        // Hide password
+                        signupPassword.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
+                        signupPassword.setCompoundDrawablesWithIntrinsicBounds(
+                                R.drawable.baseline_lock_24, 0, R.drawable.ic_eye_closed, 0);
+                        isPasswordVisible = false;
+                    } else {
+                        // Show password
+                        signupPassword.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD);
+                        signupPassword.setCompoundDrawablesWithIntrinsicBounds(
+                                R.drawable.baseline_lock_24, 0, R.drawable.ic_eye_open, 0);
+                        isPasswordVisible = true;
+                    }
+                    signupPassword.setSelection(signupPassword.getText().length()); // keep cursor at end
+                    return true;
+                }
+            }
+            return false;
+        });
+
+        // 🔹 Redirect to login
         loginRedirectText.setOnClickListener(v -> {
             startActivity(new Intent(SignUpActivity.this, LoginActivity.class));
             finish();
         });
 
+        // 🔹 Signup button logic
         signupButton.setOnClickListener(v -> {
             String email = signupEmail.getText().toString().trim();
             String password = signupPassword.getText().toString().trim();
 
-            if (email.isEmpty() || password.isEmpty()) {
-                Toast.makeText(SignUpActivity.this, "Please fill in email and password", Toast.LENGTH_SHORT).show();
+            if (email.isEmpty() && password.isEmpty()) {
+                Toast.makeText(SignUpActivity.this, "Please fill in all fields", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+            if (email.isEmpty()) {
+                Toast.makeText(SignUpActivity.this, "An email is required", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+            if (password.isEmpty()) {
+                Toast.makeText(SignUpActivity.this, "A password is required", Toast.LENGTH_SHORT).show();
                 return;
             }
 
@@ -64,14 +107,16 @@ public class SignUpActivity extends AppCompatActivity {
                                                 Toast.LENGTH_LONG).show();
 
                                         // Save user info to Realtime Database
-                                        FirebaseDatabase db = FirebaseDatabase.getInstance("https://feedmate-pet-feeder-system-default-rtdb.asia-southeast1.firebasedatabase.app/");
+                                        FirebaseDatabase db = FirebaseDatabase.getInstance(
+                                                "https://feedmate-pet-feeder-system-default-rtdb.asia-southeast1.firebasedatabase.app/");
                                         DatabaseReference dbRef = db.getReference("users");
                                         String uid = user.getUid();
                                         User userProfile = new User(user.getEmail(), "user"); // default role: user
 
                                         dbRef.child(uid).setValue(userProfile).addOnCompleteListener(dbTask -> {
                                             if (dbTask.isSuccessful()) {
-                                                Toast.makeText(SignUpActivity.this, "User saved successfully!", Toast.LENGTH_SHORT).show();
+                                                Toast.makeText(SignUpActivity.this,
+                                                        "User saved successfully!", Toast.LENGTH_SHORT).show();
                                                 mAuth.signOut(); // Sign out until verified
                                                 startActivity(new Intent(SignUpActivity.this, LoginActivity.class));
                                                 finish();
