@@ -27,25 +27,22 @@
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="8dp">
 
-                <ImageView
+                <!-- Circular Profile Image (clickable) -->
+                <com.google.android.material.imageview.ShapeableImageView
                     android:id="@+id/imgAdmin"
                     android:layout_width="120dp"
                     android:layout_height="120dp"
                     android:src="@drawable/ic_user_placeholder"
                     android:contentDescription="Admin Profile"
                     android:scaleType="centerCrop"
-                    android:padding="4dp"/>
-
-                <ImageView
-                    android:id="@+id/btnEditAdminPhoto"
-                    android:layout_width="32dp"
-                    android:layout_height="32dp"
-                    android:layout_gravity="bottom|end"
-                    android:src="@drawable/baseline_edit_24"
-                    android:background="?attr/selectableItemBackgroundBorderless"
-                    android:contentDescription="Edit photo"/>
+                    android:clickable="true"
+                    android:focusable="true"
+                    app:shapeAppearanceOverlay="@style/CircleImage"
+                    app:strokeWidth="2dp"
+                    app:strokeColor="@color/teal_700" />
             </FrameLayout>
 
+            <!-- Name & Email -->
             <TextView
                 android:id="@+id/tvAdminName"
                 android:layout_width="wrap_content"
@@ -54,7 +51,7 @@
                 android:textSize="22sp"
                 android:textStyle="bold"
                 android:textColor="#333"
-                tools:text="Admin One" />
+                tools:text="Admin Doe" />
 
             <TextView
                 android:id="@+id/tvAdminEmail"
@@ -63,10 +60,10 @@
                 android:text="admin@email.com"
                 android:textSize="14sp"
                 android:textColor="#777"
-                tools:text="admin@example.com" />
+                tools:text="admin@email.com" />
         </LinearLayout>
 
-        <!-- Scrollable Content -->
+        <!-- Scrollable content -->
         <androidx.core.widget.NestedScrollView
             android:layout_width="match_parent"
             android:layout_height="0dp"
@@ -81,7 +78,7 @@
                 android:orientation="vertical"
                 android:paddingBottom="72dp">
 
-                <!-- Admin Account Information -->
+                <!-- Account Information Card -->
                 <com.google.android.material.card.MaterialCardView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -100,108 +97,76 @@
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="Admin Information"
+                            android:text="Account Information"
                             android:textSize="18sp"
                             android:textStyle="bold"
                             android:textColor="@color/teal_700" />
 
+                        <!-- Full Name -->
                         <com.google.android.material.textfield.TextInputLayout
+                            android:id="@+id/fullNameLayout"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:layout_marginTop="12dp"
                             style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
-                            app:boxStrokeColor="@color/teal_700">
+                            app:endIconMode="custom"
+                            app:endIconDrawable="@drawable/baseline_edit_24"
+                            app:endIconTint="@color/teal_700">
 
                             <com.google.android.material.textfield.TextInputEditText
                                 android:id="@+id/editAdminName"
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
                                 android:hint="Full Name"
-                                android:textSize="16sp"
-                                tools:text="Admin One" />
+                                android:enabled="false"
+                                tools:text="Admin Doe" />
                         </com.google.android.material.textfield.TextInputLayout>
 
+                        <!-- Email (read-only) -->
                         <com.google.android.material.textfield.TextInputLayout
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:layout_marginTop="12dp"
-                            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
-                            app:boxStrokeColor="@color/teal_700">
+                            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
 
                             <com.google.android.material.textfield.TextInputEditText
                                 android:id="@+id/editAdminEmail"
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
                                 android:hint="Email"
+                                android:enabled="false"
                                 android:inputType="textEmailAddress"
-                                tools:text="admin@example.com" />
+                                tools:text="admin@email.com" />
                         </com.google.android.material.textfield.TextInputLayout>
-                    </LinearLayout>
-                </com.google.android.material.card.MaterialCardView>
 
-                <!-- Change Password Button -->
-                <com.google.android.material.card.MaterialCardView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginBottom="16dp"
-                    app:cardCornerRadius="12dp"
-                    app:cardElevation="2dp">
-
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:orientation="vertical"
-                        android:padding="16dp">
-
+                        <!-- Change Password Button -->
                         <com.google.android.material.button.MaterialButton
-                            android:id="@+id/btnAdminChangePassword"
+                            android:id="@+id/btnChangePassword"
                             android:layout_width="match_parent"
                             android:layout_height="48dp"
+                            android:layout_marginTop="12dp"
                             android:text="Change Password"
                             android:textColor="@android:color/white"
-                            app:backgroundTint="#FF5722"
-                            app:cornerRadius="8dp"
-                            app:icon="@drawable/baseline_lock_24"
-                            app:iconTint="@android:color/white"/>
+                            app:backgroundTint="@color/teal_700"
+                            app:cornerRadius="24dp"/>
                     </LinearLayout>
                 </com.google.android.material.card.MaterialCardView>
 
-                <!-- Action Buttons -->
-                <LinearLayout
+                <!-- Save Button -->
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnSave"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:layout_marginTop="8dp">
-
-                    <com.google.android.material.button.MaterialButton
-                        android:id="@+id/btnAdminUploadImage"
-                        android:layout_width="0dp"
-                        android:layout_height="48dp"
-                        android:layout_weight="1"
-                        android:text="Change Photo"
-                        android:textColor="@color/teal_700"
-                        android:layout_marginEnd="4dp"
-                        app:cornerRadius="24dp"
-                        app:strokeColor="@color/teal_700"
-                        app:strokeWidth="1dp"
-                        style="@style/Widget.MaterialComponents.Button.OutlinedButton" />
-
-                    <com.google.android.material.button.MaterialButton
-                        android:id="@+id/btnAdminSave"
-                        android:layout_width="0dp"
-                        android:layout_height="48dp"
-                        android:layout_weight="1"
-                        android:text="Save Changes"
-                        android:textColor="@android:color/white"
-                        android:layout_marginStart="4dp"
-                        app:backgroundTint="@color/orange"
-                        app:cornerRadius="24dp" />
-                </LinearLayout>
+                    android:layout_height="48dp"
+                    android:text="Save Changes"
+                    android:textColor="@android:color/white"
+                    android:layout_marginTop="12dp"
+                    app:backgroundTint="@color/orange"
+                    app:cornerRadius="24dp" />
             </LinearLayout>
         </androidx.core.widget.NestedScrollView>
     </LinearLayout>
 
-    <!-- Bottom Navigation -->
+    <!-- Bottom Navigation for Admin -->
     <com.google.android.material.bottomnavigation.BottomNavigationView
         android:id="@+id/bottom_navigation_admin"
         android:layout_width="match_parent"

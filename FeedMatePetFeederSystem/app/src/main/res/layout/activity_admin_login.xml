@@ -74,6 +74,16 @@
                     android:textColor="@color/black"
                     android:inputType="textPassword"/>
 
+                <TextView
+                    android:id="@+id/admin_forgot_password"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Forgot Password?"
+                    android:textColor="@color/teal_700"
+                    android:textStyle="bold"
+                    android:layout_marginTop="12dp"
+                    android:layout_gravity="end"/>
+
                 <Button
                     android:id="@+id/admin_login_button"
                     android:layout_width="match_parent"

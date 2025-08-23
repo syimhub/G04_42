@@ -3,13 +3,13 @@ package com.example.feedmatepetfeedersystem;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.graphics.Rect;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
-import android.graphics.Rect;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -20,7 +20,6 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.bumptech.glide.Glide;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.textfield.TextInputLayout;
 import com.google.firebase.auth.FirebaseAuth;
@@ -174,7 +173,24 @@ public class ProfileUserActivity extends AppCompatActivity {
                     });
         });
 
-        // Profile picture change (click image directly)
+        // 🔑 Change Password button
+        findViewById(R.id.btnChangePassword).setOnClickListener(v -> {
+            if (currentUser.getEmail() != null) {
+                mAuth.sendPasswordResetEmail(currentUser.getEmail())
+                        .addOnSuccessListener(unused ->
+                                Toast.makeText(this,
+                                        "Password reset email sent to " + currentUser.getEmail(),
+                                        Toast.LENGTH_LONG).show())
+                        .addOnFailureListener(e ->
+                                Toast.makeText(this,
+                                        "Failed to send reset email: " + e.getMessage(),
+                                        Toast.LENGTH_LONG).show());
+            } else {
+                Toast.makeText(this, "No email linked to account", Toast.LENGTH_SHORT).show();
+            }
+        });
+
+        // Profile picture change
         imgUser.setOnClickListener(v -> openImageChooser());
 
         // Bottom nav
@@ -218,12 +234,10 @@ public class ProfileUserActivity extends AppCompatActivity {
                 Rect outRect = new Rect();
                 v.getGlobalVisibleRect(outRect);
                 if (!outRect.contains((int) ev.getRawX(), (int) ev.getRawY())) {
-                    // Hide keyboard
                     InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
                     if (imm != null) {
                         imm.hideSoftInputFromWindow(v.getWindowToken(), 0);
                     }
-                    // Clear focus and disable editing again
                     v.clearFocus();
                     v.setEnabled(false);
                 }
@@ -254,7 +268,7 @@ public class ProfileUserActivity extends AppCompatActivity {
         }
     }
 
-    // Save as Base64 into Realtime DB
+    // Save as Base64
     private void saveImageAsBase64(Uri imageUri) {
         try {
             Bitmap bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), imageUri);
