@@ -1,15 +1,17 @@
 package com.example.feedmatepetfeedersystem;
 
+import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.os.Bundle;
-import android.text.Editable;
-import android.text.TextWatcher;
+import android.text.InputType;
+import android.view.MotionEvent;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
-import android.widget.ImageView;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.firebase.auth.FirebaseAuth;
@@ -17,15 +19,18 @@ import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException;
 import com.google.firebase.auth.FirebaseAuthInvalidUserException;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
 public class LoginActivity extends AppCompatActivity {
 
     private EditText loginEmail, loginPassword;
-    private Button loginButton;
     private FirebaseAuth mAuth;
+    private boolean isPasswordVisible = false;
 
+    @SuppressLint("ClickableViewAccessibility")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -33,124 +38,149 @@ public class LoginActivity extends AppCompatActivity {
 
         loginEmail = findViewById(R.id.login_email);
         loginPassword = findViewById(R.id.login_password);
-        loginButton = findViewById(R.id.login_button);
-        TextView tvSignupRedirect = findViewById(R.id.signupRedirectText);
-        TextView tvForgotPassword = findViewById(R.id.forgotPasswordText);
+        Button loginButton = findViewById(R.id.login_button);
+        TextView signupRedirectText = findViewById(R.id.signupRedirectText);
+        ImageView catLogo = findViewById(R.id.topImage);
 
         mAuth = FirebaseAuth.getInstance();
-        ImageView topImage = findViewById(R.id.topImage);
-        topImage.setOnClickListener(v -> {
-            Intent intent = new Intent(LoginActivity.this, AdminLoginActivity.class);
-            startActivity(intent);
+
+        // 🔹 Long press on cat logo to redirect to AdminLogin
+        catLogo.setOnLongClickListener(v -> {
+            Toast.makeText(LoginActivity.this, "Redirecting to Admin Login...", Toast.LENGTH_SHORT).show();
+            startActivity(new Intent(LoginActivity.this, AdminLoginActivity.class));
+            return true;
         });
 
-        loginPassword.setEnabled(false);
-        loginButton.setEnabled(false);
+        // 🔹 Password visibility toggle
+        loginPassword.setOnTouchListener((v, event) -> {
+            final int DRAWABLE_RIGHT = 2;
+            if (event.getAction() == MotionEvent.ACTION_UP) {
+                if (event.getRawX() >= (loginPassword.getRight()
+                        - loginPassword.getCompoundDrawables()[DRAWABLE_RIGHT].getBounds().width())) {
 
-        loginEmail.addTextChangedListener(simpleWatcher(() -> {
-            boolean hasEmail = !loginEmail.getText().toString().trim().isEmpty();
-            loginPassword.setEnabled(hasEmail);
-            loginButton.setEnabled(hasEmail && !loginPassword.getText().toString().trim().isEmpty());
-        }));
+                    int selection = loginPassword.getSelectionEnd();
 
-        loginPassword.addTextChangedListener(simpleWatcher(() -> {
-            boolean ready = !loginEmail.getText().toString().trim().isEmpty()
-                    && !loginPassword.getText().toString().trim().isEmpty();
-            loginButton.setEnabled(ready);
-        }));
+                    if (isPasswordVisible) {
+                        loginPassword.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
+                        loginPassword.setCompoundDrawablesWithIntrinsicBounds(
+                                R.drawable.baseline_lock_24, 0, R.drawable.ic_eye_closed, 0);
+                        isPasswordVisible = false;
+                    } else {
+                        loginPassword.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD);
+                        loginPassword.setCompoundDrawablesWithIntrinsicBounds(
+                                R.drawable.baseline_lock_24, 0, R.drawable.ic_eye_open, 0);
+                        isPasswordVisible = true;
+                    }
 
-        tvSignupRedirect.setOnClickListener(v -> {
+                    loginPassword.setTypeface(loginEmail.getTypeface());
+                    loginPassword.setSelection(selection);
+                    return true;
+                }
+            }
+            return false;
+        });
+
+        // 🔹 Redirect to Signup
+        signupRedirectText.setOnClickListener(v -> {
             startActivity(new Intent(LoginActivity.this, SignUpActivity.class));
             finish();
         });
 
-        tvForgotPassword.setOnClickListener(v -> {
-            String email = loginEmail.getText().toString().trim();
-            if (email.isEmpty()) {
-                Toast.makeText(this, "Enter your email to reset password", Toast.LENGTH_SHORT).show();
-                return;
-            }
-            mAuth.sendPasswordResetEmail(email).addOnCompleteListener(task -> {
-                if (task.isSuccessful()) {
-                    Toast.makeText(this, "Password reset link sent to your email.", Toast.LENGTH_LONG).show();
-                } else {
-                    Toast.makeText(this, "Failed to send reset email.", Toast.LENGTH_SHORT).show();
-                }
-            });
-        });
-
+        // 🔹 Login button logic
         loginButton.setOnClickListener(v -> {
             String email = loginEmail.getText().toString().trim();
             String password = loginPassword.getText().toString().trim();
 
-            if (email.isEmpty() || password.isEmpty()) {
-                Toast.makeText(this, "Email and password are required", Toast.LENGTH_SHORT).show();
+            if (email.isEmpty() && password.isEmpty()) {
+                Toast.makeText(LoginActivity.this, "Please fill in all fields", Toast.LENGTH_SHORT).show();
                 return;
             }
 
+            boolean badEmail = !android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches();
+            boolean badPassword = password.length() < 6;
+
+            if (badEmail && badPassword) {
+                Toast.makeText(LoginActivity.this, "Invalid email format and password", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+            if (email.isEmpty()) {
+                Toast.makeText(LoginActivity.this, "Email is required", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+            if (badEmail) {
+                Toast.makeText(LoginActivity.this, "Invalid email format", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+            if (password.isEmpty()) {
+                Toast.makeText(LoginActivity.this, "Password is required", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+            if (badPassword) {
+                Toast.makeText(LoginActivity.this, "Invalid password : Must be at least 6 characters", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+            // 🔹 Attempt Firebase login
             mAuth.signInWithEmailAndPassword(email, password)
-                    .addOnCompleteListener(task -> {
-                        if (task.isSuccessful()) {
+                    .addOnCompleteListener(signInTask -> {
+                        if (signInTask.isSuccessful()) {
                             FirebaseUser user = mAuth.getCurrentUser();
                             if (user != null) {
+                                user.reload().addOnCompleteListener(reloadTask -> {
+                                    // 🔹 Admin role check (use SAME DB URL and node name you use on signup)
+                                    FirebaseDatabase db = FirebaseDatabase.getInstance(
+                                            "https://feedmate-pet-feeder-system-default-rtdb.asia-southeast1.firebasedatabase.app/");
+                                    DatabaseReference userRef = db.getReference("users").child(user.getUid());
 
-                                if (!user.isEmailVerified()) {
-                                    Toast.makeText(this, "Please verify your email before logging in.", Toast.LENGTH_LONG).show();
-                                    mAuth.signOut();
-                                    return;
-                                }
-
-                                FirebaseDatabase db = FirebaseDatabase.getInstance("https://feedmate-pet-feeder-system-default-rtdb.asia-southeast1.firebasedatabase.app/");
-                                DatabaseReference dbRef = db.getReference("users");
-                                String uid = user.getUid();
-
-                                dbRef.child(uid).get().addOnCompleteListener(dbTask -> {
-                                    if (dbTask.isSuccessful()) {
-                                        DataSnapshot snapshot = dbTask.getResult();
-                                        if (snapshot.exists()) {
-                                            User userProfile = snapshot.getValue(User.class);
-                                            if (userProfile != null) {
-                                                String role = userProfile.role;
-
-                                                if ("admin".equals(role)) {
-                                                    Toast.makeText(this, "Admins must use the admin login page.", Toast.LENGTH_LONG).show();
-                                                    mAuth.signOut();
-                                                    return;
-                                                }
-
-                                                Toast.makeText(this, "Login successful!", Toast.LENGTH_SHORT).show();
-                                                startActivity(new Intent(this, UserDashboardActivity.class));
-                                                finish();
-                                            } else {
-                                                Toast.makeText(this, "Failed to read user info", Toast.LENGTH_SHORT).show();
-                                            }
-                                        } else {
-                                            Toast.makeText(this, "User info not found in database", Toast.LENGTH_SHORT).show();
+                                    userRef.get().addOnCompleteListener(roleTask -> {
+                                        if (!roleTask.isSuccessful()) {
+                                            Toast.makeText(LoginActivity.this,
+                                                    "Database error: " +
+                                                            (roleTask.getException() != null ? roleTask.getException().getMessage() : "Unknown"),
+                                                    Toast.LENGTH_LONG).show();
+                                            return;
                                         }
-                                    } else {
-                                        Toast.makeText(this, "Failed to read user info", Toast.LENGTH_SHORT).show();
-                                    }
+
+                                        DataSnapshot snapshot = roleTask.getResult();
+                                        String role = snapshot.child("role").getValue(String.class);
+
+                                        if ("admin".equalsIgnoreCase(role)) {
+                                            Toast.makeText(LoginActivity.this,
+                                                    "Admins must log in through the Admin Login page.",
+                                                    Toast.LENGTH_LONG).show();
+                                            mAuth.signOut();
+                                            return; // stop normal user flow
+                                        }
+
+                                        // Continue normal flow for non-admins
+                                        if (user.isEmailVerified()) {
+                                            Toast.makeText(LoginActivity.this, "Login successful!", Toast.LENGTH_SHORT).show();
+                                            startActivity(new Intent(LoginActivity.this, UserDashboardActivity.class));
+                                            finish();
+                                        } else {
+                                            Toast.makeText(LoginActivity.this, "Please verify your email first.", Toast.LENGTH_LONG).show();
+                                            mAuth.signOut();
+                                        }
+                                    });
+
                                 });
                             }
                         } else {
-                            Exception e = task.getException();
-                            if (e instanceof FirebaseAuthInvalidUserException) {
-                                Toast.makeText(this, "Email does not exist", Toast.LENGTH_LONG).show();
-                            } else if (e instanceof FirebaseAuthInvalidCredentialsException) {
-                                Toast.makeText(this, "Wrong password", Toast.LENGTH_LONG).show();
+                            Exception e = signInTask.getException();
+                            if (e instanceof FirebaseAuthInvalidCredentialsException) {
+                                Toast.makeText(LoginActivity.this, "Wrong password", Toast.LENGTH_SHORT).show();
+                            } else if (e instanceof FirebaseAuthInvalidUserException) {
+                                Toast.makeText(LoginActivity.this, "No account found with this email", Toast.LENGTH_SHORT).show();
                             } else {
-                                Toast.makeText(this, "Login failed", Toast.LENGTH_LONG).show();
+                                String error = (e != null) ? e.getMessage() : "Unknown error";
+                                Toast.makeText(LoginActivity.this, "Login failed: " + error, Toast.LENGTH_LONG).show();
                             }
                         }
                     });
         });
-    }
-
-    private TextWatcher simpleWatcher(Runnable afterChange) {
-        return new TextWatcher() {
-            @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
-            @Override public void onTextChanged(CharSequence s, int start, int before, int count) {}
-            @Override public void afterTextChanged(Editable s) { afterChange.run(); }
-        };
     }
 }

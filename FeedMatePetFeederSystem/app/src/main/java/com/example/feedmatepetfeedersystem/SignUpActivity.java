@@ -74,23 +74,29 @@ public class SignUpActivity extends AppCompatActivity {
             String email = signupEmail.getText().toString().trim();
             String password = signupPassword.getText().toString().trim();
 
+            // ✅ New combined check for invalid email format AND short password
+            if (!android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches() && password.length() < 6) {
+                Toast.makeText(SignUpActivity.this, "Invalid email and password format", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
             if (email.isEmpty() && password.isEmpty()) {
                 Toast.makeText(SignUpActivity.this, "Please fill in all fields", Toast.LENGTH_SHORT).show();
                 return;
             }
 
             if (email.isEmpty()) {
-                Toast.makeText(SignUpActivity.this, "An email is required", Toast.LENGTH_SHORT).show();
+                Toast.makeText(SignUpActivity.this, "Email is required", Toast.LENGTH_SHORT).show();
                 return;
             }
 
             if (password.isEmpty()) {
-                Toast.makeText(SignUpActivity.this, "A password is required", Toast.LENGTH_SHORT).show();
+                Toast.makeText(SignUpActivity.this, "Password is required", Toast.LENGTH_SHORT).show();
                 return;
             }
 
             if (password.length() < 6) {
-                Toast.makeText(SignUpActivity.this, "Password must be at least 6 characters", Toast.LENGTH_SHORT).show();
+                Toast.makeText(SignUpActivity.this, "Invalid password : Must be at least 6 characters", Toast.LENGTH_SHORT).show();
                 return;
             }
 

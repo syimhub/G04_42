@@ -28,7 +28,7 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-        android:text="Administrator"
+            android:text="Administrator Login"
             android:textSize="28sp"
             android:textStyle="bold"
             android:textColor="@color/teal_700"
@@ -70,6 +70,7 @@
                     android:padding="8dp"
                     android:hint="Password"
                     android:drawableLeft="@drawable/baseline_lock_24"
+                    android:drawableRight="@drawable/ic_eye_closed"
                     android:drawablePadding="8dp"
                     android:textColor="@color/black"
                     android:inputType="textPassword"/>
@@ -88,7 +89,7 @@
                     android:id="@+id/admin_login_button"
                     android:layout_width="match_parent"
                     android:layout_height="50dp"
-                    android:text="Admin Login"
+                    android:text="Login"
                     android:textSize="18sp"
                     android:layout_marginTop="24dp"
                     android:backgroundTint="@color/teal_700"
