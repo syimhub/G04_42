@@ -74,12 +74,6 @@ public class SignUpActivity extends AppCompatActivity {
             String email = signupEmail.getText().toString().trim();
             String password = signupPassword.getText().toString().trim();
 
-            // ✅ New combined check for invalid email format AND short password
-            if (!android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches() && password.length() < 6) {
-                Toast.makeText(SignUpActivity.this, "Invalid email and password format", Toast.LENGTH_SHORT).show();
-                return;
-            }
-
             if (email.isEmpty() && password.isEmpty()) {
                 Toast.makeText(SignUpActivity.this, "Please fill in all fields", Toast.LENGTH_SHORT).show();
                 return;
@@ -97,6 +91,12 @@ public class SignUpActivity extends AppCompatActivity {
 
             if (password.length() < 6) {
                 Toast.makeText(SignUpActivity.this, "Invalid password : Must be at least 6 characters", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+            // ✅ Stricter email validation
+            if (!isEmailValid(email)) {
+                Toast.makeText(SignUpActivity.this, "Invalid email format or TLD", Toast.LENGTH_SHORT).show();
                 return;
             }
 
@@ -153,5 +153,28 @@ public class SignUpActivity extends AppCompatActivity {
                         }
                     });
         });
+    }
+
+    // 🔹 Stricter email validation method
+    private boolean isEmailValid(String email) {
+        if (!android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
+            return false;
+        }
+
+        String[] parts = email.split("@");
+        if (parts.length != 2) return false;
+
+        String domainPart = parts[1];
+        if (!domainPart.contains(".")) return false;
+
+        String tld = domainPart.substring(domainPart.lastIndexOf('.') + 1);
+
+        String[] validTLDs = {"com", "net", "org", "edu", "gov", "mil", "info", "biz", "co", "io", "me", "xyz"};
+
+        for (String valid : validTLDs) {
+            if (tld.equalsIgnoreCase(valid)) return true;
+        }
+
+        return false;
     }
 }

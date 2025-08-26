@@ -11,7 +11,6 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.firebase.auth.FirebaseAuth;
@@ -19,10 +18,8 @@ import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException;
 import com.google.firebase.auth.FirebaseAuthInvalidUserException;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.ValueEventListener;
 
 public class LoginActivity extends AppCompatActivity {
 
@@ -40,18 +37,19 @@ public class LoginActivity extends AppCompatActivity {
         loginPassword = findViewById(R.id.login_password);
         Button loginButton = findViewById(R.id.login_button);
         TextView signupRedirectText = findViewById(R.id.signupRedirectText);
+        TextView forgotPasswordText = findViewById(R.id.forgotPasswordText); // ✅ Forgot Password
         ImageView catLogo = findViewById(R.id.topImage);
 
         mAuth = FirebaseAuth.getInstance();
 
-        // 🔹 Long press on cat logo to redirect to AdminLogin
+        // Long press on cat logo to redirect to AdminLogin
         catLogo.setOnLongClickListener(v -> {
             Toast.makeText(LoginActivity.this, "Redirecting to Admin Login...", Toast.LENGTH_SHORT).show();
             startActivity(new Intent(LoginActivity.this, AdminLoginActivity.class));
             return true;
         });
 
-        // 🔹 Password visibility toggle
+        // Password visibility toggle
         loginPassword.setOnTouchListener((v, event) -> {
             final int DRAWABLE_RIGHT = 2;
             if (event.getAction() == MotionEvent.ACTION_UP) {
@@ -80,27 +78,49 @@ public class LoginActivity extends AppCompatActivity {
             return false;
         });
 
-        // 🔹 Redirect to Signup
+        // Redirect to Signup
         signupRedirectText.setOnClickListener(v -> {
             startActivity(new Intent(LoginActivity.this, SignUpActivity.class));
             finish();
         });
 
-        // 🔹 Login button logic
+        // ✅ Forgot Password logic with stricter email validation
+        forgotPasswordText.setOnClickListener(v -> {
+            String email = loginEmail.getText().toString().trim();
+
+            if (email.isEmpty()) {
+                Toast.makeText(LoginActivity.this, "Please enter your email first", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+            if (!isEmailValid(email)) {
+                Toast.makeText(LoginActivity.this, "Invalid email format or TLD", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+            mAuth.sendPasswordResetEmail(email)
+                    .addOnCompleteListener(task -> {
+                        if (task.isSuccessful()) {
+                            Toast.makeText(LoginActivity.this,
+                                    "Password reset link sent to your email.",
+                                    Toast.LENGTH_LONG).show();
+                        } else {
+                            String error = (task.getException() != null) ? task.getException().getMessage() : "Unknown error";
+                            Toast.makeText(LoginActivity.this,
+                                    "Failed to send reset link: " + error,
+                                    Toast.LENGTH_LONG).show();
+                        }
+                    });
+        });
+
+        // Login button logic
         loginButton.setOnClickListener(v -> {
             String email = loginEmail.getText().toString().trim();
             String password = loginPassword.getText().toString().trim();
 
+            // Validation
             if (email.isEmpty() && password.isEmpty()) {
                 Toast.makeText(LoginActivity.this, "Please fill in all fields", Toast.LENGTH_SHORT).show();
-                return;
-            }
-
-            boolean badEmail = !android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches();
-            boolean badPassword = password.length() < 6;
-
-            if (badEmail && badPassword) {
-                Toast.makeText(LoginActivity.this, "Invalid email format and password", Toast.LENGTH_SHORT).show();
                 return;
             }
 
@@ -109,29 +129,29 @@ public class LoginActivity extends AppCompatActivity {
                 return;
             }
 
-            if (badEmail) {
-                Toast.makeText(LoginActivity.this, "Invalid email format", Toast.LENGTH_SHORT).show();
-                return;
-            }
-
             if (password.isEmpty()) {
                 Toast.makeText(LoginActivity.this, "Password is required", Toast.LENGTH_SHORT).show();
                 return;
             }
 
-            if (badPassword) {
+            if (!isEmailValid(email)) {
+                Toast.makeText(LoginActivity.this, "Invalid email format or TLD", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+            if (password.length() < 6) {
                 Toast.makeText(LoginActivity.this, "Invalid password : Must be at least 6 characters", Toast.LENGTH_SHORT).show();
                 return;
             }
 
-            // 🔹 Attempt Firebase login
+            // Attempt Firebase login
             mAuth.signInWithEmailAndPassword(email, password)
                     .addOnCompleteListener(signInTask -> {
                         if (signInTask.isSuccessful()) {
                             FirebaseUser user = mAuth.getCurrentUser();
                             if (user != null) {
                                 user.reload().addOnCompleteListener(reloadTask -> {
-                                    // 🔹 Admin role check (use SAME DB URL and node name you use on signup)
+                                    // Admin role check
                                     FirebaseDatabase db = FirebaseDatabase.getInstance(
                                             "https://feedmate-pet-feeder-system-default-rtdb.asia-southeast1.firebasedatabase.app/");
                                     DatabaseReference userRef = db.getReference("users").child(user.getUid());
@@ -153,7 +173,7 @@ public class LoginActivity extends AppCompatActivity {
                                                     "Admins must log in through the Admin Login page.",
                                                     Toast.LENGTH_LONG).show();
                                             mAuth.signOut();
-                                            return; // stop normal user flow
+                                            return;
                                         }
 
                                         // Continue normal flow for non-admins
@@ -166,21 +186,68 @@ public class LoginActivity extends AppCompatActivity {
                                             mAuth.signOut();
                                         }
                                     });
-
                                 });
                             }
                         } else {
                             Exception e = signInTask.getException();
+
                             if (e instanceof FirebaseAuthInvalidCredentialsException) {
-                                Toast.makeText(LoginActivity.this, "Wrong password", Toast.LENGTH_SHORT).show();
+                                String code = ((FirebaseAuthInvalidCredentialsException) e).getErrorCode();
+                                if ("ERROR_WRONG_PASSWORD".equals(code)) {
+                                    Toast.makeText(LoginActivity.this,
+                                            "Wrong password. Please try again.",
+                                            Toast.LENGTH_SHORT).show();
+                                } else {
+                                    Toast.makeText(LoginActivity.this,
+                                            "Account or password error",
+                                            Toast.LENGTH_SHORT).show();
+                                }
                             } else if (e instanceof FirebaseAuthInvalidUserException) {
-                                Toast.makeText(LoginActivity.this, "No account found with this email", Toast.LENGTH_SHORT).show();
+                                String code = ((FirebaseAuthInvalidUserException) e).getErrorCode();
+                                if ("ERROR_USER_NOT_FOUND".equals(code)) {
+                                    Toast.makeText(LoginActivity.this,
+                                            "Email not registered. Please sign up first.",
+                                            Toast.LENGTH_SHORT).show();
+                                } else if ("ERROR_USER_DISABLED".equals(code)) {
+                                    Toast.makeText(LoginActivity.this,
+                                            "This account is disabled.",
+                                            Toast.LENGTH_SHORT).show();
+                                } else {
+                                    Toast.makeText(LoginActivity.this,
+                                            "This account is no longer valid. Please contact support.",
+                                            Toast.LENGTH_SHORT).show();
+                                }
                             } else {
                                 String error = (e != null) ? e.getMessage() : "Unknown error";
-                                Toast.makeText(LoginActivity.this, "Login failed: " + error, Toast.LENGTH_LONG).show();
+                                Toast.makeText(LoginActivity.this,
+                                        "Login failed: " + error,
+                                        Toast.LENGTH_LONG).show();
                             }
                         }
                     });
         });
+    }
+
+    // 🔹 Stricter email validation method
+    private boolean isEmailValid(String email) {
+        if (!android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
+            return false;
+        }
+
+        String[] parts = email.split("@");
+        if (parts.length != 2) return false;
+
+        String domainPart = parts[1];
+        if (!domainPart.contains(".")) return false;
+
+        String tld = domainPart.substring(domainPart.lastIndexOf('.') + 1);
+
+        String[] validTLDs = {"com", "net", "org", "edu", "gov", "mil", "info", "biz", "co", "io", "me", "xyz"};
+
+        for (String valid : validTLDs) {
+            if (tld.equalsIgnoreCase(valid)) return true;
+        }
+
+        return false;
     }
 }
