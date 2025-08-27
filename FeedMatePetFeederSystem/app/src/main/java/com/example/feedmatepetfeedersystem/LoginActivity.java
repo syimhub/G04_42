@@ -228,7 +228,7 @@ public class LoginActivity extends AppCompatActivity {
         });
     }
 
-    // 🔹 Stricter email validation method
+    // 🔹 Stricter email validation method // test
     private boolean isEmailValid(String email) {
         if (!android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
             return false;
