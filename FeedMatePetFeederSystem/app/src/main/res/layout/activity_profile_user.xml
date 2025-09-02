@@ -26,7 +26,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="8dp">
 
-                <!-- Circular Profile Image (clickable now) -->
+                <!-- Circular Profile Image -->
                 <com.google.android.material.imageview.ShapeableImageView
                     android:id="@+id/imgUser"
                     android:layout_width="120dp"
@@ -77,7 +77,7 @@
                 android:orientation="vertical"
                 android:paddingBottom="72dp">
 
-                <!-- Account Information Card (moved to top) -->
+                <!-- Account Information -->
                 <com.google.android.material.card.MaterialCardView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -121,6 +121,36 @@
                                 tools:text="John Doe" />
                         </com.google.android.material.textfield.TextInputLayout>
 
+                        <!-- Buttons under Full Name -->
+                        <LinearLayout
+                            android:id="@+id/nameButtonsLayout"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal"
+                            android:visibility="gone"
+                            android:gravity="end"
+                            android:layout_marginTop="4dp">
+
+                            <com.google.android.material.button.MaterialButton
+                                android:id="@+id/btnConfirmName"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Confirm"
+                                app:cornerRadius="16dp"
+                                app:backgroundTint="@color/teal_700"
+                                android:textColor="@android:color/white"
+                                android:layout_marginEnd="8dp"/>
+
+                            <com.google.android.material.button.MaterialButton
+                                android:id="@+id/btnCancelName"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Cancel"
+                                app:cornerRadius="16dp"
+                                app:backgroundTint="@color/gray"
+                                android:textColor="@android:color/white"/>
+                        </LinearLayout>
+
                         <!-- Email -->
                         <com.google.android.material.textfield.TextInputLayout
                             android:layout_width="match_parent"
@@ -151,7 +181,7 @@
                     </LinearLayout>
                 </com.google.android.material.card.MaterialCardView>
 
-                <!-- Pet Information Card (moved below) -->
+                <!-- Pet Information -->
                 <com.google.android.material.card.MaterialCardView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -195,6 +225,36 @@
                                 tools:text="Fluffy" />
                         </com.google.android.material.textfield.TextInputLayout>
 
+                        <!-- Buttons under Pet Name -->
+                        <LinearLayout
+                            android:id="@+id/petNameButtonsLayout"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal"
+                            android:visibility="gone"
+                            android:gravity="end"
+                            android:layout_marginTop="4dp">
+
+                            <com.google.android.material.button.MaterialButton
+                                android:id="@+id/btnConfirmPetName"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Confirm"
+                                app:cornerRadius="16dp"
+                                app:backgroundTint="@color/orange"
+                                android:textColor="@android:color/white"
+                                android:layout_marginEnd="8dp"/>
+
+                            <com.google.android.material.button.MaterialButton
+                                android:id="@+id/btnCancelPetName"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Cancel"
+                                app:cornerRadius="16dp"
+                                app:backgroundTint="@color/gray"
+                                android:textColor="@android:color/white"/>
+                        </LinearLayout>
+
                         <!-- Pet Age -->
                         <com.google.android.material.textfield.TextInputLayout
                             android:id="@+id/petAgeLayout"
@@ -216,6 +276,36 @@
                                 tools:text="3" />
                         </com.google.android.material.textfield.TextInputLayout>
 
+                        <!-- Buttons under Pet Age -->
+                        <LinearLayout
+                            android:id="@+id/petAgeButtonsLayout"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal"
+                            android:visibility="gone"
+                            android:gravity="end"
+                            android:layout_marginTop="4dp">
+
+                            <com.google.android.material.button.MaterialButton
+                                android:id="@+id/btnConfirmPetAge"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Confirm"
+                                app:cornerRadius="16dp"
+                                app:backgroundTint="@color/orange"
+                                android:textColor="@android:color/white"
+                                android:layout_marginEnd="8dp"/>
+
+                            <com.google.android.material.button.MaterialButton
+                                android:id="@+id/btnCancelPetAge"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Cancel"
+                                app:cornerRadius="16dp"
+                                app:backgroundTint="@color/gray"
+                                android:textColor="@android:color/white"/>
+                        </LinearLayout>
+
                         <!-- Pet Breed -->
                         <com.google.android.material.textfield.TextInputLayout
                             android:id="@+id/petBreedLayout"
@@ -235,19 +325,40 @@
                                 android:enabled="false"
                                 tools:text="Golden Retriever" />
                         </com.google.android.material.textfield.TextInputLayout>
+
+                        <!-- Buttons under Pet Breed -->
+                        <LinearLayout
+                            android:id="@+id/petBreedButtonsLayout"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal"
+                            android:visibility="gone"
+                            android:gravity="end"
+                            android:layout_marginTop="4dp">
+
+                            <com.google.android.material.button.MaterialButton
+                                android:id="@+id/btnConfirmPetBreed"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Confirm"
+                                app:cornerRadius="16dp"
+                                app:backgroundTint="@color/orange"
+                                android:textColor="@android:color/white"
+                                android:layout_marginEnd="8dp"/>
+
+                            <com.google.android.material.button.MaterialButton
+                                android:id="@+id/btnCancelPetBreed"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Cancel"
+                                app:cornerRadius="16dp"
+                                app:backgroundTint="@color/gray"
+                                android:textColor="@android:color/white"/>
+                        </LinearLayout>
                     </LinearLayout>
                 </com.google.android.material.card.MaterialCardView>
 
-                <!-- Save Button -->
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/btnSave"
-                    android:layout_width="match_parent"
-                    android:layout_height="48dp"
-                    android:text="Save Changes"
-                    android:textColor="@android:color/white"
-                    android:layout_marginTop="12dp"
-                    app:backgroundTint="@color/orange"
-                    app:cornerRadius="24dp" />
+                <!-- Removed Save Changes button -->
             </LinearLayout>
         </androidx.core.widget.NestedScrollView>
     </LinearLayout>
