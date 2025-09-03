@@ -14,6 +14,7 @@ import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -48,6 +49,7 @@ public class ProfileAdminActivity extends AppCompatActivity {
     private TextView tvAdminName, tvAdminEmail;
     private EditText editAdminName, editAdminEmail;
     private ImageView imgAdmin;
+    private LinearLayout nameButtonsLayout;
 
     private Uri selectedImageUri;
     private static final int PICK_IMAGE_REQUEST = 2001;
@@ -75,6 +77,7 @@ public class ProfileAdminActivity extends AppCompatActivity {
         imgAdmin = findViewById(R.id.imgAdmin);
         editAdminName = findViewById(R.id.editAdminName);
         editAdminEmail = findViewById(R.id.editAdminEmail);
+        nameButtonsLayout = findViewById(R.id.nameButtonsLayout);
 
         TextInputLayout fullNameLayout = findViewById(R.id.fullNameLayout);
 
@@ -84,8 +87,34 @@ public class ProfileAdminActivity extends AppCompatActivity {
             editAdminEmail.setText(currentUser.getEmail());
         }
 
-        // Pencil icon → enable editing
-        fullNameLayout.setEndIconOnClickListener(v -> enableEditing(editAdminName));
+        // Pencil icon → enable editing and show buttons
+        fullNameLayout.setEndIconOnClickListener(v -> {
+            enableEditing(editAdminName);
+            nameButtonsLayout.setVisibility(View.VISIBLE);
+        });
+
+        // Confirm button
+        findViewById(R.id.btnConfirmName).setOnClickListener(v -> {
+            String fullName = editAdminName.getText().toString().trim();
+            if (!fullName.isEmpty()) {
+                adminRef.child("fullName").setValue(fullName)
+                        .addOnSuccessListener(unused -> {
+                            tvAdminName.setText(fullName);
+                            Toast.makeText(this, "Updated", Toast.LENGTH_SHORT).show();
+                            editAdminName.setEnabled(false);
+                            nameButtonsLayout.setVisibility(View.GONE);
+                        })
+                        .addOnFailureListener(e ->
+                                Toast.makeText(this, "Update failed: " + e.getMessage(), Toast.LENGTH_LONG).show());
+            }
+        });
+
+        // Cancel button
+        findViewById(R.id.btnCancelName).setOnClickListener(v -> {
+            editAdminName.setText(tvAdminName.getText().toString());
+            editAdminName.setEnabled(false);
+            nameButtonsLayout.setVisibility(View.GONE);
+        });
 
         // Load data
         adminRef.addListenerForSingleValueEvent(new ValueEventListener() {
@@ -125,25 +154,6 @@ public class ProfileAdminActivity extends AppCompatActivity {
                         Toast.LENGTH_LONG).show();
                 Log.e(TAG, "Load failed", error.toException());
             }
-        });
-
-        // Save button
-        findViewById(R.id.btnSave).setOnClickListener(v -> {
-            String fullName = editAdminName.getText().toString().trim();
-
-            Map<String, Object> updates = new HashMap<>();
-            updates.put("email", currentUser.getEmail());
-            updates.put("fullName", fullName);
-
-            adminRef.updateChildren(updates)
-                    .addOnSuccessListener(unused -> {
-                        tvAdminName.setText(fullName);
-                        Toast.makeText(this, "Changes Saved", Toast.LENGTH_SHORT).show();
-                    })
-                    .addOnFailureListener(e -> {
-                        Toast.makeText(this, "Save failed: " + e.getMessage(), Toast.LENGTH_LONG).show();
-                        Log.e(TAG, "Save failed", e);
-                    });
         });
 
         // Change Password button
@@ -199,7 +209,7 @@ public class ProfileAdminActivity extends AppCompatActivity {
         if (imm != null) imm.showSoftInput(et, InputMethodManager.SHOW_IMPLICIT);
     }
 
-    // Tap outside → disable editing
+    // Tap outside → keep editing enabled (does not cancel)
     @Override
     public boolean dispatchTouchEvent(MotionEvent ev) {
         if (ev.getAction() == MotionEvent.ACTION_DOWN) {
@@ -212,8 +222,6 @@ public class ProfileAdminActivity extends AppCompatActivity {
                     if (imm != null) {
                         imm.hideSoftInputFromWindow(v.getWindowToken(), 0);
                     }
-                    v.clearFocus();
-                    v.setEnabled(false);
                 }
             }
         }

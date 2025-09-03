@@ -27,7 +27,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="8dp">
 
-                <!-- Circular Profile Image (clickable) -->
+                <!-- Circular Profile Image -->
                 <com.google.android.material.imageview.ShapeableImageView
                     android:id="@+id/imgAdmin"
                     android:layout_width="120dp"
@@ -63,7 +63,7 @@
                 tools:text="admin@email.com" />
         </LinearLayout>
 
-        <!-- Scrollable content -->
+        <!-- Scrollable Content -->
         <androidx.core.widget.NestedScrollView
             android:layout_width="match_parent"
             android:layout_height="0dp"
@@ -78,7 +78,7 @@
                 android:orientation="vertical"
                 android:paddingBottom="72dp">
 
-                <!-- Account Information Card -->
+                <!-- Account Info Card -->
                 <com.google.android.material.card.MaterialCardView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -122,6 +122,36 @@
                                 tools:text="Admin Doe" />
                         </com.google.android.material.textfield.TextInputLayout>
 
+                        <!-- Confirm & Cancel Buttons -->
+                        <LinearLayout
+                            android:id="@+id/nameButtonsLayout"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal"
+                            android:gravity="end"
+                            android:visibility="gone"
+                            android:layout_marginTop="8dp">
+
+                            <com.google.android.material.button.MaterialButton
+                                android:id="@+id/btnConfirmName"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Confirm"
+                                android:textColor="@android:color/white"
+                                app:backgroundTint="@color/teal_700"
+                                app:cornerRadius="24dp"
+                                android:layout_marginEnd="8dp"/>
+
+                            <com.google.android.material.button.MaterialButton
+                                android:id="@+id/btnCancelName"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Cancel"
+                                app:backgroundTint="@color/gray"
+                                android:textColor="@android:color/white"
+                                app:cornerRadius="24dp"/>
+                        </LinearLayout>
+
                         <!-- Email (read-only) -->
                         <com.google.android.material.textfield.TextInputLayout
                             android:layout_width="match_parent"
@@ -152,21 +182,12 @@
                     </LinearLayout>
                 </com.google.android.material.card.MaterialCardView>
 
-                <!-- Save Button -->
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/btnSave"
-                    android:layout_width="match_parent"
-                    android:layout_height="48dp"
-                    android:text="Save Changes"
-                    android:textColor="@android:color/white"
-                    android:layout_marginTop="12dp"
-                    app:backgroundTint="@color/orange"
-                    app:cornerRadius="24dp" />
+                <!-- Removed global Save Button -->
             </LinearLayout>
         </androidx.core.widget.NestedScrollView>
     </LinearLayout>
 
-    <!-- Bottom Navigation for Admin -->
+    <!-- Bottom Navigation -->
     <com.google.android.material.bottomnavigation.BottomNavigationView
         android:id="@+id/bottom_navigation_admin"
         android:layout_width="match_parent"
