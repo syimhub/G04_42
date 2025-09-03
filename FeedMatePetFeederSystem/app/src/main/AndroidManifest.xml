@@ -50,5 +50,8 @@
         <activity
             android:name=".LoginActivity"
             android:exported="false" />
+        <activity
+            android:name=".ManageUsersActivity"
+            android:exported="false" />
     </application>
 </manifest>

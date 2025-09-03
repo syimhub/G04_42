@@ -117,7 +117,7 @@ public class SignUpActivity extends AppCompatActivity {
                                                 "https://feedmate-pet-feeder-system-default-rtdb.asia-southeast1.firebasedatabase.app/");
                                         DatabaseReference dbRef = db.getReference("users");
                                         String uid = user.getUid();
-                                        User userProfile = new User(user.getEmail(), "user"); // default role: user
+                                        User userProfile = new User(uid, "", user.getEmail(), "user"); // default role: user
 
                                         dbRef.child(uid).setValue(userProfile).addOnCompleteListener(dbTask -> {
                                             if (dbTask.isSuccessful()) {

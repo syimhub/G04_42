@@ -2,6 +2,7 @@ package com.example.feedmatepetfeedersystem;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.widget.Button;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
@@ -10,6 +11,7 @@ import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.google.android.material.button.MaterialButton;
 import com.google.firebase.auth.FirebaseAuth;
 
 public class AdminDashboardActivity extends AppCompatActivity {
@@ -29,6 +31,13 @@ public class AdminDashboardActivity extends AppCompatActivity {
             Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
             return insets;
+        });
+
+        // 🔹 Wire up "Manage Users" button
+        MaterialButton btnManageUsers = findViewById(R.id.btnManageUsers);
+        btnManageUsers.setOnClickListener(v -> {
+            Intent intent = new Intent(AdminDashboardActivity.this, ManageUsersActivity.class);
+            startActivity(intent);
         });
 
         // Bottom Navigation
