@@ -39,26 +39,34 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.UserViewHolder
     public void onBindViewHolder(@NonNull UserViewHolder holder, int position) {
         User user = userList.get(position);
 
-        // Safely display name or role
-        String displayName;
-        if (user.getFullName() != null && !user.getFullName().isEmpty()) {
-            displayName = user.getFullName();
-        } else if (user.getRole() != null && !user.getRole().isEmpty()) {
-            displayName = user.getRole();
-        } else {
-            displayName = "Unknown User";
-        }
+        // Show fallback text if values are null or empty
+        String displayName = (user.getFullName() != null && !user.getFullName().trim().isEmpty())
+                ? user.getFullName()
+                : "Unknown User";
+
+        String displayEmail = (user.getEmail() != null && !user.getEmail().trim().isEmpty())
+                ? user.getEmail()
+                : "No Email";
 
         holder.tvName.setText(displayName);
-        holder.tvEmail.setText(user.getEmail() != null ? user.getEmail() : "No Email");
+        holder.tvEmail.setText(displayEmail);
 
-        holder.btnEdit.setOnClickListener(v -> {
-            if (listener != null) listener.onEdit(user);
-        });
+        // If the user is an admin → hide edit & delete buttons
+        if ("admin".equalsIgnoreCase(user.getRole())) {
+            holder.btnEdit.setVisibility(View.GONE);
+            holder.btnDelete.setVisibility(View.GONE);
+        } else {
+            holder.btnEdit.setVisibility(View.VISIBLE);
+            holder.btnDelete.setVisibility(View.VISIBLE);
 
-        holder.btnDelete.setOnClickListener(v -> {
-            if (listener != null) listener.onDelete(user);
-        });
+            holder.btnEdit.setOnClickListener(v -> {
+                if (listener != null) listener.onEdit(user);
+            });
+
+            holder.btnDelete.setOnClickListener(v -> {
+                if (listener != null) listener.onDelete(user);
+            });
+        }
     }
 
     @Override

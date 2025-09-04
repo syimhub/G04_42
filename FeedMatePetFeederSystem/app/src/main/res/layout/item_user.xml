@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="horizontal"
@@ -21,7 +22,7 @@
             android:layout_height="wrap_content"
             android:text="Full Name"
             android:textStyle="bold"
-            android:textSize="16sp"/>
+            android:textSize="16sp" />
 
         <TextView
             android:id="@+id/tvEmail"
@@ -29,7 +30,7 @@
             android:layout_height="wrap_content"
             android:text="user@email.com"
             android:textColor="#666"
-            android:textSize="14sp"/>
+            android:textSize="14sp" />
     </LinearLayout>
 
     <!-- Edit Button -->
@@ -40,7 +41,7 @@
         android:padding="8dp"
         android:src="@drawable/baseline_edit_24"
         android:contentDescription="Edit User"
-        android:tint="@color/teal_700"/>
+        app:tint="@color/teal_700" />
 
     <!-- Delete Button -->
     <ImageView
@@ -50,5 +51,5 @@
         android:padding="8dp"
         android:src="@drawable/baseline_delete_24"
         android:contentDescription="Delete User"
-        android:tint="@android:color/holo_red_dark"/>
+        app:tint="@android:color/holo_red_dark" />
 </LinearLayout>

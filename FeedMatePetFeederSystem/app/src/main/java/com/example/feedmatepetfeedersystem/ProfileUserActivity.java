@@ -48,12 +48,10 @@ public class ProfileUserActivity extends AppCompatActivity {
     private TextView tvUserName, tvUserEmail;
     private ImageView imgUser;
 
-    // Action rows (Confirm/Cancel)
+    // Action rows
     private LinearLayout nameButtonsLayout, petNameButtonsLayout, petAgeButtonsLayout, petBreedButtonsLayout;
 
-    // We’ll store last committed values (used for Cancel)
     private final Map<String, String> committedValues = new HashMap<>();
-
     private Uri selectedImageUri;
     private static final int PICK_IMAGE_REQUEST = 1001;
 
@@ -101,7 +99,7 @@ public class ProfileUserActivity extends AppCompatActivity {
             editEmail.setText(currentUser.getEmail());
         }
 
-        // ===== End icon (pencil) → enable edit & show buttons =====
+        // ===== End icon (pencil) → enable edit =====
         fullNameLayout.setEndIconOnClickListener(v ->
                 startEditing("fullName", editFullName, nameButtonsLayout));
         petNameLayout.setEndIconOnClickListener(v ->
@@ -132,7 +130,6 @@ public class ProfileUserActivity extends AppCompatActivity {
                 String fullName = snapshot.child("fullName").getValue(String.class);
                 String profileBase64 = snapshot.child("profileImageBase64").getValue(String.class);
 
-                // Set texts
                 if (petName != null) editPetName.setText(petName);
                 if (petAge != null) editPetAge.setText(petAge);
                 if (petBreed != null) editPetBreed.setText(petBreed);
@@ -141,13 +138,11 @@ public class ProfileUserActivity extends AppCompatActivity {
                     tvUserName.setText(fullName);
                 }
 
-                // Cache committed values for Cancel
                 committedValues.put("petName", editPetName.getText().toString());
                 committedValues.put("petAge", editPetAge.getText().toString());
                 committedValues.put("petBreed", editPetBreed.getText().toString());
                 committedValues.put("fullName", editFullName.getText().toString());
 
-                // Profile picture (Base64)
                 if (profileBase64 != null && !profileBase64.isEmpty()) {
                     try {
                         byte[] decoded = android.util.Base64.decode(profileBase64, android.util.Base64.DEFAULT);
@@ -170,7 +165,7 @@ public class ProfileUserActivity extends AppCompatActivity {
             }
         });
 
-        // ===== Wire up Confirm/Cancel buttons for each field =====
+        // ===== Confirm/Cancel handlers =====
         findViewById(R.id.btnConfirmName).setOnClickListener(v ->
                 confirmField("fullName", editFullName, nameButtonsLayout));
         findViewById(R.id.btnCancelName).setOnClickListener(v ->
@@ -191,8 +186,7 @@ public class ProfileUserActivity extends AppCompatActivity {
         findViewById(R.id.btnCancelPetBreed).setOnClickListener(v ->
                 cancelField("petBreed", editPetBreed, petBreedButtonsLayout));
 
-
-        // 🔑 Change Password button (same behavior)
+        // 🔑 Change Password
         findViewById(R.id.btnChangePassword).setOnClickListener(v -> {
             if (currentUser.getEmail() != null) {
                 mAuth.sendPasswordResetEmail(currentUser.getEmail())
@@ -209,10 +203,10 @@ public class ProfileUserActivity extends AppCompatActivity {
             }
         });
 
-        // Profile picture change (same Base64 flow)
+        // Profile picture change
         imgUser.setOnClickListener(v -> openImageChooser());
 
-        // Bottom nav (IDs match your menu)
+        // ===== Bottom nav =====
         BottomNavigationView bottomNavigationView = findViewById(R.id.bottom_navigation);
         bottomNavigationView.setSelectedItemId(R.id.nav_profile);
         bottomNavigationView.setOnItemSelectedListener(item -> {
@@ -225,19 +219,24 @@ public class ProfileUserActivity extends AppCompatActivity {
             } else if (id == R.id.nav_profile) {
                 return true;
             } else if (id == R.id.nav_logout) {
-                mAuth.signOut();
-                startActivity(new Intent(this, LoginActivity.class));
-                finish();
-                overridePendingTransition(0, 0);
+                logoutUser(); // ✅ centralized logout
                 return true;
             }
             return false;
         });
     }
 
+    // ===== Centralized logout =====
+    private void logoutUser() {
+        mAuth.signOut();
+        Toast.makeText(this, "Logged out", Toast.LENGTH_SHORT).show();
+        startActivity(new Intent(this, LoginActivity.class));
+        finish();
+        overridePendingTransition(0, 0);
+    }
+
     // ===== Editing helpers =====
     private void startEditing(String key, EditText et, LinearLayout actionsRow) {
-        // Keep field in edit mode even if user taps elsewhere (we do NOT disable on outside touch)
         et.setEnabled(true);
         et.requestFocus();
         et.setSelection(et.getText().length());
@@ -250,7 +249,7 @@ public class ProfileUserActivity extends AppCompatActivity {
 
         userRef.child(key).setValue(value)
                 .addOnSuccessListener(unused -> {
-                    committedValues.put(key, value); // update committed value
+                    committedValues.put(key, value);
                     if ("fullName".equals(key)) {
                         tvUserName.setText(value);
                     }
@@ -283,7 +282,7 @@ public class ProfileUserActivity extends AppCompatActivity {
         if (imm != null) imm.hideSoftInputFromWindow(v.getWindowToken(), 0);
     }
 
-    // ===== Image picker → Base64 save (unchanged logic) =====
+    // ===== Image picker → Base64 save =====
     private void openImageChooser() {
         Intent intent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
         intent.setType("image/*");
@@ -328,7 +327,4 @@ public class ProfileUserActivity extends AppCompatActivity {
             Toast.makeText(this, "Image processing failed", Toast.LENGTH_LONG).show();
         }
     }
-
-    // Note: We intentionally DO NOT override dispatchTouchEvent to disable fields on outside taps.
-    // This keeps fields in edit mode until Confirm or Cancel is pressed (as requested).
 }

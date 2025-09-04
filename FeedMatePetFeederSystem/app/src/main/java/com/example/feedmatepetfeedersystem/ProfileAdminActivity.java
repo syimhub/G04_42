@@ -193,7 +193,7 @@ public class ProfileAdminActivity extends AppCompatActivity {
             } else if (id == R.id.nav_profile) {
                 return true;
             } else if (id == R.id.nav_logout) {
-                logoutAdmin();
+                logoutAdmin(); // ✅ centralized logout with toast
                 return true;
             }
             return false;
@@ -277,6 +277,7 @@ public class ProfileAdminActivity extends AppCompatActivity {
 
     private void logoutAdmin() {
         mAuth.signOut();
+        Toast.makeText(ProfileAdminActivity.this, "Logged out", Toast.LENGTH_SHORT).show(); // ✅ Toast here
         Intent intent = new Intent(ProfileAdminActivity.this, LoginActivity.class);
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
         startActivity(intent);

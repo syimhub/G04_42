@@ -2,8 +2,6 @@ package com.example.feedmatepetfeedersystem;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.view.MenuItem;
-import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -90,11 +88,7 @@ public class UserDashboardActivity extends AppCompatActivity {
                 overridePendingTransition(0, 0);
                 return true;
             } else if (itemId == R.id.nav_logout) {
-                mAuth.signOut();
-                Toast.makeText(this, "Logged out", Toast.LENGTH_SHORT).show();
-                startActivity(new Intent(this, LoginActivity.class));
-                overridePendingTransition(0, 0);
-                finish();
+                logoutUser();
                 return true;
             }
             return false;
@@ -102,6 +96,15 @@ public class UserDashboardActivity extends AppCompatActivity {
 
         // Initialize food level indicators
         updateFoodLevels();
+    }
+
+    // 🔹 Centralized logout function
+    private void logoutUser() {
+        mAuth.signOut();
+        Toast.makeText(this, "Logged out", Toast.LENGTH_SHORT).show();
+        startActivity(new Intent(this, LoginActivity.class));
+        overridePendingTransition(0, 0);
+        finish();
     }
 
     private void connectToFeeder() {
