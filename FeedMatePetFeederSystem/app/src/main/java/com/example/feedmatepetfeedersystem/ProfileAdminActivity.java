@@ -54,6 +54,17 @@ public class ProfileAdminActivity extends AppCompatActivity {
     private Uri selectedImageUri;
     private static final int PICK_IMAGE_REQUEST = 2001;
 
+    // ===== InputFilter for letters only =====
+    private static final android.text.InputFilter LETTERS_ONLY_FILTER = (source, start, end, dest, dstart, dend) -> {
+        for (int i = start; i < end; i++) {
+            char c = source.charAt(i);
+            if (!Character.isLetter(c) && c != ' ' && c != '-' && c != '\'') {
+                return ""; // Reject any non-letter input
+            }
+        }
+        return null;
+    };
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -80,6 +91,9 @@ public class ProfileAdminActivity extends AppCompatActivity {
         nameButtonsLayout = findViewById(R.id.nameButtonsLayout);
 
         TextInputLayout fullNameLayout = findViewById(R.id.fullNameLayout);
+
+        // 🔒 Restrict Full Name to letters only
+        editAdminName.setFilters(new android.text.InputFilter[]{LETTERS_ONLY_FILTER});
 
         // Display email
         if (currentUser.getEmail() != null) {
@@ -209,7 +223,7 @@ public class ProfileAdminActivity extends AppCompatActivity {
         if (imm != null) imm.showSoftInput(et, InputMethodManager.SHOW_IMPLICIT);
     }
 
-    // Tap outside → keep editing enabled (does not cancel)
+    // Tap outside → hide keyboard but keep field enabled
     @Override
     public boolean dispatchTouchEvent(MotionEvent ev) {
         if (ev.getAction() == MotionEvent.ACTION_DOWN) {

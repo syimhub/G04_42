@@ -3,7 +3,6 @@ package com.example.feedmatepetfeedersystem;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
-import android.graphics.Rect;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
@@ -55,6 +54,17 @@ public class ProfileUserActivity extends AppCompatActivity {
     private Uri selectedImageUri;
     private static final int PICK_IMAGE_REQUEST = 1001;
 
+    // ===== InputFilter to restrict numbers =====
+    private static final android.text.InputFilter LETTERS_ONLY_FILTER = (source, start, end, dest, dstart, dend) -> {
+        for (int i = start; i < end; i++) {
+            char c = source.charAt(i);
+            if (!Character.isLetter(c) && c != ' ' && c != '-' && c != '\'') {
+                return ""; // reject anything not allowed
+            }
+        }
+        return null;
+    };
+
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -92,6 +102,12 @@ public class ProfileUserActivity extends AppCompatActivity {
         petNameButtonsLayout = findViewById(R.id.petNameButtonsLayout);
         petAgeButtonsLayout = findViewById(R.id.petAgeButtonsLayout);
         petBreedButtonsLayout = findViewById(R.id.petBreedButtonsLayout);
+
+        // Restrict inputs
+        editFullName.setFilters(new android.text.InputFilter[]{LETTERS_ONLY_FILTER});
+        editPetName.setFilters(new android.text.InputFilter[]{LETTERS_ONLY_FILTER});
+        editPetBreed.setFilters(new android.text.InputFilter[]{LETTERS_ONLY_FILTER});
+        editPetAge.setInputType(android.text.InputType.TYPE_CLASS_NUMBER);
 
         // Show email from FirebaseAuth
         if (currentUser.getEmail() != null) {
@@ -219,7 +235,7 @@ public class ProfileUserActivity extends AppCompatActivity {
             } else if (id == R.id.nav_profile) {
                 return true;
             } else if (id == R.id.nav_logout) {
-                logoutUser(); // ✅ centralized logout
+                logoutUser();
                 return true;
             }
             return false;

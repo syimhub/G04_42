@@ -1,6 +1,7 @@
 package com.example.feedmatepetfeedersystem;
 
 import android.annotation.SuppressLint;
+import android.app.AlertDialog;
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.InputType;
@@ -17,6 +18,7 @@ import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException;
 import com.google.firebase.auth.FirebaseAuthInvalidUserException;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
@@ -81,33 +83,89 @@ public class AdminLoginActivity extends AppCompatActivity {
         // Back button
         adminBackButton.setOnClickListener(v -> finish());
 
-        // ✅ Forgot Password logic (stricter email validation)
+        // ✅ Forgot Password logic (dialog, only for admins)
         adminForgotPassword.setOnClickListener(v -> {
-            String email = adminEmail.getText().toString().trim();
+            AlertDialog.Builder builder = new AlertDialog.Builder(AdminLoginActivity.this);
+            builder.setTitle("Reset Password");
 
-            if (email.isEmpty()) {
-                Toast.makeText(this, "Please enter your admin email first", Toast.LENGTH_SHORT).show();
-                return;
-            }
+            final EditText input = new EditText(AdminLoginActivity.this);
+            input.setHint("Enter your admin email");
+            input.setInputType(InputType.TYPE_TEXT_VARIATION_EMAIL_ADDRESS);
+            builder.setView(input);
 
-            if (!STRICT_EMAIL_PATTERN.matcher(email).matches()) {
-                Toast.makeText(this, "Invalid email format", Toast.LENGTH_SHORT).show();
-                return;
-            }
+            builder.setPositiveButton("Submit", null); // overridden later
+            builder.setNegativeButton("Cancel", (dialog, which) -> dialog.dismiss());
 
-            mAuth.sendPasswordResetEmail(email)
-                    .addOnCompleteListener(task -> {
-                        if (task.isSuccessful()) {
-                            Toast.makeText(this,
-                                    "Password reset link sent to your email.",
-                                    Toast.LENGTH_LONG).show();
-                        } else {
-                            String error = (task.getException() != null) ? task.getException().getMessage() : "Unknown error";
-                            Toast.makeText(this,
-                                    "Failed to send reset link: " + error,
-                                    Toast.LENGTH_LONG).show();
-                        }
-                    });
+            AlertDialog dialog = builder.create();
+            dialog.setOnShowListener(dlg -> {
+                Button submitBtn = dialog.getButton(AlertDialog.BUTTON_POSITIVE);
+                submitBtn.setOnClickListener(v1 -> {
+                    String email = input.getText().toString().trim();
+
+                    if (email.isEmpty()) {
+                        input.setError("Email is required");
+                        input.requestFocus();
+                        return;
+                    }
+
+                    if (!STRICT_EMAIL_PATTERN.matcher(email).matches()) {
+                        input.setError("Invalid email format");
+                        input.requestFocus();
+                        return;
+                    }
+
+                    FirebaseDatabase db = FirebaseDatabase.getInstance(
+                            "https://feedmate-pet-feeder-system-default-rtdb.asia-southeast1.firebasedatabase.app/");
+                    DatabaseReference usersRef = db.getReference("users");
+
+                    usersRef.orderByChild("email").equalTo(email)
+                            .addListenerForSingleValueEvent(new com.google.firebase.database.ValueEventListener() {
+                                @Override
+                                public void onDataChange(DataSnapshot snapshot) {
+                                    if (!snapshot.exists()) {
+                                        input.setError("Email does not exist. Please contact system admin.");
+                                        input.requestFocus();
+                                        return;
+                                    }
+
+                                    for (DataSnapshot userSnapshot : snapshot.getChildren()) {
+                                        String role = userSnapshot.child("role").getValue(String.class);
+
+                                        if ("admin".equalsIgnoreCase(role)) {
+                                            mAuth.sendPasswordResetEmail(email)
+                                                    .addOnCompleteListener(resetTask -> {
+                                                        if (resetTask.isSuccessful()) {
+                                                            Toast.makeText(AdminLoginActivity.this,
+                                                                    "Password reset link sent to your email.",
+                                                                    Toast.LENGTH_LONG).show();
+                                                            dialog.dismiss(); // ✅ close only on success
+                                                        } else {
+                                                            String error = (resetTask.getException() != null) ?
+                                                                    resetTask.getException().getMessage() : "Unknown error";
+                                                            Toast.makeText(AdminLoginActivity.this,
+                                                                    "Failed to send reset link: " + error,
+                                                                    Toast.LENGTH_LONG).show();
+                                                        }
+                                                    });
+                                        } else {
+                                            input.setError("This email does not belong to an admin account.");
+                                            input.requestFocus();
+                                        }
+                                        break;
+                                    }
+                                }
+
+                                @Override
+                                public void onCancelled(DatabaseError error) {
+                                    Toast.makeText(AdminLoginActivity.this,
+                                            "Database error: " + error.getMessage(),
+                                            Toast.LENGTH_LONG).show();
+                                }
+                            });
+                });
+            });
+
+            dialog.show();
         });
     }
 

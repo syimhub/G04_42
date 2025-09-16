@@ -4,7 +4,10 @@ import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.os.Bundle;
 import android.widget.EditText;
+import android.widget.RadioGroup;
 import android.widget.Toast;
+import android.view.LayoutInflater;
+import android.view.View;
 
 import androidx.activity.EdgeToEdge;
 import androidx.annotation.NonNull;
@@ -40,18 +43,16 @@ public class ManageUsersActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        // Match AdminDashboard: edge-to-edge
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_manage_users);
 
-        // Apply system insets padding
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
             Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
             return insets;
         });
 
-        // Toolbar + back button
+        // Toolbar
         MaterialToolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         if (getSupportActionBar() != null) {
@@ -70,7 +71,6 @@ public class ManageUsersActivity extends AppCompatActivity {
         recyclerAdmins.setLayoutManager(new LinearLayoutManager(this));
         recyclerUsers.setLayoutManager(new LinearLayoutManager(this));
 
-        // Firebase
         usersRef = FirebaseDatabase.getInstance("https://feedmate-pet-feeder-system-default-rtdb.asia-southeast1.firebasedatabase.app/")
                 .getReference("users");
 
@@ -135,16 +135,53 @@ public class ManageUsersActivity extends AppCompatActivity {
 
     private void showEditDialog(User user) {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle("Edit User Name");
+        builder.setTitle("Edit User");
 
-        final EditText input = new EditText(this);
-        input.setText(user.getFullName() != null ? user.getFullName() : "");
-        builder.setView(input);
+        // Inflate custom layout
+        LayoutInflater inflater = getLayoutInflater();
+        View dialogView = inflater.inflate(R.layout.dialog_edit_user, null);
+        builder.setView(dialogView);
+
+        // Bind fields
+        EditText inputName = dialogView.findViewById(R.id.editFullName);
+        RadioGroup inputRoleGroup = dialogView.findViewById(R.id.editRoleGroup);
+        EditText inputPetName = dialogView.findViewById(R.id.editPetName);
+        EditText inputPetAge = dialogView.findViewById(R.id.editPetAge);
+        EditText inputPetBreed = dialogView.findViewById(R.id.editPetBreed);
+
+        // Populate with current data
+        inputName.setText(user.getFullName() != null ? user.getFullName() : "");
+        inputPetName.setText(user.getPetName() != null ? user.getPetName() : "");
+        inputPetAge.setText(user.getPetAge() != null ? user.getPetAge() : "");
+        inputPetBreed.setText(user.getPetBreed() != null ? user.getPetBreed() : "");
+
+        // Pre-select role
+        if ("admin".equalsIgnoreCase(user.getRole())) {
+            inputRoleGroup.check(R.id.radioAdmin);
+        } else {
+            inputRoleGroup.check(R.id.radioUser);
+        }
 
         builder.setPositiveButton("Save", (dialog, which) -> {
-            String newName = input.getText().toString().trim();
-            if (!newName.isEmpty() && user.getUid() != null) {
-                usersRef.child(user.getUid()).child("fullName").setValue(newName)
+            String newName = inputName.getText().toString().trim();
+            String newPetName = inputPetName.getText().toString().trim();
+            String newPetAge = inputPetAge.getText().toString().trim();
+            String newPetBreed = inputPetBreed.getText().toString().trim();
+
+            // Get role from radio group
+            int selectedRoleId = inputRoleGroup.getCheckedRadioButtonId();
+            String newRole = "user"; // default
+            if (selectedRoleId == R.id.radioAdmin) {
+                newRole = "admin";
+            }
+
+            if (user.getUid() != null) {
+                DatabaseReference userRef = usersRef.child(user.getUid());
+                userRef.child("fullName").setValue(newName);
+                userRef.child("role").setValue(newRole);
+                userRef.child("petName").setValue(newPetName);
+                userRef.child("petAge").setValue(newPetAge);
+                userRef.child("petBreed").setValue(newPetBreed)
                         .addOnSuccessListener(aVoid ->
                                 Toast.makeText(ManageUsersActivity.this, "User updated", Toast.LENGTH_SHORT).show())
                         .addOnFailureListener(e ->
@@ -160,7 +197,7 @@ public class ManageUsersActivity extends AppCompatActivity {
     protected void onDestroy() {
         super.onDestroy();
         if (usersRef != null && usersListener != null) {
-            usersRef.removeEventListener(usersListener); // ✅ Clean up to prevent errors after logout
+            usersRef.removeEventListener(usersListener);
         }
     }
 }

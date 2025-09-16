@@ -4,4 +4,10 @@
         <item name="cornerFamily">rounded</item>
         <item name="cornerSize">50%</item>
     </style>
+
+    <string-array name="roles_array">
+        <item>user</item>
+        <item>admin</item>
+    </string-array>
+
 </resources>

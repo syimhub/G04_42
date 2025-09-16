@@ -17,6 +17,9 @@ import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
+import java.util.HashMap;
+import java.util.Map;
+
 public class SignUpActivity extends AppCompatActivity {
 
     private EditText signupEmail, signupPassword;
@@ -117,8 +120,31 @@ public class SignUpActivity extends AppCompatActivity {
                                                 "https://feedmate-pet-feeder-system-default-rtdb.asia-southeast1.firebasedatabase.app/");
                                         DatabaseReference dbRef = db.getReference("users");
                                         String uid = user.getUid();
-                                        User userProfile = new User(uid, "", user.getEmail(), "user"); // default role: user
 
+                                        // 🔹 Step 1: Use UID as feederId
+                                        String feederId = uid;
+
+                                        // 🔹 Step 2: Create user profile with feederId and default values for all fields
+                                        User userProfile = new User(
+                                                uid,
+                                                "",                // fullName
+                                                user.getEmail(),   // email
+                                                "user",            // role
+                                                feederId           // feederId
+                                        );
+
+                                        // 🔹 Step 3: Initialize device node
+                                        DatabaseReference deviceRef = db.getReference("devices").child(feederId);
+                                        Map<String, Object> defaultDevice = new HashMap<>();
+                                        defaultDevice.put("controls", new HashMap<>());
+                                        defaultDevice.put("food", new HashMap<>());
+                                        defaultDevice.put("sensors", new HashMap<>());
+                                        defaultDevice.put("servo", new HashMap<>());
+                                        defaultDevice.put("system", new HashMap<>());
+
+                                        deviceRef.setValue(defaultDevice);
+
+                                        // 🔹 Step 4: Save user with feederId
                                         dbRef.child(uid).setValue(userProfile).addOnCompleteListener(dbTask -> {
                                             if (dbTask.isSuccessful()) {
                                                 Toast.makeText(SignUpActivity.this,
