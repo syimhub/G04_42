@@ -18,6 +18,7 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 public class SignUpActivity extends AppCompatActivity {
@@ -133,23 +134,59 @@ public class SignUpActivity extends AppCompatActivity {
                                                 feederId           // feederId
                                         );
 
-                                        // 🔹 Step 3: Initialize device node
-                                        DatabaseReference deviceRef = db.getReference("devices").child(feederId);
-                                        Map<String, Object> defaultDevice = new HashMap<>();
-                                        defaultDevice.put("controls", new HashMap<>());
-                                        defaultDevice.put("food", new HashMap<>());
-                                        defaultDevice.put("sensors", new HashMap<>());
-                                        defaultDevice.put("servo", new HashMap<>());
-                                        defaultDevice.put("system", new HashMap<>());
-
-                                        deviceRef.setValue(defaultDevice);
-
-                                        // 🔹 Step 4: Save user with feederId
+                                        // 🔹 Step 3: Save user first
                                         dbRef.child(uid).setValue(userProfile).addOnCompleteListener(dbTask -> {
                                             if (dbTask.isSuccessful()) {
-                                                Toast.makeText(SignUpActivity.this,
-                                                        "User saved successfully!", Toast.LENGTH_SHORT).show();
-                                                mAuth.signOut(); // Sign out until verified
+                                                // 🔹 Step 4: Initialize device node with default structure after user exists
+                                                DatabaseReference deviceRef = db.getReference("devices").child(feederId);
+
+                                                // Use LinkedHashMap to preserve insertion order
+                                                Map<String, Object> defaultDevice = new LinkedHashMap<>();
+
+                                                // Owner field (first child)
+                                                defaultDevice.put("owner", uid);
+
+                                                // Controls
+                                                Map<String, Object> controls = new HashMap<>();
+                                                controls.put("feedNow", false);
+                                                defaultDevice.put("controls", controls);
+
+                                                // Food
+                                                Map<String, Object> food = new HashMap<>();
+                                                food.put("level", 0);
+                                                defaultDevice.put("food", food);
+
+                                                // Sensor
+                                                Map<String, Object> sensor = new HashMap<>();
+                                                sensor.put("distance", 0.0);
+                                                sensor.put("objectDetected", false);
+                                                defaultDevice.put("sensor", sensor);
+
+                                                // Servo
+                                                Map<String, Object> servo = new HashMap<>();
+                                                servo.put("angle", -1);
+                                                defaultDevice.put("servo", servo);
+
+                                                // System
+                                                Map<String, Object> system = new HashMap<>();
+                                                system.put("feedingInProgress", false);
+                                                system.put("lastUpdate", "");
+                                                system.put("status", 0);
+                                                defaultDevice.put("system", system);
+
+                                                // Save device node with completion listener
+                                                deviceRef.setValue(defaultDevice).addOnCompleteListener(deviceTask -> {
+                                                    if (deviceTask.isSuccessful()) {
+                                                        Toast.makeText(SignUpActivity.this, "Device node created successfully!", Toast.LENGTH_SHORT).show();
+                                                    } else {
+                                                        Toast.makeText(SignUpActivity.this,
+                                                                "Failed to create device node: " + deviceTask.getException(),
+                                                                Toast.LENGTH_LONG).show();
+                                                    }
+                                                });
+
+                                                // Sign out and redirect to login
+                                                mAuth.signOut();
                                                 startActivity(new Intent(SignUpActivity.this, LoginActivity.class));
                                                 finish();
                                             } else {
