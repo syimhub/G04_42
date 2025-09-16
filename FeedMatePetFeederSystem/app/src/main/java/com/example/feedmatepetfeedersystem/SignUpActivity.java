@@ -174,6 +174,11 @@ public class SignUpActivity extends AppCompatActivity {
                                                 system.put("status", 0);
                                                 defaultDevice.put("system", system);
 
+                                                // 🔹 Schedule: next feeding time
+                                                Map<String, Object> schedule = new HashMap<>();
+                                                schedule.put("nextFeedingTime", "12:00"); // default time
+                                                defaultDevice.put("schedule", schedule);
+
                                                 // Save device node with completion listener
                                                 deviceRef.setValue(defaultDevice).addOnCompleteListener(deviceTask -> {
                                                     if (deviceTask.isSuccessful()) {

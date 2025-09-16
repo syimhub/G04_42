@@ -1,19 +1,31 @@
 package com.example.feedmatepetfeedersystem;
 
+import android.app.TimePickerDialog;
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
+
 import androidx.appcompat.app.AppCompatActivity;
+
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
+
 import okhttp3.Call;
 import okhttp3.Callback;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
+
 import java.io.IOException;
 
 public class UserDashboardActivity extends AppCompatActivity {
@@ -28,6 +40,8 @@ public class UserDashboardActivity extends AppCompatActivity {
     private boolean isConnected = false;
     private String esp32Ip = "10.114.113.127";
 
+    private DatabaseReference deviceRef;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -40,6 +54,7 @@ public class UserDashboardActivity extends AppCompatActivity {
         tvFoodLevel = findViewById(R.id.tvFoodLevel);
         tvFoodWeight = findViewById(R.id.tvFoodWeight);
         tvNextFeedingTime = findViewById(R.id.tvNextFeedingTime);
+        ImageView btnEditFeedingTime = findViewById(R.id.btnEditFeedingTime);
         httpClient = new OkHttpClient();
 
         // Disable feed button until connected
@@ -52,6 +67,9 @@ public class UserDashboardActivity extends AppCompatActivity {
             finish();
             return;
         }
+
+        String uid = currentUser.getUid();
+        deviceRef = FirebaseDatabase.getInstance().getReference("devices").child(uid);
 
         // Set welcome message with user's name
         if (currentUser.getDisplayName() != null) {
@@ -69,10 +87,10 @@ public class UserDashboardActivity extends AppCompatActivity {
         });
 
         // Set up manual feed button
-        btnManualFeed.setOnClickListener(v -> {
-            sendFeedCommand();
-            Toast.makeText(this, "Dispensing food...", Toast.LENGTH_SHORT).show();
-        });
+        btnManualFeed.setOnClickListener(v -> feedNow());
+
+        // Set up edit feeding time button
+        btnEditFeedingTime.setOnClickListener(v -> setNextFeedingTime());
 
         // Bottom Navigation setup
         BottomNavigationView bottomNavigationView = findViewById(R.id.bottom_navigation);
@@ -94,8 +112,8 @@ public class UserDashboardActivity extends AppCompatActivity {
             return false;
         });
 
-        // Initialize food level indicators
-        updateFoodLevels();
+        // Start listening to device changes in Firebase
+        listenToDeviceData();
     }
 
     // 🔹 Centralized logout function
@@ -105,6 +123,87 @@ public class UserDashboardActivity extends AppCompatActivity {
         startActivity(new Intent(this, LoginActivity.class));
         overridePendingTransition(0, 0);
         finish();
+    }
+
+    // 🔹 Feed Now function (writes to Firebase)
+    private void feedNow() {
+        if (deviceRef == null) return;
+
+        Toast.makeText(this, "Dispensing food...", Toast.LENGTH_SHORT).show();
+
+        deviceRef.child("controls").child("feedNow").setValue(true).addOnCompleteListener(task -> {
+            if (task.isSuccessful()) {
+                Toast.makeText(this, "Feeding command sent!", Toast.LENGTH_SHORT).show();
+            } else {
+                Toast.makeText(this, "Failed to send feed command", Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+    // 🔹 Set Next Feeding Time function
+    private void setNextFeedingTime() {
+        if (deviceRef == null) return;
+
+        TimePickerDialog timePicker = new TimePickerDialog(this,
+                (view, hourOfDay, minute) -> {
+                    String formattedTime = String.format("%02d:%02d", hourOfDay, minute);
+                    tvNextFeedingTime.setText(formattedTime); // Update UI immediately
+
+                    // Ensure schedule node exists
+                    deviceRef.child("schedule").child("nextFeedingTime").setValue(formattedTime)
+                            .addOnCompleteListener(task -> {
+                                if (task.isSuccessful()) {
+                                    Toast.makeText(this, "Next feeding time set!", Toast.LENGTH_SHORT).show();
+                                } else {
+                                    Toast.makeText(this, "Failed to set feeding time", Toast.LENGTH_SHORT).show();
+                                }
+                            });
+                }, 12, 0, false);
+
+        timePicker.show();
+    }
+
+    // 🔹 Real-time listener for device data
+    private void listenToDeviceData() {
+        deviceRef.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot snapshot) {
+                if (!snapshot.exists()) return;
+
+                // Update food level
+                DataSnapshot foodSnapshot = snapshot.child("food").child("level");
+                if (foodSnapshot.exists()) {
+                    tvFoodLevel.setText(foodSnapshot.getValue(String.class) + "%");
+                }
+
+                // Update food weight (if you track weight separately)
+                DataSnapshot weightSnapshot = snapshot.child("food").child("weight");
+                if (weightSnapshot.exists()) {
+                    tvFoodWeight.setText(weightSnapshot.getValue(String.class) + "g");
+                }
+
+                // Update next feeding time with default handling
+                DataSnapshot nextFeedingSnapshot = snapshot.child("schedule").child("nextFeedingTime");
+                String time = "--:--";
+                if (nextFeedingSnapshot.exists()) {
+                    String fetchedTime = nextFeedingSnapshot.getValue(String.class);
+                    if (fetchedTime != null && !fetchedTime.isEmpty()) {
+                        time = fetchedTime;
+                    }
+                }
+                tvNextFeedingTime.setText(time);
+
+                // Debug log
+                Log.d("Firebase", "Next feeding time: " + time);
+            }
+
+            @Override
+            public void onCancelled(DatabaseError error) {
+                Toast.makeText(UserDashboardActivity.this,
+                        "Failed to read device data: " + error.getMessage(),
+                        Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 
     private void connectToFeeder() {
@@ -133,70 +232,11 @@ public class UserDashboardActivity extends AppCompatActivity {
                                 "Connected to feeder!",
                                 Toast.LENGTH_SHORT).show();
                         updateConnectionUI(true);
-                        updateFoodLevels();
                     } else {
                         Toast.makeText(UserDashboardActivity.this,
                                 "Connection failed",
                                 Toast.LENGTH_SHORT).show();
                         updateConnectionUI(false);
-                    }
-                });
-            }
-        });
-    }
-
-    private void sendFeedCommand() {
-        // First move to feeding position (0 degrees)
-        String feedUrl = "http://" + esp32Ip + "/position/0";
-
-        Request feedRequest = new Request.Builder()
-                .url(feedUrl)
-                .build();
-
-        httpClient.newCall(feedRequest).enqueue(new Callback() {
-            @Override
-            public void onFailure(Call call, IOException e) {
-                runOnUiThread(() ->
-                        Toast.makeText(UserDashboardActivity.this,
-                                "Feeding failed: " + e.getMessage(),
-                                Toast.LENGTH_SHORT).show()
-                );
-            }
-
-            @Override
-            public void onResponse(Call call, Response response) throws IOException {
-                // After feeding, wait a moment then return to home position
-                try {
-                    Thread.sleep(1500); // Wait 1.5 seconds for food to dispense
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-
-                // Now send command to return to home position (90 degrees)
-                String returnUrl = "http://" + esp32Ip + "/position/90";
-                Request returnRequest = new Request.Builder()
-                        .url(returnUrl)
-                        .build();
-
-                httpClient.newCall(returnRequest).enqueue(new Callback() {
-                    @Override
-                    public void onFailure(Call call, IOException e) {
-                        runOnUiThread(() ->
-                                Toast.makeText(UserDashboardActivity.this,
-                                        "Return failed: " + e.getMessage(),
-                                        Toast.LENGTH_SHORT).show()
-                        );
-                    }
-
-                    @Override
-                    public void onResponse(Call call, Response response) {
-                        runOnUiThread(() -> {
-                            // Update food levels after feeding
-                            updateFoodLevels();
-                            Toast.makeText(UserDashboardActivity.this,
-                                    "Feeding completed!",
-                                    Toast.LENGTH_SHORT).show();
-                        });
                     }
                 });
             }
@@ -221,13 +261,4 @@ public class UserDashboardActivity extends AppCompatActivity {
         });
     }
 
-    private void updateFoodLevels() {
-        // In a real app, you would get these values from the ESP32
-        // For now, we'll use mock data
-        runOnUiThread(() -> {
-            tvFoodLevel.setText(isConnected ? "75%" : "Not connected");
-            tvFoodWeight.setText(isConnected ? "250g" : "Not connected");
-            tvNextFeedingTime.setText("12:00 PM"); // Example static time
-        });
-    }
 }
