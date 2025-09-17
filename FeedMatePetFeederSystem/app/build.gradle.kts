@@ -33,8 +33,6 @@ android {
 }
 
 dependencies {
-
-
     implementation("com.squareup.okhttp3:okhttp:4.9.3")
     implementation(libs.appcompat)
     implementation(libs.material)
@@ -48,9 +46,10 @@ dependencies {
     implementation(libs.glide)
     annotationProcessor(libs.glideCompiler)
 
-    implementation(platform(libs.firebase.bom)) // Ensure firebase library use compatible versions
-    implementation(libs.firebase.auth)       // For login & signup
-    implementation(libs.firebase.database)  // If you want to store feeding schedules/logs
+    implementation(platform(libs.firebase.bom))
+    implementation(libs.firebase.auth)
+    implementation(libs.firebase.database)
     implementation(libs.firebase.storage)
+
 
 }

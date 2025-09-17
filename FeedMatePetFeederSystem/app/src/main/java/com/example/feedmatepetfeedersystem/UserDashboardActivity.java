@@ -4,7 +4,6 @@ import android.app.TimePickerDialog;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
-import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -12,6 +11,7 @@ import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.google.android.material.button.MaterialButton;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
@@ -31,29 +31,37 @@ import java.io.IOException;
 public class UserDashboardActivity extends AppCompatActivity {
 
     private FirebaseAuth mAuth;
-    private Button btnConnectFeeder;
-    private Button btnManualFeed;
+    private MaterialButton btnConnectFeeder;
+    private MaterialButton btnManualFeed;
+    private MaterialButton btnHistory;
     private TextView tvFoodLevel;
     private TextView tvFoodWeight;
     private TextView tvNextFeedingTime;
+    private TextView tvWelcome;
+    private TextView tvLiveData;
+
     private OkHttpClient httpClient;
     private boolean isConnected = false;
     private String esp32Ip = "10.114.113.127";
 
     private DatabaseReference deviceRef;
+    private ValueEventListener deviceDataListener;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_user_dashboard);
 
-        // Initialize views
+        // Initialize views based on your XML
         mAuth = FirebaseAuth.getInstance();
         btnConnectFeeder = findViewById(R.id.btnConnectFeeder);
         btnManualFeed = findViewById(R.id.btnManualFeed);
+        btnHistory = findViewById(R.id.btnHistory);
         tvFoodLevel = findViewById(R.id.tvFoodLevel);
         tvFoodWeight = findViewById(R.id.tvFoodWeight);
         tvNextFeedingTime = findViewById(R.id.tvNextFeedingTime);
+        tvWelcome = findViewById(R.id.tvWelcome);
+        tvLiveData = findViewById(R.id.tvLiveData);
         ImageView btnEditFeedingTime = findViewById(R.id.btnEditFeedingTime);
         httpClient = new OkHttpClient();
 
@@ -69,12 +77,16 @@ public class UserDashboardActivity extends AppCompatActivity {
         }
 
         String uid = currentUser.getUid();
-        deviceRef = FirebaseDatabase.getInstance().getReference("devices").child(uid);
+
+        // Initialize Firebase Database with your specific URL
+        FirebaseDatabase database = FirebaseDatabase.getInstance("https://feedmate-pet-feeder-system-default-rtdb.asia-southeast1.firebasedatabase.app/");
+        deviceRef = database.getReference("devices").child(uid);
 
         // Set welcome message with user's name
         if (currentUser.getDisplayName() != null) {
-            TextView tvWelcome = findViewById(R.id.tvWelcome);
             tvWelcome.setText("Welcome, " + currentUser.getDisplayName() + "!");
+        } else {
+            tvWelcome.setText("Welcome!");
         }
 
         // Set up connection button
@@ -88,6 +100,12 @@ public class UserDashboardActivity extends AppCompatActivity {
 
         // Set up manual feed button
         btnManualFeed.setOnClickListener(v -> feedNow());
+
+        // Set up history button (add your history functionality)
+        btnHistory.setOnClickListener(v -> {
+            // Add your history activity intent here
+            Toast.makeText(this, "History feature coming soon", Toast.LENGTH_SHORT).show();
+        });
 
         // Set up edit feeding time button
         btnEditFeedingTime.setOnClickListener(v -> setNextFeedingTime());
@@ -112,12 +130,31 @@ public class UserDashboardActivity extends AppCompatActivity {
             return false;
         });
 
-        // Start listening to device changes in Firebase
+        // Check Firebase connection status
+        checkFirebaseConnection();
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        // Start listening to device changes in Firebase when activity is visible
         listenToDeviceData();
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        // Stop listening to Firebase when activity is not visible
+        if (deviceDataListener != null) {
+            deviceRef.removeEventListener(deviceDataListener);
+        }
     }
 
     // 🔹 Centralized logout function
     private void logoutUser() {
+        if (deviceDataListener != null) {
+            deviceRef.removeEventListener(deviceDataListener);
+        }
         mAuth.signOut();
         Toast.makeText(this, "Logged out", Toast.LENGTH_SHORT).show();
         startActivity(new Intent(this, LoginActivity.class));
@@ -163,45 +200,146 @@ public class UserDashboardActivity extends AppCompatActivity {
         timePicker.show();
     }
 
-    // 🔹 Real-time listener for device data
+    // 🔹 Real-time listener for device data (FIXED DATA TYPE CONVERSION)
     private void listenToDeviceData() {
-        deviceRef.addValueEventListener(new ValueEventListener() {
+        deviceDataListener = new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot snapshot) {
-                if (!snapshot.exists()) return;
+                if (!snapshot.exists()) {
+                    tvFoodLevel.setText("Loading...");
+                    tvFoodWeight.setText("Loading...");
+                    tvNextFeedingTime.setText("Loading...");
+                    tvLiveData.setText("No device data available");
 
-                // Update food level
-                DataSnapshot foodSnapshot = snapshot.child("food").child("level");
-                if (foodSnapshot.exists()) {
-                    tvFoodLevel.setText(foodSnapshot.getValue(String.class) + "%");
+                    // Create initial device structure if it doesn't exist
+                    initializeDeviceData();
+                    return;
                 }
 
-                // Update food weight (if you track weight separately)
-                DataSnapshot weightSnapshot = snapshot.child("food").child("weight");
-                if (weightSnapshot.exists()) {
-                    tvFoodWeight.setText(weightSnapshot.getValue(String.class) + "g");
-                }
-
-                // Update next feeding time with default handling
-                DataSnapshot nextFeedingSnapshot = snapshot.child("schedule").child("nextFeedingTime");
-                String time = "--:--";
-                if (nextFeedingSnapshot.exists()) {
-                    String fetchedTime = nextFeedingSnapshot.getValue(String.class);
-                    if (fetchedTime != null && !fetchedTime.isEmpty()) {
-                        time = fetchedTime;
+                try {
+                    // Update food level - handle both String and Number types
+                    String foodLevel = "N/A";
+                    if (snapshot.child("food").child("level").exists()) {
+                        Object levelValue = snapshot.child("food").child("level").getValue();
+                        if (levelValue instanceof String) {
+                            foodLevel = (String) levelValue;
+                        } else if (levelValue instanceof Number) {
+                            foodLevel = String.valueOf(((Number) levelValue).intValue());
+                        }
+                        tvFoodLevel.setText(foodLevel + "%");
+                    } else {
+                        tvFoodLevel.setText("N/A");
                     }
-                }
-                tvNextFeedingTime.setText(time);
 
-                // Debug log
-                Log.d("Firebase", "Next feeding time: " + time);
+                    // Update food weight - handle both String and Number types
+                    String foodWeight = "N/A";
+                    if (snapshot.child("food").child("weight").exists()) {
+                        Object weightValue = snapshot.child("food").child("weight").getValue();
+                        if (weightValue instanceof String) {
+                            foodWeight = (String) weightValue;
+                        } else if (weightValue instanceof Number) {
+                            foodWeight = String.valueOf(((Number) weightValue).intValue());
+                        }
+                        tvFoodWeight.setText(foodWeight + "g");
+                    } else {
+                        tvFoodWeight.setText("N/A");
+                    }
+
+                    // Update next feeding time
+                    String nextFeedingTime = "--:--";
+                    if (snapshot.child("schedule").child("nextFeedingTime").exists()) {
+                        Object timeValue = snapshot.child("schedule").child("nextFeedingTime").getValue();
+                        if (timeValue instanceof String) {
+                            nextFeedingTime = (String) timeValue;
+                        }
+                        if (nextFeedingTime != null && !nextFeedingTime.isEmpty()) {
+                            tvNextFeedingTime.setText(nextFeedingTime);
+                        } else {
+                            tvNextFeedingTime.setText("--:--");
+                        }
+                    } else {
+                        tvNextFeedingTime.setText("--:--");
+                    }
+
+                    // Display all data in Live View
+                    StringBuilder liveData = new StringBuilder();
+                    liveData.append("Food Level: ").append(foodLevel).append("%\n");
+                    liveData.append("Food Weight: ").append(foodWeight).append("g\n");
+                    liveData.append("Next Feeding: ").append(nextFeedingTime).append("\n\n");
+
+                    // Add raw Firebase data for debugging
+                    liveData.append("Raw Firebase Data:\n");
+                    liveData.append(snapshot.toString());
+
+                    tvLiveData.setText(liveData.toString());
+                    Log.d("Firebase", "Data retrieved successfully: " + snapshot.toString());
+
+                } catch (Exception e) {
+                    Log.e("Firebase", "Error parsing data: " + e.getMessage());
+                    tvLiveData.setText("Error loading data: " + e.getMessage());
+                    Toast.makeText(UserDashboardActivity.this, "Error reading device data", Toast.LENGTH_SHORT).show();
+                }
             }
 
             @Override
             public void onCancelled(DatabaseError error) {
+                tvLiveData.setText("Database error: " + error.getMessage());
                 Toast.makeText(UserDashboardActivity.this,
                         "Failed to read device data: " + error.getMessage(),
                         Toast.LENGTH_SHORT).show();
+                Log.e("Firebase", "Database error: " + error.getMessage());
+            }
+        };
+
+        // Add the listener to the database reference
+        deviceRef.addValueEventListener(deviceDataListener);
+    }
+
+    // Helper method to initialize device data structure if it doesn't exist
+    private void initializeDeviceData() {
+        FirebaseUser currentUser = mAuth.getCurrentUser();
+        if (currentUser != null) {
+            String uid = currentUser.getUid();
+            FirebaseDatabase database = FirebaseDatabase.getInstance("https://feedmate-pet-feeder-system-default-rtdb.asia-southeast1.firebasedatabase.app/");
+            DatabaseReference userDeviceRef = database.getReference("devices").child(uid);
+
+            // Create initial data structure
+            userDeviceRef.child("food").child("level").setValue(0);
+            userDeviceRef.child("food").child("weight").setValue(0);
+            userDeviceRef.child("schedule").child("nextFeedingTime").setValue("--:--");
+            userDeviceRef.child("controls").child("feedNow").setValue(false);
+
+            Toast.makeText(this, "Initialized new device data", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    // Check Firebase connection status
+    private void checkFirebaseConnection() {
+        FirebaseDatabase database = FirebaseDatabase.getInstance("https://feedmate-pet-feeder-system-default-rtdb.asia-southeast1.firebasedatabase.app/");
+        DatabaseReference connectedRef = database.getReference(".info/connected");
+        connectedRef.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot snapshot) {
+                boolean connected = snapshot.getValue(Boolean.class);
+                if (connected) {
+                    Log.d("Firebase", "Connected to Firebase");
+                    // Append to existing text instead of replacing
+                    String currentText = tvLiveData.getText().toString();
+                    if (!currentText.contains("Firebase: Connected")) {
+                        tvLiveData.append("\nFirebase: Connected");
+                    }
+                } else {
+                    Log.d("Firebase", "Not connected to Firebase");
+                    String currentText = tvLiveData.getText().toString();
+                    if (!currentText.contains("Firebase: Disconnected")) {
+                        tvLiveData.append("\nFirebase: Disconnected");
+                    }
+                }
+            }
+
+            @Override
+            public void onCancelled(DatabaseError error) {
+                Log.e("Firebase", "Listener was cancelled");
             }
         });
     }
@@ -251,7 +389,7 @@ public class UserDashboardActivity extends AppCompatActivity {
     private void updateConnectionUI(boolean connected) {
         isConnected = connected;
         runOnUiThread(() -> {
-            btnConnectFeeder.setText(connected ? "DISCONNECT" : "CONNECT TO FEEDER");
+            btnConnectFeeder.setText(connected ? "DISCONNECT FEEDER" : "SYNC DATA TO FEEDER");
             btnConnectFeeder.setBackgroundTintList(
                     getResources().getColorStateList(
                             connected ? R.color.green : R.color.blue
@@ -260,5 +398,4 @@ public class UserDashboardActivity extends AppCompatActivity {
             btnManualFeed.setEnabled(connected);
         });
     }
-
 }
