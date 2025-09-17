@@ -125,7 +125,7 @@ public class SignUpActivity extends AppCompatActivity {
                                         // 🔹 Step 1: Use UID as feederId
                                         String feederId = uid;
 
-                                        // 🔹 Step 2: Create user profile with feederId and default values for all fields
+                                        // 🔹 Step 2: Create user profile with feederId
                                         User userProfile = new User(
                                                 uid,
                                                 "",                // fullName
@@ -137,52 +137,51 @@ public class SignUpActivity extends AppCompatActivity {
                                         // 🔹 Step 3: Save user first
                                         dbRef.child(uid).setValue(userProfile).addOnCompleteListener(dbTask -> {
                                             if (dbTask.isSuccessful()) {
-                                                // 🔹 Step 4: Initialize device node with default structure after user exists
+                                                // 🔹 Step 4: Initialize device node with default structure
                                                 DatabaseReference deviceRef = db.getReference("devices").child(feederId);
 
-                                                // Use LinkedHashMap to preserve insertion order
                                                 Map<String, Object> defaultDevice = new LinkedHashMap<>();
-
-                                                // Owner field (first child)
                                                 defaultDevice.put("owner", uid);
 
-                                                // Controls
                                                 Map<String, Object> controls = new HashMap<>();
                                                 controls.put("feedNow", false);
                                                 defaultDevice.put("controls", controls);
 
-                                                // Food
                                                 Map<String, Object> food = new HashMap<>();
                                                 food.put("level", 0);
+                                                food.put("weight", 0); // added for weight tracking
                                                 defaultDevice.put("food", food);
 
-                                                // Sensor
                                                 Map<String, Object> sensor = new HashMap<>();
                                                 sensor.put("distance", 0.0);
                                                 sensor.put("objectDetected", false);
                                                 defaultDevice.put("sensor", sensor);
 
-                                                // Servo
                                                 Map<String, Object> servo = new HashMap<>();
                                                 servo.put("angle", -1);
                                                 defaultDevice.put("servo", servo);
 
-                                                // System
                                                 Map<String, Object> system = new HashMap<>();
                                                 system.put("feedingInProgress", false);
                                                 system.put("lastUpdate", "");
                                                 system.put("status", 0);
                                                 defaultDevice.put("system", system);
 
-                                                // 🔹 Schedule: next feeding time
                                                 Map<String, Object> schedule = new HashMap<>();
-                                                schedule.put("nextFeedingTime", "12:00"); // default time
+                                                schedule.put("nextFeedingTime", "12:00");
                                                 defaultDevice.put("schedule", schedule);
 
-                                                // Save device node with completion listener
+                                                // ✅ Now save device node and redirect after success
                                                 deviceRef.setValue(defaultDevice).addOnCompleteListener(deviceTask -> {
                                                     if (deviceTask.isSuccessful()) {
-                                                        Toast.makeText(SignUpActivity.this, "Device node created successfully!", Toast.LENGTH_SHORT).show();
+                                                        Toast.makeText(SignUpActivity.this,
+                                                                "Account created successfully!",
+                                                                Toast.LENGTH_SHORT).show();
+
+                                                        // Safe to sign out & redirect now
+                                                        mAuth.signOut();
+                                                        startActivity(new Intent(SignUpActivity.this, LoginActivity.class));
+                                                        finish();
                                                     } else {
                                                         Toast.makeText(SignUpActivity.this,
                                                                 "Failed to create device node: " + deviceTask.getException(),
@@ -190,10 +189,6 @@ public class SignUpActivity extends AppCompatActivity {
                                                     }
                                                 });
 
-                                                // Sign out and redirect to login
-                                                mAuth.signOut();
-                                                startActivity(new Intent(SignUpActivity.this, LoginActivity.class));
-                                                finish();
                                             } else {
                                                 Toast.makeText(SignUpActivity.this,
                                                         "Failed to save user info: " +
