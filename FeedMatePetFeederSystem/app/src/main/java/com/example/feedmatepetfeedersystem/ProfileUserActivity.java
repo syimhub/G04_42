@@ -2,7 +2,6 @@ package com.example.feedmatepetfeedersystem;
 
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
@@ -19,6 +18,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.bumptech.glide.Glide;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.textfield.TextInputLayout;
 import com.google.firebase.auth.FirebaseAuth;
@@ -28,8 +28,9 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
 
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -42,24 +43,21 @@ public class ProfileUserActivity extends AppCompatActivity {
     private FirebaseAuth mAuth;
     private DatabaseReference userRef;
 
-    // UI
     private EditText editPetName, editPetAge, editPetBreed, editFullName, editEmail;
     private TextView tvUserName, tvUserEmail;
     private ImageView imgUser;
 
-    // Action rows
     private LinearLayout nameButtonsLayout, petNameButtonsLayout, petAgeButtonsLayout, petBreedButtonsLayout;
 
     private final Map<String, String> committedValues = new HashMap<>();
     private Uri selectedImageUri;
     private static final int PICK_IMAGE_REQUEST = 1001;
 
-    // ===== InputFilter to restrict numbers =====
     private static final android.text.InputFilter LETTERS_ONLY_FILTER = (source, start, end, dest, dstart, dend) -> {
         for (int i = start; i < end; i++) {
             char c = source.charAt(i);
             if (!Character.isLetter(c) && c != ' ' && c != '-' && c != '\'') {
-                return ""; // reject anything not allowed
+                return "";
             }
         }
         return null;
@@ -115,7 +113,7 @@ public class ProfileUserActivity extends AppCompatActivity {
             editEmail.setText(currentUser.getEmail());
         }
 
-        // ===== End icon (pencil) → enable edit =====
+        // ===== End icon → enable edit =====
         fullNameLayout.setEndIconOnClickListener(v ->
                 startEditing("fullName", editFullName, nameButtonsLayout));
         petNameLayout.setEndIconOnClickListener(v ->
@@ -144,7 +142,7 @@ public class ProfileUserActivity extends AppCompatActivity {
                 String petAge = snapshot.child("petAge").getValue(String.class);
                 String petBreed = snapshot.child("petBreed").getValue(String.class);
                 String fullName = snapshot.child("fullName").getValue(String.class);
-                String profileBase64 = snapshot.child("profileImageBase64").getValue(String.class);
+                String profileUrl = snapshot.child("profileImageUrl").getValue(String.class);
 
                 if (petName != null) editPetName.setText(petName);
                 if (petAge != null) editPetAge.setText(petAge);
@@ -159,15 +157,15 @@ public class ProfileUserActivity extends AppCompatActivity {
                 committedValues.put("petBreed", editPetBreed.getText().toString());
                 committedValues.put("fullName", editFullName.getText().toString());
 
-                if (profileBase64 != null && !profileBase64.isEmpty()) {
-                    try {
-                        byte[] decoded = android.util.Base64.decode(profileBase64, android.util.Base64.DEFAULT);
-                        Bitmap bitmap = android.graphics.BitmapFactory.decodeByteArray(decoded, 0, decoded.length);
-                        imgUser.setImageBitmap(bitmap);
-                    } catch (Exception e) {
-                        imgUser.setImageResource(R.drawable.ic_user_placeholder);
-                    }
+                // Load profile picture safely
+                if (profileUrl != null && !profileUrl.isEmpty()) {
+                    Glide.with(ProfileUserActivity.this)
+                            .load(profileUrl)
+                            .placeholder(R.drawable.ic_user_placeholder)
+                            .circleCrop()
+                            .into(imgUser);
                 } else {
+                    // If URL is null or empty, always show placeholder
                     imgUser.setImageResource(R.drawable.ic_user_placeholder);
                 }
             }
@@ -240,9 +238,12 @@ public class ProfileUserActivity extends AppCompatActivity {
             }
             return false;
         });
+
+        // ===== Delete profile image button =====
+        findViewById(R.id.btnDeleteProfileImage).setOnClickListener(v -> deleteProfileImage());
     }
 
-    // ===== Centralized logout =====
+    // ===== Logout =====
     private void logoutUser() {
         mAuth.signOut();
         Toast.makeText(this, "Logged out", Toast.LENGTH_SHORT).show();
@@ -262,13 +263,10 @@ public class ProfileUserActivity extends AppCompatActivity {
 
     private void confirmField(String key, EditText et, LinearLayout actionsRow) {
         String value = et.getText().toString().trim();
-
         userRef.child(key).setValue(value)
                 .addOnSuccessListener(unused -> {
                     committedValues.put(key, value);
-                    if ("fullName".equals(key)) {
-                        tvUserName.setText(value);
-                    }
+                    if ("fullName".equals(key)) tvUserName.setText(value);
                     Toast.makeText(this, "Updated", Toast.LENGTH_SHORT).show();
                     et.setEnabled(false);
                     actionsRow.setVisibility(View.GONE);
@@ -298,7 +296,7 @@ public class ProfileUserActivity extends AppCompatActivity {
         if (imm != null) imm.hideSoftInputFromWindow(v.getWindowToken(), 0);
     }
 
-    // ===== Image picker → Base64 save =====
+    // ===== Image Picker =====
     private void openImageChooser() {
         Intent intent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
         intent.setType("image/*");
@@ -310,37 +308,72 @@ public class ProfileUserActivity extends AppCompatActivity {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == PICK_IMAGE_REQUEST && resultCode == RESULT_OK && data != null && data.getData() != null) {
             selectedImageUri = data.getData();
-
             String fileType = getContentResolver().getType(selectedImageUri);
             if (fileType != null && (fileType.equals("image/jpeg") || fileType.equals("image/png"))) {
-                saveImageAsBase64(selectedImageUri);
+                uploadImageToStorage(selectedImageUri);
             } else {
                 Toast.makeText(this, "Wrong picture format", Toast.LENGTH_SHORT).show();
             }
         }
     }
 
-    private void saveImageAsBase64(Uri imageUri) {
-        try {
-            Bitmap bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), imageUri);
-            java.io.ByteArrayOutputStream baos = new java.io.ByteArrayOutputStream();
-            bitmap.compress(Bitmap.CompressFormat.JPEG, 70, baos);
-            byte[] imageBytes = baos.toByteArray();
-            String encodedImage = android.util.Base64.encodeToString(imageBytes, android.util.Base64.DEFAULT);
+    // ===== Firebase Storage Upload =====
+    private void uploadImageToStorage(Uri imageUri) {
+        FirebaseStorage storage = FirebaseStorage.getInstance();
+        StorageReference storageRef = storage.getReference();
 
-            userRef.child("profileImageBase64").setValue(encodedImage)
-                    .addOnSuccessListener(unused -> {
-                        imgUser.setImageBitmap(bitmap);
-                        Toast.makeText(this, "Successfully changed", Toast.LENGTH_SHORT).show();
-                    })
-                    .addOnFailureListener(e -> {
-                        Toast.makeText(this, "Upload failed: " + e.getMessage(), Toast.LENGTH_LONG).show();
-                        Log.e(TAG, "Upload failed", e);
-                    });
+        String uid = FirebaseAuth.getInstance().getCurrentUser().getUid();
+        StorageReference profileRef = storageRef.child("profile_images/" + uid + ".jpg");
 
-        } catch (IOException e) {
-            e.printStackTrace();
-            Toast.makeText(this, "Image processing failed", Toast.LENGTH_LONG).show();
-        }
+        profileRef.putFile(imageUri)
+                .addOnSuccessListener(taskSnapshot -> profileRef.getDownloadUrl()
+                        .addOnSuccessListener(uri -> {
+                            String downloadUrl = uri.toString();
+                            userRef.child("profileImageUrl").setValue(downloadUrl)
+                                    .addOnSuccessListener(unused -> {
+                                        Glide.with(ProfileUserActivity.this)
+                                                .load(downloadUrl)
+                                                .placeholder(R.drawable.ic_user_placeholder)
+                                                .circleCrop()
+                                                .into(imgUser);
+                                        Toast.makeText(ProfileUserActivity.this,
+                                                "Profile picture updated", Toast.LENGTH_SHORT).show();
+                                    })
+                                    .addOnFailureListener(e ->
+                                            Toast.makeText(ProfileUserActivity.this,
+                                                    "Database update failed: " + e.getMessage(),
+                                                    Toast.LENGTH_LONG).show());
+                        }))
+                .addOnFailureListener(e ->
+                        Toast.makeText(ProfileUserActivity.this,
+                                "Upload failed: " + e.getMessage(),
+                                Toast.LENGTH_LONG).show());
+    }
+
+    // ===== Delete profile image =====
+    private void deleteProfileImage() {
+        String uid = FirebaseAuth.getInstance().getCurrentUser().getUid();
+        FirebaseStorage storage = FirebaseStorage.getInstance();
+        StorageReference profileRef = storage.getReference().child("profile_images/" + uid + ".jpg");
+
+        // Delete from Storage
+        profileRef.delete()
+                .addOnSuccessListener(unused -> {
+                    // Remove from Database
+                    userRef.child("profileImageUrl").removeValue()
+                            .addOnSuccessListener(unusedDb -> {
+                                imgUser.setImageResource(R.drawable.ic_user_placeholder);
+                                Toast.makeText(ProfileUserActivity.this,
+                                        "Profile picture deleted", Toast.LENGTH_SHORT).show();
+                            })
+                            .addOnFailureListener(e ->
+                                    Toast.makeText(ProfileUserActivity.this,
+                                            "Database update failed: " + e.getMessage(),
+                                            Toast.LENGTH_LONG).show());
+                })
+                .addOnFailureListener(e ->
+                        Toast.makeText(ProfileUserActivity.this,
+                                "Delete failed: " + e.getMessage(),
+                                Toast.LENGTH_LONG).show());
     }
 }

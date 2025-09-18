@@ -131,8 +131,13 @@ public class SignUpActivity extends AppCompatActivity {
                                                 "",                // fullName
                                                 user.getEmail(),   // email
                                                 "user",            // role
-                                                feederId           // feederId
+                                                feederId,          // feederId
+                                                "",                // petName
+                                                "",                // petAge
+                                                "",                // petBreed
+                                                ""                 // profileImageUrl
                                         );
+
 
                                         // 🔹 Step 3: Save user first
                                         dbRef.child(uid).setValue(userProfile).addOnCompleteListener(dbTask -> {

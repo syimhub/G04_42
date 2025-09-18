@@ -9,7 +9,7 @@ public class User {
     private String petName;
     private String petAge;
     private String petBreed;
-    private String profileImageBase64;
+    private String profileImageUrl;
 
     // 🔹 Default constructor required for Firebase
     public User() {}
@@ -28,12 +28,12 @@ public class User {
         this.petName = "";
         this.petAge = "";
         this.petBreed = "";
-        this.profileImageBase64 = "";
+        this.profileImageUrl = "";
     }
 
     // 🔹 Full constructor (all fields)
     public User(String uid, String fullName, String email, String role, String feederId,
-                String petName, String petAge, String petBreed, String profileImageBase64) {
+                String petName, String petAge, String petBreed, String profileImageUrl) {
         this.uid = uid;
         this.fullName = fullName;
         this.email = email;
@@ -42,7 +42,7 @@ public class User {
         this.petName = petName != null ? petName : "";
         this.petAge = petAge != null ? petAge : "";
         this.petBreed = petBreed != null ? petBreed : "";
-        this.profileImageBase64 = profileImageBase64 != null ? profileImageBase64 : "";
+        this.profileImageUrl = profileImageUrl != null ? profileImageUrl : "";
     }
 
     // 🔹 Getters and Setters
@@ -70,6 +70,6 @@ public class User {
     public String getPetBreed() { return petBreed; }
     public void setPetBreed(String petBreed) { this.petBreed = petBreed; }
 
-    public String getProfileImageBase64() { return profileImageBase64; }
-    public void setProfileImageBase64(String profileImageBase64) { this.profileImageBase64 = profileImageBase64; }
+    public String getProfileImageUrl() { return profileImageUrl; }
+    public void setProfileImageUrl(String profileImageUrl) { this.profileImageUrl = profileImageUrl; }
 }
