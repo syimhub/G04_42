@@ -6,6 +6,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
@@ -80,7 +81,7 @@ public class AdminDashboardActivity extends AppCompatActivity {
     private void loadUserCount() {
         userCountListener = new ValueEventListener() {
             @Override
-            public void onDataChange(DataSnapshot snapshot) {
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
                 int count = 0;
                 for (DataSnapshot ds : snapshot.getChildren()) {
                     User user = ds.getValue(User.class);
@@ -92,7 +93,7 @@ public class AdminDashboardActivity extends AppCompatActivity {
             }
 
             @Override
-            public void onCancelled(DatabaseError error) {
+            public void onCancelled(@NonNull DatabaseError error) {
                 tvUserCount.setText("0");
             }
         };
