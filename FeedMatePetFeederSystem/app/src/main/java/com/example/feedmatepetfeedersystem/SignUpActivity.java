@@ -17,10 +17,6 @@ import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.Map;
-
 public class SignUpActivity extends AppCompatActivity {
 
     private EditText signupEmail, signupPassword;
@@ -33,6 +29,7 @@ public class SignUpActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_sign_up);
 
+        // 🔹 Initialize UI elements
         signupEmail = findViewById(R.id.signup_email);
         signupPassword = findViewById(R.id.signup_password);
         Button signupButton = findViewById(R.id.signup_button);
@@ -40,7 +37,7 @@ public class SignUpActivity extends AppCompatActivity {
 
         mAuth = FirebaseAuth.getInstance();
 
-        // 🔹 Handle eye icon toggle inside password field
+        // 🔹 Handle eye icon toggle for password visibility
         signupPassword.setOnTouchListener((v, event) -> {
             final int DRAWABLE_RIGHT = 2; // right drawable index
             if (event.getAction() == MotionEvent.ACTION_UP) {
@@ -67,7 +64,7 @@ public class SignUpActivity extends AppCompatActivity {
             return false;
         });
 
-        // 🔹 Redirect to login
+        // 🔹 Redirect to login screen
         loginRedirectText.setOnClickListener(v -> {
             startActivity(new Intent(SignUpActivity.this, LoginActivity.class));
             finish();
@@ -78,32 +75,29 @@ public class SignUpActivity extends AppCompatActivity {
             String email = signupEmail.getText().toString().trim();
             String password = signupPassword.getText().toString().trim();
 
+            // ✅ Input validation
             if (email.isEmpty() && password.isEmpty()) {
                 Toast.makeText(SignUpActivity.this, "Please fill in all fields", Toast.LENGTH_SHORT).show();
                 return;
             }
-
             if (email.isEmpty()) {
                 Toast.makeText(SignUpActivity.this, "Email is required", Toast.LENGTH_SHORT).show();
                 return;
             }
-
             if (password.isEmpty()) {
                 Toast.makeText(SignUpActivity.this, "Password is required", Toast.LENGTH_SHORT).show();
                 return;
             }
-
             if (password.length() < 6) {
                 Toast.makeText(SignUpActivity.this, "Invalid password : Must be at least 6 characters", Toast.LENGTH_SHORT).show();
                 return;
             }
-
-            // ✅ Stricter email validation
             if (!isEmailValid(email)) {
                 Toast.makeText(SignUpActivity.this, "Invalid email format or TLD", Toast.LENGTH_SHORT).show();
                 return;
             }
 
+            // ✅ Create account with Firebase
             mAuth.createUserWithEmailAndPassword(email, password)
                     .addOnCompleteListener(task -> {
                         if (task.isSuccessful()) {
@@ -116,16 +110,15 @@ public class SignUpActivity extends AppCompatActivity {
                                                 "Signup successful! Please check your email to verify your account.",
                                                 Toast.LENGTH_LONG).show();
 
-                                        // Save user info to Realtime Database
                                         FirebaseDatabase db = FirebaseDatabase.getInstance(
                                                 "https://feedmate-pet-feeder-system-default-rtdb.asia-southeast1.firebasedatabase.app/");
                                         DatabaseReference dbRef = db.getReference("users");
                                         String uid = user.getUid();
 
-                                        // 🔹 Step 1: Use UID as feederId
+                                        // 🔹 Use UID as feederId
                                         String feederId = uid;
 
-                                        // 🔹 Step 2: Create user profile with feederId
+                                        // 🔹 Create user profile
                                         User userProfile = new User(
                                                 uid,
                                                 "",                // fullName
@@ -138,52 +131,20 @@ public class SignUpActivity extends AppCompatActivity {
                                                 ""                 // profileImageUrl
                                         );
 
-
-                                        // 🔹 Step 3: Save user first
+                                        // 🔹 Save user to DB
                                         dbRef.child(uid).setValue(userProfile).addOnCompleteListener(dbTask -> {
                                             if (dbTask.isSuccessful()) {
-                                                // 🔹 Step 4: Initialize device node with default structure
+                                                // 🔹 Initialize device node using Device.java
                                                 DatabaseReference deviceRef = db.getReference("devices").child(feederId);
 
-                                                Map<String, Object> defaultDevice = new LinkedHashMap<>();
-                                                defaultDevice.put("owner", uid);
+                                                Device defaultDevice = new Device(uid);
 
-                                                Map<String, Object> controls = new HashMap<>();
-                                                controls.put("feedNow", false);
-                                                defaultDevice.put("controls", controls);
-
-                                                Map<String, Object> food = new HashMap<>();
-                                                food.put("level", 0);
-                                                food.put("weight", 0); // added for weight tracking
-                                                defaultDevice.put("food", food);
-
-                                                Map<String, Object> sensor = new HashMap<>();
-                                                sensor.put("distance", 0.0);
-                                                sensor.put("objectDetected", false);
-                                                defaultDevice.put("sensor", sensor);
-
-                                                Map<String, Object> servo = new HashMap<>();
-                                                servo.put("angle", -1);
-                                                defaultDevice.put("servo", servo);
-
-                                                Map<String, Object> system = new HashMap<>();
-                                                system.put("feedingInProgress", false);
-                                                system.put("lastUpdate", "");
-                                                system.put("status", 0);
-                                                defaultDevice.put("system", system);
-
-                                                Map<String, Object> schedule = new HashMap<>();
-                                                schedule.put("nextFeedingTime", "12:00");
-                                                defaultDevice.put("schedule", schedule);
-
-                                                // ✅ Now save device node and redirect after success
                                                 deviceRef.setValue(defaultDevice).addOnCompleteListener(deviceTask -> {
                                                     if (deviceTask.isSuccessful()) {
                                                         Toast.makeText(SignUpActivity.this,
                                                                 "Account created successfully!",
                                                                 Toast.LENGTH_SHORT).show();
 
-                                                        // Safe to sign out & redirect now
                                                         mAuth.signOut();
                                                         startActivity(new Intent(SignUpActivity.this, LoginActivity.class));
                                                         finish();
@@ -217,7 +178,9 @@ public class SignUpActivity extends AppCompatActivity {
                                     ? task.getException().getMessage()
                                     : "Unknown error occurred";
 
-                            Toast.makeText(SignUpActivity.this, "Signup failed: " + errorMessage, Toast.LENGTH_LONG).show();
+                            Toast.makeText(SignUpActivity.this,
+                                    "Signup failed: " + errorMessage,
+                                    Toast.LENGTH_LONG).show();
                         }
                     });
         });
@@ -237,12 +200,14 @@ public class SignUpActivity extends AppCompatActivity {
 
         String tld = domainPart.substring(domainPart.lastIndexOf('.') + 1);
 
-        String[] validTLDs = {"com", "net", "org", "edu", "gov", "mil", "info", "biz", "co", "io", "me", "xyz"};
+        String[] validTLDs = {
+                "com", "net", "org", "edu", "gov", "mil",
+                "info", "biz", "co", "io", "me", "xyz"
+        };
 
         for (String valid : validTLDs) {
             if (tld.equalsIgnoreCase(valid)) return true;
         }
-
         return false;
     }
 }

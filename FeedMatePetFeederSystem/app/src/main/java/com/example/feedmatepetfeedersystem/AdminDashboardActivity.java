@@ -56,6 +56,13 @@ public class AdminDashboardActivity extends AppCompatActivity {
             startActivity(intent);
         });
 
+        // History button
+        MaterialButton btnFoodHistory = findViewById(R.id.btnFoodHistory);
+        btnFoodHistory.setOnClickListener(v -> {
+            Intent intent = new Intent(AdminDashboardActivity.this, HistoryActivity.class);
+            startActivity(intent);
+        });
+
         // Bottom Navigation
         BottomNavigationView bottomNav = findViewById(R.id.bottom_navigation);
         bottomNav.setSelectedItemId(R.id.nav_home);
