@@ -149,6 +149,10 @@ public class ManageUsersActivity extends AppCompatActivity {
         EditText inputPetAge = dialogView.findViewById(R.id.editPetAge);
         EditText inputPetBreed = dialogView.findViewById(R.id.editPetBreed);
 
+        // Buttons from XML
+        com.google.android.material.button.MaterialButton btnSave = dialogView.findViewById(R.id.btnSave);
+        com.google.android.material.button.MaterialButton btnCancel = dialogView.findViewById(R.id.btnCancel);
+
         // Populate with current data
         inputName.setText(user.getFullName() != null ? user.getFullName() : "");
         inputPetName.setText(user.getPetName() != null ? user.getPetName() : "");
@@ -162,18 +166,18 @@ public class ManageUsersActivity extends AppCompatActivity {
             inputRoleGroup.check(R.id.radioUser);
         }
 
-        builder.setPositiveButton("Save", (dialog, which) -> {
+        AlertDialog dialog = builder.create();
+
+        // Handle Save
+        btnSave.setOnClickListener(v -> {
             String newName = inputName.getText().toString().trim();
             String newPetName = inputPetName.getText().toString().trim();
             String newPetAge = inputPetAge.getText().toString().trim();
             String newPetBreed = inputPetBreed.getText().toString().trim();
 
-            // Get role from radio group
+            // Get role
             int selectedRoleId = inputRoleGroup.getCheckedRadioButtonId();
-            String newRole = "user"; // default
-            if (selectedRoleId == R.id.radioAdmin) {
-                newRole = "admin";
-            }
+            String newRole = (selectedRoleId == R.id.radioAdmin) ? "admin" : "user";
 
             if (user.getUid() != null) {
                 DatabaseReference userRef = usersRef.child(user.getUid());
@@ -182,16 +186,21 @@ public class ManageUsersActivity extends AppCompatActivity {
                 userRef.child("petName").setValue(newPetName);
                 userRef.child("petAge").setValue(newPetAge);
                 userRef.child("petBreed").setValue(newPetBreed)
-                        .addOnSuccessListener(aVoid ->
-                                Toast.makeText(ManageUsersActivity.this, "User updated", Toast.LENGTH_SHORT).show())
+                        .addOnSuccessListener(aVoid -> {
+                            Toast.makeText(ManageUsersActivity.this, "User updated", Toast.LENGTH_SHORT).show();
+                            dialog.dismiss();
+                        })
                         .addOnFailureListener(e ->
                                 Toast.makeText(ManageUsersActivity.this, "Update failed: " + e.getMessage(), Toast.LENGTH_SHORT).show());
             }
         });
 
-        builder.setNegativeButton("Cancel", (dialog, which) -> dialog.cancel());
-        builder.show();
+        // Handle Cancel
+        btnCancel.setOnClickListener(v -> dialog.dismiss());
+
+        dialog.show();
     }
+
 
     @Override
     protected void onDestroy() {
