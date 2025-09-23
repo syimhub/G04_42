@@ -23,7 +23,6 @@ import com.google.firebase.database.ValueEventListener;
 public class UserDashboardActivity extends AppCompatActivity {
 
     private FirebaseAuth mAuth;
-    private MaterialButton btnConnectFeeder;
     private MaterialButton btnManualFeed;
     private MaterialButton btnHistory;
     private TextView tvFoodLevel;
@@ -35,6 +34,10 @@ public class UserDashboardActivity extends AppCompatActivity {
     private DatabaseReference deviceRef;
     private ValueEventListener deviceDataListener;
 
+    // ✅ New references for account existence check
+    private DatabaseReference userRef;
+    private ValueEventListener userExistenceListener;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -42,7 +45,6 @@ public class UserDashboardActivity extends AppCompatActivity {
 
         // Initialize views
         mAuth = FirebaseAuth.getInstance();
-        btnConnectFeeder = findViewById(R.id.btnConnectFeeder);
         btnManualFeed = findViewById(R.id.btnManualFeed);
         btnHistory = findViewById(R.id.btnHistory);
         tvFoodLevel = findViewById(R.id.tvFoodLevel);
@@ -52,7 +54,7 @@ public class UserDashboardActivity extends AppCompatActivity {
         tvLiveData = findViewById(R.id.tvLiveData);
         ImageView btnEditFeedingTime = findViewById(R.id.btnEditFeedingTime);
 
-        // ENABLE THE FEED BUTTON IMMEDIATELY (you can choose to enable only after connect)
+        // ENABLE THE FEED BUTTON IMMEDIATELY
         btnManualFeed.setEnabled(true);
 
         FirebaseUser currentUser = mAuth.getCurrentUser();
@@ -69,14 +71,6 @@ public class UserDashboardActivity extends AppCompatActivity {
         }
 
         // Buttons
-        btnConnectFeeder.setOnClickListener(v -> {
-            if (btnConnectFeeder.getText().toString().equals("SYNC DATA TO FEEDER")) {
-                connectToFeeder();
-            } else {
-                disconnectFromFeeder();
-            }
-        });
-
         btnManualFeed.setOnClickListener(v -> feedNow());
 
         btnHistory.setOnClickListener(v -> {
@@ -102,15 +96,16 @@ public class UserDashboardActivity extends AppCompatActivity {
             return false;
         });
 
-        // IMPORTANT: fetch the user's feederId from /users/<uid>/feederId,
-        // then set deviceRef = /devices/<feederId>, then call listenToDeviceData()
+        // fetch feederId and attach listener
         fetchFeederIdAndAttachListener();
+
+        // ✅ Start watching the user node existence
+        attachUserExistenceListener(currentUser.getUid());
     }
 
     @Override
     protected void onStart() {
         super.onStart();
-        // don't start a second listener here — listenToDeviceData will be invoked after feederId fetch.
     }
 
     @Override
@@ -120,6 +115,12 @@ public class UserDashboardActivity extends AppCompatActivity {
             deviceRef.removeEventListener(deviceDataListener);
             deviceDataListener = null;
         }
+
+        // ✅ remove user existence listener
+        if (userExistenceListener != null && userRef != null) {
+            userRef.removeEventListener(userExistenceListener);
+            userExistenceListener = null;
+        }
     }
 
     private void logoutUser() {
@@ -127,11 +128,43 @@ public class UserDashboardActivity extends AppCompatActivity {
             deviceRef.removeEventListener(deviceDataListener);
             deviceDataListener = null;
         }
+        if (userExistenceListener != null && userRef != null) {
+            userRef.removeEventListener(userExistenceListener);
+            userExistenceListener = null;
+        }
+
         mAuth.signOut();
         Toast.makeText(this, "Logged out", Toast.LENGTH_SHORT).show();
         startActivity(new Intent(this, LoginActivity.class));
         overridePendingTransition(0, 0);
         finish();
+    }
+
+    // ✅ New method: Listen if user node is deleted
+    private void attachUserExistenceListener(String uid) {
+        FirebaseDatabase database = FirebaseDatabase.getInstance(
+                "https://feedmate-pet-feeder-system-default-rtdb.asia-southeast1.firebasedatabase.app/"
+        );
+        userRef = database.getReference("users").child(uid);
+
+        userExistenceListener = new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot snapshot) {
+                if (!snapshot.exists()) {
+                    Toast.makeText(UserDashboardActivity.this,
+                            "Your account has been removed by admin.",
+                            Toast.LENGTH_LONG).show();
+                    logoutUser();
+                }
+            }
+
+            @Override
+            public void onCancelled(DatabaseError error) {
+                Log.e("UserDashboard", "User existence check cancelled: " + error.getMessage());
+            }
+        };
+
+        userRef.addValueEventListener(userExistenceListener);
     }
 
     private void feedNow() {
@@ -147,7 +180,6 @@ public class UserDashboardActivity extends AppCompatActivity {
                     if (task.isSuccessful()) {
                         Toast.makeText(this, "Feeding command sent!", Toast.LENGTH_SHORT).show();
 
-                        // Reset the feed command after 3 seconds (optional)
                         new android.os.Handler().postDelayed(() -> {
                             deviceRef.child("state").child("controls").child("feedNow").setValue(false);
                         }, 3000);
@@ -201,7 +233,6 @@ public class UserDashboardActivity extends AppCompatActivity {
                     if (v != null) feederId = v.toString();
                 }
 
-                // If feederId is missing, fallback to UID (if your signup uses UID as feederId)
                 if (feederId == null || feederId.isEmpty()) {
                     feederId = uid;
                     Log.w("UserDashboard", "feederId missing for user; falling back to uid: " + uid);
@@ -209,7 +240,6 @@ public class UserDashboardActivity extends AppCompatActivity {
 
                 Log.d("UserDashboard", "Using feederId: " + feederId + " for uid: " + uid);
 
-                // Set deviceRef and start listening
                 deviceRef = database.getReference("devices").child(feederId);
                 listenToDeviceData();
             }
@@ -217,7 +247,6 @@ public class UserDashboardActivity extends AppCompatActivity {
             @Override
             public void onCancelled(DatabaseError error) {
                 Log.e("UserDashboard", "Failed to read feederId: " + error.getMessage());
-                // Fallback: try to use UID as feederId
                 String feederId = uid;
                 FirebaseDatabase database = FirebaseDatabase.getInstance(
                         "https://feedmate-pet-feeder-system-default-rtdb.asia-southeast1.firebasedatabase.app/"
@@ -234,7 +263,6 @@ public class UserDashboardActivity extends AppCompatActivity {
             return;
         }
 
-        // Remove existing listener if any
         if (deviceDataListener != null) {
             try { deviceRef.removeEventListener(deviceDataListener); } catch (Exception ignored) {}
             deviceDataListener = null;
@@ -318,22 +346,5 @@ public class UserDashboardActivity extends AppCompatActivity {
         };
 
         deviceRef.addValueEventListener(deviceDataListener);
-    }
-
-    private void connectToFeeder() {
-        updateConnectionUI(true);
-        Toast.makeText(this, "Connected to feeder via Firebase!", Toast.LENGTH_SHORT).show();
-    }
-
-    private void disconnectFromFeeder() {
-        updateConnectionUI(false);
-        Toast.makeText(this, "Disconnected from feeder", Toast.LENGTH_SHORT).show();
-    }
-
-    private void updateConnectionUI(boolean connected) {
-        runOnUiThread(() -> {
-            btnConnectFeeder.setText(connected ? "DISCONNECT FEEDER" : "SYNC DATA TO FEEDER");
-            btnConnectFeeder.setBackgroundTintList(getResources().getColorStateList(connected ? R.color.green : R.color.blue));
-        });
     }
 }

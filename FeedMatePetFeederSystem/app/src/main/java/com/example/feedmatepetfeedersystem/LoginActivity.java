@@ -209,33 +209,45 @@ public class LoginActivity extends AppCompatActivity {
                                             "https://feedmate-pet-feeder-system-default-rtdb.asia-southeast1.firebasedatabase.app/");
                                     DatabaseReference userRef = db.getReference("users").child(user.getUid());
 
-                                    userRef.child("role").get().addOnCompleteListener(roleTask -> {
-                                        if (!roleTask.isSuccessful()) {
+                                    // ✅ EXTRA CHECK: confirm the user node exists
+                                    userRef.get().addOnCompleteListener(checkTask -> {
+                                        if (!checkTask.isSuccessful() || !checkTask.getResult().exists()) {
                                             Toast.makeText(LoginActivity.this,
-                                                    "Database error: " +
-                                                            (roleTask.getException() != null ? roleTask.getException().getMessage() : "Unknown"),
-                                                    Toast.LENGTH_LONG).show();
-                                            return;
-                                        }
-
-                                        String role = roleTask.getResult().getValue(String.class);
-
-                                        if ("admin".equalsIgnoreCase(role)) {
-                                            Toast.makeText(LoginActivity.this,
-                                                    "Admins must log in through the Admin Login page.",
+                                                    "Your account no longer exists. Please contact support.",
                                                     Toast.LENGTH_LONG).show();
                                             mAuth.signOut();
                                             return;
                                         }
 
-                                        if (user.isEmailVerified()) {
-                                            Toast.makeText(LoginActivity.this, "Login successful!", Toast.LENGTH_SHORT).show();
-                                            startActivity(new Intent(LoginActivity.this, UserDashboardActivity.class));
-                                            finish();
-                                        } else {
-                                            Toast.makeText(LoginActivity.this, "Please verify your email first.", Toast.LENGTH_LONG).show();
-                                            mAuth.signOut();
-                                        }
+                                        // Continue with role check (unchanged)
+                                        userRef.child("role").get().addOnCompleteListener(roleTask -> {
+                                            if (!roleTask.isSuccessful()) {
+                                                Toast.makeText(LoginActivity.this,
+                                                        "Database error: " +
+                                                                (roleTask.getException() != null ? roleTask.getException().getMessage() : "Unknown"),
+                                                        Toast.LENGTH_LONG).show();
+                                                return;
+                                            }
+
+                                            String role = roleTask.getResult().getValue(String.class);
+
+                                            if ("admin".equalsIgnoreCase(role)) {
+                                                Toast.makeText(LoginActivity.this,
+                                                        "Admins must log in through the Admin Login page.",
+                                                        Toast.LENGTH_LONG).show();
+                                                mAuth.signOut();
+                                                return;
+                                            }
+
+                                            if (user.isEmailVerified()) {
+                                                Toast.makeText(LoginActivity.this, "Login successful!", Toast.LENGTH_SHORT).show();
+                                                startActivity(new Intent(LoginActivity.this, UserDashboardActivity.class));
+                                                finish();
+                                            } else {
+                                                Toast.makeText(LoginActivity.this, "Please verify your email first.", Toast.LENGTH_LONG).show();
+                                                mAuth.signOut();
+                                            }
+                                        });
                                     });
                                 });
                             }
