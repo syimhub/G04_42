@@ -10,7 +10,7 @@
     android:background="#F5F5F5"
     tools:context=".HistoryActivity">
 
-    <!-- Toolbar (reused style like ManageUsersActivity) -->
+    <!-- Toolbar -->
     <com.google.android.material.appbar.MaterialToolbar
         android:id="@+id/toolbarHistory"
         android:layout_width="match_parent"
@@ -21,7 +21,7 @@
         app:popupTheme="@style/ThemeOverlay.AppCompat.Light"
         app:navigationIcon="@drawable/baseline_arrow_back_24" />
 
-    <!-- Scrollable content with card + RecyclerView -->
+    <!-- Scrollable content -->
     <ScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -33,6 +33,20 @@
             android:orientation="vertical"
             android:padding="16dp">
 
+            <!-- TextView shown when no history exists -->
+            <TextView
+                android:id="@+id/txtNoHistory"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="No history available"
+                android:gravity="center"
+                android:visibility="gone"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:textColor="@android:color/darker_gray"
+                android:padding="12dp" />
+
+            <!-- Card containing RecyclerView -->
             <androidx.cardview.widget.CardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -42,7 +56,7 @@
                 app:cardBackgroundColor="@android:color/white">
 
                 <androidx.recyclerview.widget.RecyclerView
-                    android:id="@+id/recyclerHistory"
+                    android:id="@+id/recyclerViewHistory"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:scrollbars="vertical"
