@@ -156,7 +156,8 @@ public class AdminDashboardActivity extends AppCompatActivity {
         // Set Schedule button
         MaterialButton btnSetSchedule = findViewById(R.id.btnSetSchedule);
         btnSetSchedule.setOnClickListener(v -> {
-            Toast.makeText(this, "Set Schedule feature coming soon", Toast.LENGTH_SHORT).show();
+            Intent intent = new Intent(AdminDashboardActivity.this, AdminSetScheduleActivity.class);
+            startActivity(intent);
         });
 
         // Manual Feed button

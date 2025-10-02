@@ -55,6 +55,9 @@
         <activity
             android:name=".ManageUsersActivity"
             android:exported="false" />
+        <activity
+            android:name=".AdminSetScheduleActivity"
+            android:exported="false" />
     </application>
 
 </manifest>
