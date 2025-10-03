@@ -111,12 +111,14 @@ public class AdminSetScheduleActivity extends AppCompatActivity {
                 for (DataSnapshot userSnap : snapshot.getChildren()) {
                     String uid = userSnap.getKey();
                     String fullName = userSnap.child("fullName").getValue(String.class);
+                    String role = userSnap.child("role").getValue(String.class);
                     String feederId = userSnap.child("feederId").getValue(String.class);
 
-                    if (fullName != null) {
+                    // Only include regular users
+                    if (fullName != null && "user".equals(role)) {
                         userNames.add(fullName);
                         userIds.add(uid);
-                        userFeederMap.put(uid, feederId); // can be null
+                        userFeederMap.put(uid, feederId);
                     }
                 }
 
@@ -137,9 +139,9 @@ public class AdminSetScheduleActivity extends AppCompatActivity {
                         selectedUserId = userIds.get(position);
                         selectedFeederId = userFeederMap.get(selectedUserId);
 
-                        if (selectedFeederId == null) {
+                        if (selectedFeederId == null || selectedFeederId.isEmpty()) {
                             feedingTimes.clear();
-                            adapter.notifyDataSetChanged();
+                            AdminSetScheduleActivity.this.adapter.notifyDataSetChanged();
                             Toast.makeText(AdminSetScheduleActivity.this, "Selected user has no feeder assigned", Toast.LENGTH_SHORT).show();
                         } else {
                             loadFeedingTimes();

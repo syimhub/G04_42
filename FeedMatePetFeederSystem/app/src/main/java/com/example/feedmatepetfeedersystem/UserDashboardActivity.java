@@ -3,10 +3,12 @@ package com.example.feedmatepetfeedersystem;
 import android.app.TimePickerDialog;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
 import android.util.Log;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.view.View;
 
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -20,6 +22,10 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.List;
+
 public class UserDashboardActivity extends AppCompatActivity {
 
     private FirebaseAuth mAuth;
@@ -31,12 +37,22 @@ public class UserDashboardActivity extends AppCompatActivity {
     private TextView tvWelcome;
     private TextView tvLiveData;
 
+    // Three separate feeding time boxes
+    private TextView tvFeedingTime1, tvFeedingTime2, tvFeedingTime3;
+    private ImageView btnEditTime1, btnEditTime2, btnEditTime3;
+
     private DatabaseReference deviceRef;
     private ValueEventListener deviceDataListener;
 
-    // ✅ New references for account existence check
     private DatabaseReference userRef;
     private ValueEventListener userExistenceListener;
+
+    private List<String> feedingTimes = new ArrayList<>();
+
+    private final Handler countdownHandler = new Handler();
+    private Runnable countdownRunnable;
+
+    private boolean isEditingFeedingTime = false; // flag to indicate manual edit
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -52,9 +68,15 @@ public class UserDashboardActivity extends AppCompatActivity {
         tvNextFeedingTime = findViewById(R.id.tvNextFeedingTime);
         tvWelcome = findViewById(R.id.tvWelcome);
         tvLiveData = findViewById(R.id.tvLiveData);
-        ImageView btnEditFeedingTime = findViewById(R.id.btnEditFeedingTime);
 
-        // ENABLE THE FEED BUTTON IMMEDIATELY
+        tvFeedingTime1 = findViewById(R.id.tvFeedingTime1);
+        tvFeedingTime2 = findViewById(R.id.tvFeedingTime2);
+        tvFeedingTime3 = findViewById(R.id.tvFeedingTime3);
+
+        btnEditTime1 = findViewById(R.id.btnEditTime1);
+        btnEditTime2 = findViewById(R.id.btnEditTime2);
+        btnEditTime3 = findViewById(R.id.btnEditTime3);
+
         btnManualFeed.setEnabled(true);
 
         FirebaseUser currentUser = mAuth.getCurrentUser();
@@ -70,15 +92,12 @@ public class UserDashboardActivity extends AppCompatActivity {
             tvWelcome.setText("Welcome!");
         }
 
-        // Buttons
         btnManualFeed.setOnClickListener(v -> feedNow());
+        btnHistory.setOnClickListener(v -> startActivity(new Intent(UserDashboardActivity.this, HistoryActivity.class)));
 
-        btnHistory.setOnClickListener(v -> {
-            Intent intent = new Intent(UserDashboardActivity.this, HistoryActivity.class);
-            startActivity(intent);
-        });
-
-        btnEditFeedingTime.setOnClickListener(v -> setNextFeedingTime());
+        btnEditTime1.setOnClickListener(v -> editSingleFeedingTime(0));
+        btnEditTime2.setOnClickListener(v -> editSingleFeedingTime(1));
+        btnEditTime3.setOnClickListener(v -> editSingleFeedingTime(2));
 
         BottomNavigationView bottomNavigationView = findViewById(R.id.bottom_navigation);
         bottomNavigationView.setSelectedItemId(R.id.nav_home);
@@ -96,16 +115,8 @@ public class UserDashboardActivity extends AppCompatActivity {
             return false;
         });
 
-        // fetch feederId and attach listener
         fetchFeederIdAndAttachListener();
-
-        // ✅ Start watching the user node existence
         attachUserExistenceListener(currentUser.getUid());
-    }
-
-    @Override
-    protected void onStart() {
-        super.onStart();
     }
 
     @Override
@@ -116,11 +127,12 @@ public class UserDashboardActivity extends AppCompatActivity {
             deviceDataListener = null;
         }
 
-        // ✅ remove user existence listener
         if (userExistenceListener != null && userRef != null) {
             userRef.removeEventListener(userExistenceListener);
             userExistenceListener = null;
         }
+
+        if (countdownRunnable != null) countdownHandler.removeCallbacks(countdownRunnable);
     }
 
     private void logoutUser() {
@@ -140,7 +152,6 @@ public class UserDashboardActivity extends AppCompatActivity {
         finish();
     }
 
-    // ✅ New method: Listen if user node is deleted
     private void attachUserExistenceListener(String uid) {
         FirebaseDatabase database = FirebaseDatabase.getInstance(
                 "https://feedmate-pet-feeder-system-default-rtdb.asia-southeast1.firebasedatabase.app/"
@@ -179,39 +190,69 @@ public class UserDashboardActivity extends AppCompatActivity {
                 .addOnCompleteListener(task -> {
                     if (task.isSuccessful()) {
                         Toast.makeText(this, "Feeding command sent!", Toast.LENGTH_SHORT).show();
-
-                        new android.os.Handler().postDelayed(() -> {
-                            deviceRef.child("state").child("controls").child("feedNow").setValue(false);
-                        }, 3000);
-
+                        new Handler().postDelayed(() ->
+                                deviceRef.child("state").child("controls").child("feedNow").setValue(false), 3000);
                     } else {
                         Toast.makeText(this, "Failed to send feed command", Toast.LENGTH_SHORT).show();
                     }
                 });
     }
 
-    private void setNextFeedingTime() {
-        if (deviceRef == null) {
-            Toast.makeText(this, "Device not initialized yet", Toast.LENGTH_SHORT).show();
-            return;
-        }
+    private void editSingleFeedingTime(int index) {
+        if (deviceRef == null || feedingTimes.isEmpty()) return;
 
-        TimePickerDialog timePicker = new TimePickerDialog(this,
-                (view, hourOfDay, minute) -> {
-                    String formattedTime = String.format("%02d:%02d", hourOfDay, minute);
-                    tvNextFeedingTime.setText(formattedTime);
+        String current = feedingTimes.get(index);
+        String[] split = current.split(":");
+        int hour = Integer.parseInt(split[0]);
+        int minute = Integer.parseInt(split[1]);
 
-                    deviceRef.child("config").child("schedule").child("nextFeedingTime").setValue(formattedTime)
+        TimePickerDialog picker = new TimePickerDialog(this,
+                (view, hourOfDay, minute1) -> {
+                    isEditingFeedingTime = true;
+                    String formattedTime = String.format("%02d:%02d", hourOfDay, minute1);
+                    feedingTimes.set(index, formattedTime);
+
+                    sortTimes(feedingTimes);
+                    updateFeedingTimeUI();
+
+                    if (countdownRunnable != null) countdownHandler.removeCallbacks(countdownRunnable);
+                    updateNextFeedingDisplay();
+
+                    deviceRef.child("config").child("schedule").child("feedingTimes")
+                            .setValue(feedingTimes)
                             .addOnCompleteListener(task -> {
-                                if (task.isSuccessful()) {
-                                    Toast.makeText(this, "Next feeding time set!", Toast.LENGTH_SHORT).show();
-                                } else {
-                                    Toast.makeText(this, "Failed to set feeding time", Toast.LENGTH_SHORT).show();
-                                }
+                                isEditingFeedingTime = false;
+                                if (task.isSuccessful())
+                                    Toast.makeText(this, "Feeding time updated!", Toast.LENGTH_SHORT).show();
+                                else
+                                    Toast.makeText(this, "Failed to update feeding time", Toast.LENGTH_SHORT).show();
                             });
-                }, 12, 0, false);
+                }, hour, minute, true);
+        picker.show();
+    }
 
-        timePicker.show();
+    private void sortTimes(List<String> times) {
+        long nowMinutes = System.currentTimeMillis() / 60000 % (24 * 60);
+        times.sort((t1, t2) -> {
+            long t1Min = toMinutes(t1);
+            long t2Min = toMinutes(t2);
+            long diff1 = (t1Min - nowMinutes + 24 * 60) % (24 * 60);
+            long diff2 = (t2Min - nowMinutes + 24 * 60) % (24 * 60);
+            return Long.compare(diff1, diff2);
+        });
+    }
+
+    private long toMinutes(String time) {
+        String[] split = time.split(":");
+        int h = Integer.parseInt(split[0]);
+        int m = Integer.parseInt(split[1]);
+        return h * 60L + m;
+    }
+
+    private void updateFeedingTimeUI() {
+        tvFeedingTime1.setText(feedingTimes.get(0));
+        tvFeedingTime2.setText(feedingTimes.get(1));
+        tvFeedingTime3.setText(feedingTimes.get(2));
     }
 
     private void fetchFeederIdAndAttachListener() {
@@ -233,12 +274,7 @@ public class UserDashboardActivity extends AppCompatActivity {
                     if (v != null) feederId = v.toString();
                 }
 
-                if (feederId == null || feederId.isEmpty()) {
-                    feederId = uid;
-                    Log.w("UserDashboard", "feederId missing for user; falling back to uid: " + uid);
-                }
-
-                Log.d("UserDashboard", "Using feederId: " + feederId + " for uid: " + uid);
+                if (feederId == null || feederId.isEmpty()) feederId = uid;
 
                 deviceRef = database.getReference("devices").child(feederId);
                 listenToDeviceData();
@@ -246,7 +282,6 @@ public class UserDashboardActivity extends AppCompatActivity {
 
             @Override
             public void onCancelled(DatabaseError error) {
-                Log.e("UserDashboard", "Failed to read feederId: " + error.getMessage());
                 String feederId = uid;
                 FirebaseDatabase database = FirebaseDatabase.getInstance(
                         "https://feedmate-pet-feeder-system-default-rtdb.asia-southeast1.firebasedatabase.app/"
@@ -258,10 +293,7 @@ public class UserDashboardActivity extends AppCompatActivity {
     }
 
     private void listenToDeviceData() {
-        if (deviceRef == null) {
-            Log.w("UserDashboard", "listenToDeviceData called but deviceRef is null");
-            return;
-        }
+        if (deviceRef == null) return;
 
         if (deviceDataListener != null) {
             try { deviceRef.removeEventListener(deviceDataListener); } catch (Exception ignored) {}
@@ -275,6 +307,9 @@ public class UserDashboardActivity extends AppCompatActivity {
                     tvFoodLevel.setText("No data");
                     tvFoodWeight.setText("No data");
                     tvNextFeedingTime.setText("--:--");
+                    tvFeedingTime1.setText("--:--");
+                    tvFeedingTime2.setText("--:--");
+                    tvFeedingTime3.setText("--:--");
                     tvLiveData.setText("No device data available");
                     return;
                 }
@@ -283,50 +318,44 @@ public class UserDashboardActivity extends AppCompatActivity {
                     String foodLevel = "N/A";
                     if (snapshot.child("sensors").child("food").child("level").exists()) {
                         Object levelValue = snapshot.child("sensors").child("food").child("level").getValue();
-                        if (levelValue instanceof Number) {
-                            foodLevel = String.valueOf(((Number) levelValue).intValue());
-                        } else if (levelValue instanceof String) {
-                            foodLevel = (String) levelValue;
-                        }
+                        if (levelValue instanceof Number) foodLevel = String.valueOf(((Number) levelValue).intValue());
+                        else if (levelValue instanceof String) foodLevel = (String) levelValue;
                         tvFoodLevel.setText(foodLevel + "%");
-                    } else {
-                        tvFoodLevel.setText("N/A");
-                    }
+                    } else tvFoodLevel.setText("N/A");
 
                     String foodWeight = "N/A";
                     if (snapshot.child("sensors").child("food").child("weight").exists()) {
                         Object weightValue = snapshot.child("sensors").child("food").child("weight").getValue();
-                        if (weightValue instanceof Number) {
-                            foodWeight = String.valueOf(((Number) weightValue).intValue());
-                        } else if (weightValue instanceof String) {
-                            foodWeight = (String) weightValue;
-                        }
+                        if (weightValue instanceof Number) foodWeight = String.valueOf(((Number) weightValue).intValue());
+                        else if (weightValue instanceof String) foodWeight = (String) weightValue;
                         tvFoodWeight.setText(foodWeight + "g");
-                    } else {
-                        tvFoodWeight.setText("N/A");
-                    }
+                    } else tvFoodWeight.setText("N/A");
 
-                    String nextFeedingTime = "--:--";
-                    if (snapshot.child("config").child("schedule").child("nextFeedingTime").exists()) {
-                        Object timeValue = snapshot.child("config").child("schedule").child("nextFeedingTime").getValue();
-                        if (timeValue instanceof String) {
-                            nextFeedingTime = (String) timeValue;
+                    if (snapshot.child("config").child("schedule").child("feedingTimes").exists()) {
+                        feedingTimes.clear();
+                        for (DataSnapshot t : snapshot.child("config").child("schedule").child("feedingTimes").getChildren()) {
+                            Object val = t.getValue();
+                            if (val != null) feedingTimes.add(val.toString());
                         }
-                        tvNextFeedingTime.setText(nextFeedingTime != null && !nextFeedingTime.isEmpty() ? nextFeedingTime : "--:--");
+                        while (feedingTimes.size() < 3) feedingTimes.add("12:00");
+                        updateFeedingTimeUI();
+                        updateNextFeedingDisplay();
+                    } else {
+                        tvFeedingTime1.setText("--:--");
+                        tvFeedingTime2.setText("--:--");
+                        tvFeedingTime3.setText("--:--");
+                        tvNextFeedingTime.setText("--:--");
                     }
 
                     boolean isFeeding = false;
                     if (snapshot.child("state").child("system").child("feedingInProgress").exists()) {
                         Object feedingValue = snapshot.child("state").child("system").child("feedingInProgress").getValue();
-                        if (feedingValue instanceof Boolean) {
-                            isFeeding = (Boolean) feedingValue;
-                        }
+                        if (feedingValue instanceof Boolean) isFeeding = (Boolean) feedingValue;
                     }
 
                     StringBuilder liveData = new StringBuilder();
                     liveData.append("Food Level: ").append(foodLevel).append("%\n");
                     liveData.append("Food Weight: ").append(foodWeight).append("g\n");
-                    liveData.append("Next Feeding: ").append(nextFeedingTime).append("\n");
                     liveData.append("Feeding Status: ").append(isFeeding ? "IN PROGRESS" : "READY").append("\n");
 
                     tvLiveData.setText(liveData.toString());
@@ -347,4 +376,81 @@ public class UserDashboardActivity extends AppCompatActivity {
 
         deviceRef.addValueEventListener(deviceDataListener);
     }
+
+    // ---------------------- NEW METHODS ----------------------
+
+    private void updateNextFeedingDisplay() {
+        if (feedingTimes.isEmpty()) {
+            tvNextFeedingTime.setText("--:--");
+            return;
+        }
+
+        Calendar now = Calendar.getInstance();
+        int nowMinutes = now.get(Calendar.HOUR_OF_DAY) * 60 + now.get(Calendar.MINUTE);
+
+        String nextTime = "--:--";
+        long minDiff = Long.MAX_VALUE;
+        int closestIndex = -1;
+
+        for (int i = 0; i < feedingTimes.size(); i++) {
+            String t = feedingTimes.get(i);
+            if (t == null || t.trim().isEmpty()) continue;
+
+            long tMinutes = toMinutes(t.trim());
+            long diff = (tMinutes - nowMinutes + 24 * 60) % (24 * 60);
+
+            if (diff < minDiff) {
+                minDiff = diff;
+                nextTime = t.trim();
+                closestIndex = i;
+            }
+        }
+
+        long hours = minDiff / 60;
+        long minutes = minDiff % 60;
+
+        String timeDisplay;
+        if (minDiff == 0) {
+            timeDisplay = nextTime + "   |   Feeding now ⏳";
+            tvNextFeedingTime.setText(timeDisplay);
+
+            // Show quick message
+            Toast.makeText(this, "Your pet is being fed now 🐾", Toast.LENGTH_SHORT).show();
+
+            // After 5s, recalc next feeding time
+            countdownHandler.postDelayed(this::updateNextFeedingDisplay, 5000);
+        } else {
+            timeDisplay = nextTime + "   |   Feeding in " +
+                    (hours > 0 ? hours + "h " : "") +
+                    (minutes > 0 ? minutes + "m" : "");
+            tvNextFeedingTime.setText(timeDisplay);
+        }
+
+        // Reset all boxes and indicators
+        findViewById(R.id.rowTime1).setBackgroundResource(R.drawable.time_box_bg);
+        findViewById(R.id.rowTime2).setBackgroundResource(R.drawable.time_box_bg);
+        findViewById(R.id.rowTime3).setBackgroundResource(R.drawable.time_box_bg);
+
+        findViewById(R.id.tvUpcoming1).setVisibility(View.GONE);
+        findViewById(R.id.tvUpcoming2).setVisibility(View.GONE);
+        findViewById(R.id.tvUpcoming3).setVisibility(View.GONE);
+
+        // Highlight + show indicator on closest time
+        if (closestIndex == 0) {
+            findViewById(R.id.rowTime1).setBackgroundResource(R.drawable.time_box_highlight);
+            findViewById(R.id.tvUpcoming1).setVisibility(View.VISIBLE);
+        } else if (closestIndex == 1) {
+            findViewById(R.id.rowTime2).setBackgroundResource(R.drawable.time_box_highlight);
+            findViewById(R.id.tvUpcoming2).setVisibility(View.VISIBLE);
+        } else if (closestIndex == 2) {
+            findViewById(R.id.rowTime3).setBackgroundResource(R.drawable.time_box_highlight);
+            findViewById(R.id.tvUpcoming3).setVisibility(View.VISIBLE);
+        }
+
+        // Schedule refresh
+        if (countdownRunnable != null) countdownHandler.removeCallbacks(countdownRunnable);
+        countdownRunnable = this::updateNextFeedingDisplay;
+        countdownHandler.postDelayed(countdownRunnable, 60000);
+    }
+
 }

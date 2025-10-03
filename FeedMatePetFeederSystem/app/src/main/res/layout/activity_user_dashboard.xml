@@ -44,7 +44,6 @@
                 android:textSize="14sp"
                 android:textColor="#555"
                 android:layout_marginTop="2dp" />
-
         </LinearLayout>
 
         <!-- Main Content Area -->
@@ -144,6 +143,168 @@
                     </LinearLayout>
                 </com.google.android.material.card.MaterialCardView>
 
+                <!-- Feeding Times Card -->
+                <com.google.android.material.card.MaterialCardView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="12dp"
+                    app:cardCornerRadius="12dp"
+                    app:cardElevation="4dp"
+                    app:strokeColor="@color/teal_700"
+                    app:strokeWidth="1dp">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:padding="16dp"
+                        android:gravity="center_vertical">
+
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:orientation="vertical">
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Feeding Times"
+                                android:textSize="18sp"
+                                android:textStyle="bold"
+                                android:textColor="@color/teal_700" />
+
+                            <!-- Feeding Times Container -->
+                            <LinearLayout
+                                android:id="@+id/feedingTimesContainer"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:orientation="vertical"
+                                android:padding="16dp">
+
+                                <!-- Row 1 -->
+                                <LinearLayout
+                                    android:id="@+id/rowTime1"
+                                    android:layout_width="match_parent"
+                                    android:layout_height="50dp"
+                                    android:orientation="horizontal"
+                                    android:padding="8dp"
+                                    android:background="@drawable/time_box_bg"
+                                    android:layout_marginBottom="8dp"
+                                    android:gravity="center_vertical">
+
+                                    <TextView
+                                        android:id="@+id/tvFeedingTime1"
+                                        android:layout_width="0dp"
+                                        android:layout_height="match_parent"
+                                        android:layout_weight="1"
+                                        android:gravity="center_vertical"
+                                        android:text="--:--"
+                                        android:textSize="18sp"
+                                        android:paddingStart="12dp"/>
+
+                                    <TextView
+                                        android:id="@+id/tvUpcoming1"
+                                        android:layout_width="wrap_content"
+                                        android:layout_height="wrap_content"
+                                        android:text="⏰ Upcoming time"
+                                        android:textColor="@color/orange"
+                                        android:textStyle="bold"
+                                        android:visibility="gone"
+                                        android:layout_marginEnd="8dp"/>
+
+                                    <ImageView
+                                        android:id="@+id/btnEditTime1"
+                                        android:layout_width="wrap_content"
+                                        android:layout_height="match_parent"
+                                        android:src="@drawable/baseline_edit_24"
+                                        android:padding="8dp"
+                                        android:contentDescription="Edit Time 1"/>
+                                </LinearLayout>
+
+                                <!-- Row 2 -->
+                                <LinearLayout
+                                    android:id="@+id/rowTime2"
+                                    android:layout_width="match_parent"
+                                    android:layout_height="50dp"
+                                    android:orientation="horizontal"
+                                    android:padding="8dp"
+                                    android:background="@drawable/time_box_bg"
+                                    android:layout_marginBottom="8dp"
+                                    android:gravity="center_vertical">
+
+                                    <TextView
+                                        android:id="@+id/tvFeedingTime2"
+                                        android:layout_width="0dp"
+                                        android:layout_height="match_parent"
+                                        android:layout_weight="1"
+                                        android:gravity="center_vertical"
+                                        android:text="--:--"
+                                        android:textSize="18sp"
+                                        android:paddingStart="12dp"/>
+
+                                    <TextView
+                                        android:id="@+id/tvUpcoming2"
+                                        android:layout_width="wrap_content"
+                                        android:layout_height="wrap_content"
+                                        android:text="⏰ Upcoming time"
+                                        android:textColor="@color/orange"
+                                        android:textStyle="bold"
+                                        android:visibility="gone"
+                                        android:layout_marginEnd="8dp"/>
+
+                                    <ImageView
+                                        android:id="@+id/btnEditTime2"
+                                        android:layout_width="wrap_content"
+                                        android:layout_height="match_parent"
+                                        android:src="@drawable/baseline_edit_24"
+                                        android:padding="8dp"
+                                        android:contentDescription="Edit Time 2"/>
+                                </LinearLayout>
+
+                                <!-- Row 3 -->
+                                <LinearLayout
+                                    android:id="@+id/rowTime3"
+                                    android:layout_width="match_parent"
+                                    android:layout_height="50dp"
+                                    android:orientation="horizontal"
+                                    android:padding="8dp"
+                                    android:background="@drawable/time_box_bg"
+                                    android:gravity="center_vertical">
+
+                                    <TextView
+                                        android:id="@+id/tvFeedingTime3"
+                                        android:layout_width="0dp"
+                                        android:layout_height="match_parent"
+                                        android:layout_weight="1"
+                                        android:gravity="center_vertical"
+                                        android:text="--:--"
+                                        android:textSize="18sp"
+                                        android:paddingStart="12dp"/>
+
+                                    <TextView
+                                        android:id="@+id/tvUpcoming3"
+                                        android:layout_width="wrap_content"
+                                        android:layout_height="wrap_content"
+                                        android:text="⏰ Upcoming time"
+                                        android:textColor="@color/orange"
+                                        android:textStyle="bold"
+                                        android:visibility="gone"
+                                        android:layout_marginEnd="8dp"/>
+
+                                    <ImageView
+                                        android:id="@+id/btnEditTime3"
+                                        android:layout_width="wrap_content"
+                                        android:layout_height="match_parent"
+                                        android:src="@drawable/baseline_edit_24"
+                                        android:padding="8dp"
+                                        android:contentDescription="Edit Time 3"/>
+                                </LinearLayout>
+                            </LinearLayout>
+                        </LinearLayout>
+                    </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
+
                 <!-- Next Feeding Time Card -->
                 <com.google.android.material.card.MaterialCardView
                     android:layout_width="match_parent"
@@ -184,18 +345,9 @@
                                 android:textColor="#555"
                                 android:layout_marginTop="4dp" />
                         </LinearLayout>
-
-                        <ImageView
-                            android:id="@+id/btnEditFeedingTime"
-                            android:layout_width="32dp"
-                            android:layout_height="32dp"
-                            android:src="@drawable/baseline_edit_24"
-                            android:contentDescription="Edit Feeding Time"
-                            android:background="?attr/selectableItemBackgroundBorderless"
-                            android:padding="4dp"
-                            app:tint="@color/orange" />
                     </LinearLayout>
                 </com.google.android.material.card.MaterialCardView>
+
                 <!-- Live Device Data Card -->
                 <com.google.android.material.card.MaterialCardView
                     android:layout_width="match_parent"
@@ -230,6 +382,7 @@
                             android:layout_marginTop="4dp" />
                     </LinearLayout>
                 </com.google.android.material.card.MaterialCardView>
+
                 <!-- Action Buttons -->
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -280,5 +433,4 @@
         app:itemIconTint="@color/nav_item_color"
         app:itemTextColor="@color/nav_item_color"
         app:layout_behavior="@string/hide_bottom_view_on_scroll_behavior" />
-
 </androidx.coordinatorlayout.widget.CoordinatorLayout>
