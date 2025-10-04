@@ -33,7 +33,7 @@
             android:orientation="vertical"
             android:padding="16dp">
 
-            <!-- Select User -->
+            <!-- Select User Section -->
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -42,12 +42,16 @@
                 android:textStyle="bold"
                 android:layout_marginBottom="8dp"/>
 
-            <Spinner
-                android:id="@+id/spinnerUsers"
+            <!-- User Recycler -->
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/rvUsers"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="16dp"
-                android:background="@android:drawable/btn_dropdown"/>
+            android:background="#ECEFF1"
+            android:clipToPadding="false"
+            android:padding="4dp"
+            tools:listitem="@layout/item_schedule"
+            android:layout_marginBottom="16dp"/>
 
             <!-- Feeding Times Section -->
             <TextView
@@ -58,38 +62,189 @@
                 android:textStyle="bold"
                 android:layout_marginBottom="8dp"/>
 
-            <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/recyclerFeedingTimes"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:nestedScrollingEnabled="false"
-                android:overScrollMode="never"
-                tools:listitem="@android:layout/simple_list_item_1"/>
-
-            <!-- Buttons -->
             <LinearLayout
+                android:id="@+id/feedingTimesContainer"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:gravity="center"
-                android:layout_marginTop="16dp">
+                android:orientation="vertical">
 
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/btnAddTime"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Add Time"
-                    android:backgroundTint="@color/orange"
-                    android:textColor="@android:color/white"
-                    android:layout_marginEnd="8dp"/>
+                <!-- Time Row 1 -->
+                <LinearLayout
+                    android:id="@+id/rowTime1"
+                    android:layout_width="match_parent"
+                    android:layout_height="50dp"
+                    android:orientation="horizontal"
+                    android:padding="8dp"
+                    android:gravity="center_vertical"
+                    android:background="@drawable/time_box_bg"
+                    android:layout_marginBottom="8dp">
 
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/btnSaveSchedule"
-                    android:layout_width="wrap_content"
+                    <TextView
+                        android:id="@+id/tvFeedingTime1"
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:layout_weight="1"
+                        android:gravity="center_vertical"
+                        android:text="--:--"
+                        android:textSize="18sp"
+                        android:paddingStart="12dp"/>
+
+                    <TextView
+                        android:id="@+id/tvUpcoming1"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="⏰ Upcoming time"
+                        android:textColor="@color/orange"
+                        android:textStyle="bold"
+                        android:visibility="gone"
+                        android:layout_marginEnd="8dp"/>
+                </LinearLayout>
+
+                <!-- Buttons under Time 1 -->
+                <LinearLayout
+                    android:id="@+id/time1Buttons"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="Save Schedule"
-                    android:backgroundTint="#4CAF50"
-                    android:textColor="@android:color/white"/>
+                    android:orientation="horizontal"
+                    android:gravity="end"
+                    android:visibility="gone"
+                    android:layout_marginBottom="12dp">
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btnConfirm1"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Confirm"
+                        android:backgroundTint="@color/teal_700"
+                        android:textColor="@android:color/white"
+                        android:layout_marginEnd="8dp"/>
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btnCancel1"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Cancel"
+                        android:backgroundTint="@color/red"
+                        android:textColor="@android:color/white"/>
+                </LinearLayout>
+
+                <!-- Time Row 2 -->
+                <LinearLayout
+                    android:id="@+id/rowTime2"
+                    android:layout_width="match_parent"
+                    android:layout_height="50dp"
+                    android:orientation="horizontal"
+                    android:padding="8dp"
+                    android:gravity="center_vertical"
+                    android:background="@drawable/time_box_bg"
+                    android:layout_marginBottom="8dp">
+
+                    <TextView
+                        android:id="@+id/tvFeedingTime2"
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:layout_weight="1"
+                        android:gravity="center_vertical"
+                        android:text="--:--"
+                        android:textSize="18sp"
+                        android:paddingStart="12dp"/>
+
+                    <TextView
+                        android:id="@+id/tvUpcoming2"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="⏰ Upcoming time"
+                        android:textColor="@color/orange"
+                        android:textStyle="bold"
+                        android:visibility="gone"
+                        android:layout_marginEnd="8dp"/>
+                </LinearLayout>
+
+                <!-- Buttons under Time 2 -->
+                <LinearLayout
+                    android:id="@+id/time2Buttons"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="end"
+                    android:visibility="gone"
+                    android:layout_marginBottom="12dp">
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btnConfirm2"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Confirm"
+                        android:backgroundTint="@color/teal_700"
+                        android:textColor="@android:color/white"
+                        android:layout_marginEnd="8dp"/>
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btnCancel2"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Cancel"
+                        android:backgroundTint="@color/red"
+                        android:textColor="@android:color/white"/>
+                </LinearLayout>
+
+                <!-- Time Row 3 -->
+                <LinearLayout
+                    android:id="@+id/rowTime3"
+                    android:layout_width="match_parent"
+                    android:layout_height="50dp"
+                    android:orientation="horizontal"
+                    android:padding="8dp"
+                    android:gravity="center_vertical"
+                    android:background="@drawable/time_box_bg">
+
+                    <TextView
+                        android:id="@+id/tvFeedingTime3"
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:layout_weight="1"
+                        android:gravity="center_vertical"
+                        android:text="--:--"
+                        android:textSize="18sp"
+                        android:paddingStart="12dp"/>
+
+                    <TextView
+                        android:id="@+id/tvUpcoming3"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="⏰ Upcoming time"
+                        android:textColor="@color/orange"
+                        android:textStyle="bold"
+                        android:visibility="gone"
+                        android:layout_marginEnd="8dp"/>
+                </LinearLayout>
+
+                <!-- Buttons under Time 3 -->
+                <LinearLayout
+                    android:id="@+id/time3Buttons"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="end"
+                    android:visibility="gone">
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btnConfirm3"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Confirm"
+                        android:backgroundTint="@color/teal_700"
+                        android:textColor="@android:color/white"
+                        android:layout_marginEnd="8dp"/>
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btnCancel3"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Cancel"
+                        android:backgroundTint="@color/red"
+                        android:textColor="@android:color/white"/>
+                </LinearLayout>
             </LinearLayout>
         </LinearLayout>
     </ScrollView>
