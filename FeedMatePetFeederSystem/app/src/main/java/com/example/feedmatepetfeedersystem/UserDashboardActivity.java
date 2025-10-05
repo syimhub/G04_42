@@ -382,6 +382,8 @@ public class UserDashboardActivity extends AppCompatActivity {
     private void updateNextFeedingDisplay() {
         if (feedingTimes.isEmpty()) {
             tvNextFeedingTime.setText("--:--");
+            if (deviceRef != null)
+                deviceRef.child("config").child("schedule").child("nextFeedingTime").setValue("--:--");
             return;
         }
 
@@ -414,10 +416,8 @@ public class UserDashboardActivity extends AppCompatActivity {
             timeDisplay = nextTime + "   |   Feeding now ⏳";
             tvNextFeedingTime.setText(timeDisplay);
 
-            // Show quick message
             Toast.makeText(this, "Your pet is being fed now 🐾", Toast.LENGTH_SHORT).show();
 
-            // After 5s, recalc next feeding time
             countdownHandler.postDelayed(this::updateNextFeedingDisplay, 5000);
         } else {
             timeDisplay = nextTime + "   |   Feeding in " +
@@ -426,7 +426,14 @@ public class UserDashboardActivity extends AppCompatActivity {
             tvNextFeedingTime.setText(timeDisplay);
         }
 
-        // Reset all boxes and indicators
+        // 🔹 Update nextFeedingTime in Firebase
+        if (deviceRef != null && nextTime != null && !nextTime.equals("--:--")) {
+            deviceRef.child("config").child("schedule").child("nextFeedingTime")
+                    .setValue(nextTime)
+                    .addOnFailureListener(e -> Log.e("Firebase", "Failed to update nextFeedingTime: " + e.getMessage()));
+        }
+
+        // 🔹 Reset UI highlights
         findViewById(R.id.rowTime1).setBackgroundResource(R.drawable.time_box_bg);
         findViewById(R.id.rowTime2).setBackgroundResource(R.drawable.time_box_bg);
         findViewById(R.id.rowTime3).setBackgroundResource(R.drawable.time_box_bg);
@@ -435,7 +442,7 @@ public class UserDashboardActivity extends AppCompatActivity {
         findViewById(R.id.tvUpcoming2).setVisibility(View.GONE);
         findViewById(R.id.tvUpcoming3).setVisibility(View.GONE);
 
-        // Highlight + show indicator on closest time
+        // 🔹 Highlight next upcoming time
         if (closestIndex == 0) {
             findViewById(R.id.rowTime1).setBackgroundResource(R.drawable.time_box_highlight);
             findViewById(R.id.tvUpcoming1).setVisibility(View.VISIBLE);
@@ -447,7 +454,7 @@ public class UserDashboardActivity extends AppCompatActivity {
             findViewById(R.id.tvUpcoming3).setVisibility(View.VISIBLE);
         }
 
-        // Schedule refresh
+        // 🔹 Refresh every 60 seconds
         if (countdownRunnable != null) countdownHandler.removeCallbacks(countdownRunnable);
         countdownRunnable = this::updateNextFeedingDisplay;
         countdownHandler.postDelayed(countdownRunnable, 60000);
