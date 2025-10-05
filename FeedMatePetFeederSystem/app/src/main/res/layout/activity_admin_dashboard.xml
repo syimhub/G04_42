@@ -9,7 +9,7 @@
     android:orientation="vertical"
     android:background="#F5F5F5">
 
-    <!--Title admin dashboard-->
+    <!-- Title: Admin Dashboard -->
     <androidx.appcompat.widget.Toolbar
         android:id="@+id/toolbar"
         android:layout_width="match_parent"
@@ -20,7 +20,7 @@
         app:titleTextColor="@android:color/white"
         app:popupTheme="@style/ThemeOverlay.AppCompat.Light"/>
 
-    <!-- Main Content Area -->
+    <!-- Main Scrollable Content -->
     <ScrollView
         android:layout_width="match_parent"
         android:layout_height="0dp"
@@ -33,100 +33,17 @@
             android:layout_height="wrap_content"
             android:orientation="vertical">
 
-            <!-- Registered Users Card -->
+            <!-- ========================= -->
+            <!-- USER ACCOUNT SECTION -->
+            <!-- ========================= -->
             <com.google.android.material.card.MaterialCardView
                 android:layout_width="match_parent"
-                android:layout_height="120dp"
-                android:layout_marginBottom="8dp">
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:orientation="vertical"
-                    android:gravity="center"
-                    android:padding="8dp">
-
-                    <TextView
-                        android:id="@+id/tvUserCount"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="0"
-                        android:textSize="20sp"
-                        android:textStyle="bold"/>
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Registered Users"
-                        android:textColor="#666"/>
-                </LinearLayout>
-            </com.google.android.material.card.MaterialCardView>
-
-            <!-- Manage Users Button under Registered Users -->
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/btnManageUsers"
-                style="@style/Widget.MaterialComponents.Button"
-                android:layout_width="match_parent"
-                android:layout_height="80dp"
+                android:layout_height="wrap_content"
                 android:layout_marginBottom="16dp"
-                android:text="Manage Users"
-                android:backgroundTint="@color/orange"
-                android:textColor="@android:color/white"
-                app:icon="@drawable/baseline_person_24"/>
-
-            <!-- Admin Actions Grid -->
-            <GridLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:columnCount="2"
-                android:rowCount="2"
-                android:layout_marginBottom="16dp">
-
-                <!-- Row 1 -->
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/btnSetSchedule"
-                    style="@style/Widget.MaterialComponents.Button"
-                    android:layout_width="0dp"
-                    android:layout_height="100dp"
-                    android:layout_columnWeight="1"
-                    android:layout_margin="4dp"
-                    android:text="Set Schedule"
-                    android:backgroundTint="#9C27B0"
-                    android:textColor="@android:color/white"
-                    app:icon="@drawable/baseline_edit_24"/>
-
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/btnFoodHistory"
-                    style="@style/Widget.MaterialComponents.Button"
-                    android:layout_width="0dp"
-                    android:layout_height="100dp"
-                    android:layout_columnWeight="1"
-                    android:layout_margin="4dp"
-                    android:text="Food History"
-                    android:backgroundTint="#2196F3"
-                    android:textColor="@android:color/white"
-                    app:icon="@drawable/baseline_history_24"/>
-
-                <!-- Row 2: Manual Feed centered -->
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/btnManualFeed"
-                    style="@style/Widget.MaterialComponents.Button"
-                    android:layout_width="match_parent"
-                    android:layout_height="100dp"
-                    android:layout_margin="4dp"
-                    android:layout_columnSpan="2"
-                    android:text="Manual Feed"
-                    android:backgroundTint="#FF9800"
-                    android:textColor="@android:color/white"
-                    app:icon="@drawable/cat"/>
-            </GridLayout>
-
-            <!-- Alerts Section (merged Food Level here) -->
-            <com.google.android.material.card.MaterialCardView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                app:strokeColor="#F44336"
-                app:strokeWidth="1dp">
+                app:strokeColor="#FFA726"
+                app:strokeWidth="2dp"
+                android:backgroundTint="@android:color/white"
+                android:elevation="4dp">
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -137,27 +54,129 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="System Alerts"
+                        android:text="User Account"
                         android:textSize="18sp"
-                        android:textStyle="bold"/>
+                        android:textStyle="bold"
+                        android:textColor="#000"
+                        android:layout_marginBottom="8dp"/>
 
-                    <!-- Food Level inside System Alerts -->
+                    <!-- Registered Users Card -->
+                    <com.google.android.material.card.MaterialCardView
+                        android:layout_width="match_parent"
+                        android:layout_height="120dp"
+                        android:layout_marginBottom="8dp"
+                        app:cardBackgroundColor="#FFF3E0"
+                        app:strokeColor="#FF9800"
+                        app:strokeWidth="1dp">
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:orientation="vertical"
+                            android:gravity="center"
+                            android:padding="8dp">
+
+                            <TextView
+                                android:id="@+id/tvUserCount"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="0"
+                                android:textSize="20sp"
+                                android:textStyle="bold"/>
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Registered Users"
+                                android:textColor="#666"/>
+                        </LinearLayout>
+                    </com.google.android.material.card.MaterialCardView>
+
+                    <!-- Manage Users Button -->
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btnManageUsers"
+                        style="@style/Widget.MaterialComponents.Button"
+                        android:layout_width="match_parent"
+                        android:layout_height="80dp"
+                        android:text="Manage Users"
+                        android:backgroundTint="@color/orange"
+                        android:textColor="@android:color/white"
+                        app:icon="@drawable/baseline_person_24"/>
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- ========================= -->
+            <!-- USER FEEDER SECTION -->
+            <!-- ========================= -->
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:strokeColor="#42A5F5"
+                app:strokeWidth="2dp"
+                android:backgroundTint="@android:color/white"
+                android:elevation="4dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="16dp">
+
                     <TextView
-                        android:id="@+id/tvFoodLevel"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Food level: 85%"
-                        android:layout_marginTop="8dp"
-                        android:textColor="#666"
-                        android:textStyle="bold"/>
+                        android:text="User Feeder"
+                        android:textSize="18sp"
+                        android:textStyle="bold"
+                        android:textColor="#000"
+                        android:layout_marginBottom="8dp"/>
 
-                    <!-- Low Food Alert -->
-                    <TextView
-                        android:id="@+id/tvLowFoodAlert"
-                        android:layout_width="wrap_content"
+                    <!-- Food History Button -->
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btnFoodHistory"
+                        style="@style/Widget.MaterialComponents.Button"
+                        android:layout_width="match_parent"
+                        android:layout_height="100dp"
+                        android:text="Feeder Status and History"
+                        android:backgroundTint="#2196F3"
+                        android:textColor="@android:color/white"
+                        app:icon="@drawable/food"/>
+
+                    <!-- Admin Actions Grid -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="Food level: Normal"
-                        android:layout_marginTop="8dp"/>
+                        android:orientation="horizontal"
+                        android:weightSum="2"
+                        android:gravity="center"
+                        android:layout_marginBottom="8dp">
+
+                        <!-- Set Schedule -->
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/btnSetSchedule"
+                            style="@style/Widget.MaterialComponents.Button"
+                            android:layout_width="0dp"
+                            android:layout_height="100dp"
+                            android:layout_weight="1"
+                            android:layout_margin="4dp"
+                            android:text="Set Schedule"
+                            android:backgroundTint="#9C27B0"
+                            android:textColor="@android:color/white"
+                            app:icon="@drawable/baseline_edit_24"/>
+
+                        <!-- Manual Feed -->
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/btnManualFeed"
+                            style="@style/Widget.MaterialComponents.Button"
+                            android:layout_width="0dp"
+                            android:layout_height="100dp"
+                            android:layout_weight="1"
+                            android:layout_margin="4dp"
+                            android:text="Manual Feed"
+                            android:backgroundTint="#FF9800"
+                            android:textColor="@android:color/white"
+                            app:icon="@drawable/cat"/>
+                    </LinearLayout>
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
         </LinearLayout>

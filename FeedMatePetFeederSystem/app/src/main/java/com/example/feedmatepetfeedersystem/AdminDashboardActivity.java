@@ -23,21 +23,13 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
-import java.util.ArrayList;
-import java.util.List;
-
 public class AdminDashboardActivity extends AppCompatActivity {
 
     private FirebaseAuth mAuth;
     private FirebaseUser currentUser;
-    private TextView tvUserCount, tvFoodLevel, tvLowFoodAlert;
-    private DatabaseReference usersRef, devicesRef;
-    private ValueEventListener userCountListener, devicesDataListener;
-
-    private List<String> deviceIds = new ArrayList<>();
-    private int totalFoodLevel = 0;
-    private int deviceCount = 0;
-    private boolean hasLowFoodAlert = false;
+    private TextView tvUserCount;
+    private DatabaseReference usersRef;
+    private ValueEventListener userCountListener;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -58,7 +50,6 @@ public class AdminDashboardActivity extends AppCompatActivity {
         // Initialize Firebase references
         FirebaseDatabase database = FirebaseDatabase.getInstance("https://feedmate-pet-feeder-system-default-rtdb.asia-southeast1.firebasedatabase.app/");
         usersRef = database.getReference("users");
-        devicesRef = database.getReference("devices");
 
         // Edge-to-edge padding
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
@@ -67,14 +58,8 @@ public class AdminDashboardActivity extends AppCompatActivity {
             return insets;
         });
 
-        // Initialize TextViews
+        // Initialize TextView
         tvUserCount = findViewById(R.id.tvUserCount);
-        tvFoodLevel = findViewById(R.id.tvFoodLevel);
-        tvLowFoodAlert = findViewById(R.id.tvLowFoodAlert);
-
-        // Set initial values
-        tvFoodLevel.setText("0%");
-        tvLowFoodAlert.setText("Food level: Connecting...");
 
         // Verify admin role first
         verifyAdminRole();
@@ -115,12 +100,10 @@ public class AdminDashboardActivity extends AppCompatActivity {
                         Log.d("AdminDashboard", "✅ User is admin, loading data...");
                         // User is admin, load the data
                         loadUserCount();
-                        loadDevicesData();
                         setupButtons();
                     } else {
                         Log.e("AdminDashboard", "❌ User is not admin, role: " + role);
                         Toast.makeText(AdminDashboardActivity.this, "Access denied: Admin privileges required", Toast.LENGTH_LONG).show();
-                        // Redirect to user dashboard or login
                         startActivity(new Intent(AdminDashboardActivity.this, UserDashboardActivity.class));
                         finish();
                     }
@@ -163,7 +146,8 @@ public class AdminDashboardActivity extends AppCompatActivity {
         // Manual Feed button
         MaterialButton btnManualFeed = findViewById(R.id.btnManualFeed);
         btnManualFeed.setOnClickListener(v -> {
-            Toast.makeText(this, "Manual Feed feature coming soon", Toast.LENGTH_SHORT).show();
+            Intent intent = new Intent(AdminDashboardActivity.this, AdminManualFeedActivity.class);
+            startActivity(intent);
         });
     }
 
@@ -174,14 +158,12 @@ public class AdminDashboardActivity extends AppCompatActivity {
                 try {
                     int count = 0;
                     for (DataSnapshot ds : snapshot.getChildren()) {
-                        // Check if this is a user node with role field
                         if (ds.hasChild("role")) {
                             String role = ds.child("role").getValue(String.class);
                             if (role != null && "user".equalsIgnoreCase(role)) {
                                 count++;
                             }
                         } else {
-                            // If no role field, count as user (for backward compatibility)
                             count++;
                         }
                     }
@@ -203,186 +185,9 @@ public class AdminDashboardActivity extends AppCompatActivity {
         usersRef.addValueEventListener(userCountListener);
     }
 
-    private void loadDevicesData() {
-        devicesDataListener = new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot) {
-                Log.d("AdminDashboard", "Devices data changed, total devices: " + snapshot.getChildrenCount());
-
-                deviceIds.clear();
-                totalFoodLevel = 0;
-                deviceCount = 0;
-                hasLowFoodAlert = false;
-
-                // Check if any devices exist
-                if (!snapshot.exists() || snapshot.getChildrenCount() == 0) {
-                    Log.d("AdminDashboard", "No devices found in database");
-                    updateUIForNoDevices();
-                    return;
-                }
-
-                // Process each device
-                for (DataSnapshot deviceSnapshot : snapshot.getChildren()) {
-                    String deviceId = deviceSnapshot.getKey();
-                    if (deviceId != null) {
-                        deviceIds.add(deviceId);
-                        processDeviceData(deviceSnapshot, deviceId);
-                    }
-                }
-
-                Log.d("AdminDashboard", "Processed " + deviceCount + " devices with food data");
-                updateAggregatedFoodLevel();
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError error) {
-                Log.e("AdminDashboard", "Devices data error: " + error.getMessage());
-                updateUIForError("Database error: " + error.getMessage());
-                Toast.makeText(AdminDashboardActivity.this, "Error loading device data: " + error.getMessage(), Toast.LENGTH_SHORT).show();
-            }
-        };
-
-        // Add listener with error handling
-        devicesRef.addValueEventListener(devicesDataListener);
-    }
-
-    private void processDeviceData(DataSnapshot deviceSnapshot, String deviceId) {
-        try {
-            Log.d("AdminDashboard", "Processing device: " + deviceId);
-
-            int foodLevel = 0;
-            boolean hasValidData = false;
-
-            // Method 1: Try to get food level directly
-            if (deviceSnapshot.hasChild("sensors") &&
-                    deviceSnapshot.child("sensors").hasChild("food") &&
-                    deviceSnapshot.child("sensors").child("food").hasChild("level")) {
-
-                Object levelValue = deviceSnapshot.child("sensors").child("food").child("level").getValue();
-                if (levelValue != null) {
-                    if (levelValue instanceof Long) {
-                        foodLevel = ((Long) levelValue).intValue();
-                        hasValidData = true;
-                    } else if (levelValue instanceof Integer) {
-                        foodLevel = (Integer) levelValue;
-                        hasValidData = true;
-                    } else if (levelValue instanceof Double) {
-                        foodLevel = ((Double) levelValue).intValue();
-                        hasValidData = true;
-                    } else if (levelValue instanceof String) {
-                        try {
-                            String levelStr = ((String) levelValue).replace("%", "").trim();
-                            foodLevel = Integer.parseInt(levelStr);
-                            hasValidData = true;
-                        } catch (NumberFormatException e) {
-                            Log.w("AdminDashboard", "Invalid food level format: " + levelValue);
-                        }
-                    }
-                }
-            }
-
-            if (hasValidData) {
-                Log.d("AdminDashboard", "Device " + deviceId + " food level: " + foodLevel + "%");
-
-                // Check for low food alert
-                if (foodLevel < 20) {
-                    hasLowFoodAlert = true;
-                }
-
-                totalFoodLevel += foodLevel;
-                deviceCount++;
-            } else {
-                Log.w("AdminDashboard", "No valid food data for device: " + deviceId);
-                // Add default value for devices with no data
-                totalFoodLevel += 0;
-                deviceCount++;
-            }
-
-            // Check explicit low food alerts
-            if (deviceSnapshot.hasChild("alerts") &&
-                    deviceSnapshot.child("alerts").hasChild("lowFoodLevel")) {
-                Object alertValue = deviceSnapshot.child("alerts").child("lowFoodLevel").getValue();
-                if (alertValue instanceof Boolean && (Boolean) alertValue) {
-                    hasLowFoodAlert = true;
-                }
-            }
-
-        } catch (Exception e) {
-            Log.e("AdminDashboard", "Error processing device " + deviceId + ": " + e.getMessage());
-            // Still count this device but with 0 food level
-            totalFoodLevel += 0;
-            deviceCount++;
-        }
-    }
-
-    private void updateAggregatedFoodLevel() {
-        runOnUiThread(() -> {
-            if (deviceCount == 0) {
-                updateUIForNoData();
-                return;
-            }
-
-            int averageFoodLevel = totalFoodLevel / deviceCount;
-
-            // Update food level display
-            tvFoodLevel.setText(averageFoodLevel + "%");
-
-            // Color coding based on level
-            if (averageFoodLevel < 20) {
-                tvFoodLevel.setTextColor(getResources().getColor(android.R.color.holo_red_dark));
-            } else if (averageFoodLevel < 50) {
-                tvFoodLevel.setTextColor(getResources().getColor(android.R.color.holo_orange_dark));
-            } else {
-                tvFoodLevel.setTextColor(getResources().getColor(android.R.color.holo_green_dark));
-            }
-
-            // Update alert message
-            if (hasLowFoodAlert) {
-                tvLowFoodAlert.setText("⚠️ Low food alert on one or more devices!");
-                tvLowFoodAlert.setTextColor(getResources().getColor(android.R.color.holo_red_dark));
-            } else {
-                tvLowFoodAlert.setText("Food level: Normal (" + deviceCount + " devices)");
-                tvLowFoodAlert.setTextColor(getResources().getColor(android.R.color.holo_green_dark));
-            }
-
-            Log.d("AdminDashboard", "Final display - Average: " + averageFoodLevel + "%, Devices: " + deviceCount);
-        });
-    }
-
-    private void updateUIForNoDevices() {
-        runOnUiThread(() -> {
-            tvFoodLevel.setText("0%");
-            tvFoodLevel.setTextColor(getResources().getColor(android.R.color.darker_gray));
-            tvLowFoodAlert.setText("Food level: No devices connected");
-            tvLowFoodAlert.setTextColor(getResources().getColor(android.R.color.darker_gray));
-        });
-    }
-
-    private void updateUIForNoData() {
-        runOnUiThread(() -> {
-            tvFoodLevel.setText("0%");
-            tvFoodLevel.setTextColor(getResources().getColor(android.R.color.darker_gray));
-            tvLowFoodAlert.setText("Food level: No data available");
-            tvLowFoodAlert.setTextColor(getResources().getColor(android.R.color.darker_gray));
-        });
-    }
-
-    private void updateUIForError(String errorMessage) {
-        runOnUiThread(() -> {
-            tvFoodLevel.setText("0%");
-            tvFoodLevel.setTextColor(getResources().getColor(android.R.color.darker_gray));
-            tvLowFoodAlert.setText("Food level: " + errorMessage);
-            tvLowFoodAlert.setTextColor(getResources().getColor(android.R.color.holo_red_dark));
-        });
-    }
-
     private void logoutAdmin() {
-        // Remove listeners first
         if (usersRef != null && userCountListener != null) {
             usersRef.removeEventListener(userCountListener);
-        }
-        if (devicesRef != null && devicesDataListener != null) {
-            devicesRef.removeEventListener(devicesDataListener);
         }
 
         mAuth.signOut();
@@ -397,12 +202,8 @@ public class AdminDashboardActivity extends AppCompatActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        // Clean up listeners
         if (usersRef != null && userCountListener != null) {
             usersRef.removeEventListener(userCountListener);
-        }
-        if (devicesRef != null && devicesDataListener != null) {
-            devicesRef.removeEventListener(devicesDataListener);
         }
     }
 }

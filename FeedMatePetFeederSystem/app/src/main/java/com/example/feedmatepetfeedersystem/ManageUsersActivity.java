@@ -84,13 +84,35 @@ public class ManageUsersActivity extends AppCompatActivity {
 
             @Override
             public void onDelete(User user) {
-                if (user.getUid() != null) {
-                    usersRef.child(user.getUid()).removeValue()
-                            .addOnSuccessListener(aVoid ->
-                                    Toast.makeText(ManageUsersActivity.this, "User deleted", Toast.LENGTH_SHORT).show())
-                            .addOnFailureListener(e ->
-                                    Toast.makeText(ManageUsersActivity.this, "Delete failed: " + e.getMessage(), Toast.LENGTH_SHORT).show());
-                }
+                if (user.getUid() == null) return;
+
+                // Step 1: Fun confirmation dialog
+                new AlertDialog.Builder(ManageUsersActivity.this)
+                        .setTitle("Wait a second...")
+                        .setMessage("Are you really sure you want to delete this user? 🤔\n\n" +
+                                "Once you go down this path, there’s no coming back")
+                        .setPositiveButton("I'm Sure", (funDialog, which) -> {
+                            // Step 2: Serious confirmation dialog
+                            new AlertDialog.Builder(ManageUsersActivity.this)
+                                    .setTitle("Final Confirmation")
+                                    .setMessage("This action will permanently remove the user and all related feeder data.\n\n" +
+                                            "Do you want to proceed?")
+                                    .setPositiveButton("Delete", (confirmDialog, w) -> {
+                                        usersRef.child(user.getUid()).removeValue()
+                                                .addOnSuccessListener(aVoid ->
+                                                        Toast.makeText(ManageUsersActivity.this,
+                                                                "User deleted successfully", Toast.LENGTH_SHORT).show())
+                                                .addOnFailureListener(e ->
+                                                        Toast.makeText(ManageUsersActivity.this,
+                                                                "Delete failed: " + e.getMessage(), Toast.LENGTH_SHORT).show());
+                                    })
+                                    .setNegativeButton("Cancel", (confirmDialog, w) -> confirmDialog.dismiss())
+                                    .setCancelable(true)
+                                    .show();
+                        })
+                        .setNegativeButton("Never mind", (dialog, which) -> dialog.dismiss())
+                        .setCancelable(true)
+                        .show();
             }
         });
 

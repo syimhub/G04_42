@@ -58,6 +58,9 @@
         <activity
             android:name=".AdminSetScheduleActivity"
             android:exported="false" />
+        <activity
+            android:name=".AdminManualFeedActivity"
+            android:exported="false" />
     </application>
 
 </manifest>
