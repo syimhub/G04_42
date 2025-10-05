@@ -48,23 +48,28 @@ public class AdminSetScheduleActivity extends AppCompatActivity {
     // 3 fixed TextViews for times
     private TextView tvFeedingTime1, tvFeedingTime2, tvFeedingTime3;
 
+    private View ivEdit1, ivEdit2, ivEdit3;
+    private String[] originalTimes = {"--:--", "--:--", "--:--"};
+
     // Buttons under each time row
     private View time1Buttons, time2Buttons, time3Buttons;
 
     private FirebaseUser currentUser;
-
-    // Store feeding times
     private ArrayList<String> feedingTimes = new ArrayList<>();
+
+    // New views for toggle visibility
+    private View feedingTimesLayout;
+    private TextView tvSelectUserMessage;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        // Enable Edge-to-Edge mode
+        // Enable Edge-to-Edge
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_set_schedule_admin);
 
-        // Apply window insets
+        // Window insets
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
             Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
@@ -93,15 +98,31 @@ public class AdminSetScheduleActivity extends AppCompatActivity {
         tvFeedingTime2 = findViewById(R.id.tvFeedingTime2);
         tvFeedingTime3 = findViewById(R.id.tvFeedingTime3);
 
+        ivEdit1 = findViewById(R.id.ivEdit1);
+        ivEdit2 = findViewById(R.id.ivEdit2);
+        ivEdit3 = findViewById(R.id.ivEdit3);
+
         time1Buttons = findViewById(R.id.time1Buttons);
         time2Buttons = findViewById(R.id.time2Buttons);
         time3Buttons = findViewById(R.id.time3Buttons);
 
-        // Setup user list recycler
+        // New layout controls
+        feedingTimesLayout = findViewById(R.id.layoutFeedingTimes);
+        tvSelectUserMessage = findViewById(R.id.tvSelectUserPrompt);
+
+        // Initially show “Select user first”
+        feedingTimesLayout.setVisibility(View.GONE);
+        tvSelectUserMessage.setVisibility(View.VISIBLE);
+
+        // Setup recycler
         rvUsers.setLayoutManager(new LinearLayoutManager(this));
         setScheduleUserAdapter = new SetScheduleUserAdapter(userList, (user, position) -> {
             selectedUserId = user.getUid();
             selectedFeederId = userFeederMap.get(selectedUserId);
+
+            // Switch visibility when user selected
+            tvSelectUserMessage.setVisibility(View.GONE);
+            feedingTimesLayout.setVisibility(View.VISIBLE);
 
             if (selectedFeederId == null || selectedFeederId.isEmpty()) {
                 feedingTimes.clear();
@@ -116,7 +137,7 @@ public class AdminSetScheduleActivity extends AppCompatActivity {
         // Load users
         loadUsers();
 
-        // Setup editing listeners
+        // Setup editing
         setupTimeBoxListeners();
     }
 
@@ -126,15 +147,14 @@ public class AdminSetScheduleActivity extends AppCompatActivity {
             return;
         }
 
-        Log.d("AdminSetSchedule", "⏳ loadUsers() called with orderByChild(email)");
+        Log.d("AdminSetSchedule", "⏳ loadUsers() called");
 
         dbRef.child("users")
-                .orderByChild("email")   // 🔑 Required for rules
+                .orderByChild("email")
                 .addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override
                     public void onDataChange(@NonNull DataSnapshot snapshot) {
-                        Log.d("AdminSetSchedule", "✅ onDataChange triggered, children count = " + snapshot.getChildrenCount());
-
+                        Log.d("AdminSetSchedule", "✅ onDataChange triggered, count = " + snapshot.getChildrenCount());
                         userList.clear();
                         userIds.clear();
                         userFeederMap.clear();
@@ -146,8 +166,6 @@ public class AdminSetScheduleActivity extends AppCompatActivity {
                             String role = userSnap.child("role").getValue(String.class);
                             String feederId = userSnap.child("feederId").getValue(String.class);
 
-                            Log.d("AdminSetSchedule", "📌 Found user: uid=" + uid + ", role=" + role + ", fullName=" + fullName);
-
                             if (fullName != null && "user".equals(role)) {
                                 User user = new User();
                                 user.setUid(uid);
@@ -158,19 +176,14 @@ public class AdminSetScheduleActivity extends AppCompatActivity {
                                 userList.add(user);
                                 userIds.add(uid);
                                 userFeederMap.put(uid, feederId);
-
-                                Log.d("AdminSetSchedule", "➡️ Added user to list: " + fullName + " (" + uid + ")");
                             }
                         }
-
-                        Log.d("AdminSetSchedule", "📊 Final userList size = " + userList.size());
 
                         if (userList.isEmpty()) {
                             Toast.makeText(AdminSetScheduleActivity.this, "No users found", Toast.LENGTH_SHORT).show();
                         }
 
                         setScheduleUserAdapter.notifyDataSetChanged();
-                        Log.d("AdminSetSchedule", "🔄 Adapter notified of data change");
                     }
 
                     @Override
@@ -181,11 +194,11 @@ public class AdminSetScheduleActivity extends AppCompatActivity {
                 });
     }
 
-
     private void loadFeedingTimes() {
         if (selectedFeederId == null) return;
 
-        dbRef.child("devices").child(selectedFeederId).child("config").child("schedule").child("feedingTimes")
+        dbRef.child("devices").child(selectedFeederId)
+                .child("config").child("schedule").child("feedingTimes")
                 .addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override
                     public void onDataChange(@NonNull DataSnapshot snapshot) {
@@ -205,23 +218,31 @@ public class AdminSetScheduleActivity extends AppCompatActivity {
     }
 
     private void setupTimeBoxListeners() {
-        setupTimeBox(tvFeedingTime1, time1Buttons, 0, R.id.btnConfirm1, R.id.btnCancel1);
-        setupTimeBox(tvFeedingTime2, time2Buttons, 1, R.id.btnConfirm2, R.id.btnCancel2);
-        setupTimeBox(tvFeedingTime3, time3Buttons, 2, R.id.btnConfirm3, R.id.btnCancel3);
+        setupEditButton(ivEdit1, tvFeedingTime1, time1Buttons, 0, R.id.btnConfirm1, R.id.btnCancel1);
+        setupEditButton(ivEdit2, tvFeedingTime2, time2Buttons, 1, R.id.btnConfirm2, R.id.btnCancel2);
+        setupEditButton(ivEdit3, tvFeedingTime3, time3Buttons, 2, R.id.btnConfirm3, R.id.btnCancel3);
     }
 
-    private void setupTimeBox(TextView tvTime, View buttonsLayout, int index,
-                              int confirmBtnId, int cancelBtnId) {
-        tvTime.setOnClickListener(v -> {
+    private void setupEditButton(View editButton, TextView tvTime, View buttonsLayout,
+                                 int index, int confirmBtnId, int cancelBtnId) {
+
+        editButton.setOnClickListener(v -> {
             if (selectedFeederId == null) {
                 Toast.makeText(this, "Select a user first", Toast.LENGTH_SHORT).show();
                 return;
             }
+            originalTimes[index] = tvTime.getText().toString();
             showTimePicker(index, tvTime, buttonsLayout);
         });
 
-        buttonsLayout.findViewById(confirmBtnId).setOnClickListener(v -> confirmTime(tvTime, index, buttonsLayout));
-        buttonsLayout.findViewById(cancelBtnId).setOnClickListener(v -> cancelEdit(buttonsLayout));
+        buttonsLayout.findViewById(confirmBtnId)
+                .setOnClickListener(v -> confirmTime(tvTime, index, buttonsLayout));
+
+        buttonsLayout.findViewById(cancelBtnId)
+                .setOnClickListener(v -> {
+                    tvTime.setText(originalTimes[index]);
+                    cancelEdit(buttonsLayout);
+                });
     }
 
     private void showTimePicker(int index, TextView tvTime, View buttonsLayout) {
@@ -243,11 +264,8 @@ public class AdminSetScheduleActivity extends AppCompatActivity {
 
     private void confirmTime(TextView tvTime, int index, View buttonsLayout) {
         String newTime = tvTime.getText().toString();
-        if (feedingTimes.size() > index) {
-            feedingTimes.set(index, newTime);
-        } else {
-            feedingTimes.add(newTime);
-        }
+        if (feedingTimes.size() > index) feedingTimes.set(index, newTime);
+        else feedingTimes.add(newTime);
         saveSchedule();
         buttonsLayout.setVisibility(View.GONE);
     }
@@ -275,9 +293,12 @@ public class AdminSetScheduleActivity extends AppCompatActivity {
             return;
         }
 
-        dbRef.child("devices").child(selectedFeederId).child("config").child("schedule").child("feedingTimes")
+        dbRef.child("devices").child(selectedFeederId)
+                .child("config").child("schedule").child("feedingTimes")
                 .setValue(feedingTimes)
-                .addOnSuccessListener(aVoid -> Toast.makeText(this, "Schedule saved", Toast.LENGTH_SHORT).show())
-                .addOnFailureListener(e -> Toast.makeText(this, "Failed: " + e.getMessage(), Toast.LENGTH_SHORT).show());
+                .addOnSuccessListener(aVoid ->
+                        Toast.makeText(this, "Schedule saved", Toast.LENGTH_SHORT).show())
+                .addOnFailureListener(e ->
+                        Toast.makeText(this, "Failed: " + e.getMessage(), Toast.LENGTH_SHORT).show());
     }
 }
