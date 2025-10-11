@@ -131,7 +131,7 @@
                         android:textColor="#000"
                         android:layout_marginBottom="8dp"/>
 
-                    <!-- Food History Button -->
+                    <!-- Feeder Status and History Button -->
                     <com.google.android.material.button.MaterialButton
                         android:id="@+id/btnFoodHistory"
                         style="@style/Widget.MaterialComponents.Button"

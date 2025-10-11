@@ -129,10 +129,10 @@ public class AdminDashboardActivity extends AppCompatActivity {
             startActivity(intent);
         });
 
-        // History button
+        // Feeder Status and History button
         MaterialButton btnFoodHistory = findViewById(R.id.btnFoodHistory);
         btnFoodHistory.setOnClickListener(v -> {
-            Intent intent = new Intent(AdminDashboardActivity.this, HistoryActivity.class);
+            Intent intent = new Intent(AdminDashboardActivity.this, AdminFeederStatusHistoryActivity.class);
             startActivity(intent);
         });
 
