@@ -45,6 +45,7 @@ public class AdminFeederStatusHistoryActivity extends AppCompatActivity {
     private TextView tvSelectUserPrompt, tvFeederStatus, tvHistoryList;
     private View layoutFeederStatus;
     private ProgressBar progressBar;
+    private ValueEventListener sensorListener;
 
     // ✅ New: Sensor section TextViews
     private TextView textFoodLevel, textFoodWeight;
@@ -298,24 +299,51 @@ public class AdminFeederStatusHistoryActivity extends AppCompatActivity {
     private void loadSensorData() {
         if (selectedFeederId == null) return;
 
-        dbRef.child("devices").child(selectedFeederId).child("sensors")
-                .addValueEventListener(new ValueEventListener() { // <-- changed from addListenerForSingleValueEvent
-                    @Override
-                    public void onDataChange(@NonNull DataSnapshot snapshot) {
-                        Long level = snapshot.child("food").child("level").getValue(Long.class);
-                        Long weight = snapshot.child("food").child("weight").getValue(Long.class);
+        DatabaseReference sensorRef = dbRef.child("devices").child(selectedFeederId).child("sensors");
 
-                        textFoodLevel.setText("Current Food Level: " + (level != null ? level : 0) + "%");
-                        textFoodWeight.setText("Current Food Weight: " + (weight != null ? weight : 0) + "g");
-                    }
+        sensorListener = new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                Long level = snapshot.child("food").child("level").getValue(Long.class);
+                Long weight = snapshot.child("food").child("weight").getValue(Long.class);
 
-                    @Override
-                    public void onCancelled(@NonNull DatabaseError error) {
-                        Toast.makeText(AdminFeederStatusHistoryActivity.this,
-                                "Failed to load sensor data: " + error.getMessage(),
-                                Toast.LENGTH_SHORT).show();
-                    }
-                });
+                textFoodLevel.setText("Current Food Level: " + (level != null ? level : 0) + "%");
+                textFoodWeight.setText("Current Food Weight: " + (weight != null ? weight : 0) + "g");
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+                if (FirebaseAuth.getInstance().getCurrentUser() == null) return;
+                Toast.makeText(AdminFeederStatusHistoryActivity.this,
+                        "Failed to load sensor data: " + error.getMessage(),
+                        Toast.LENGTH_SHORT).show();
+            }
+        };
+
+        sensorRef.addValueEventListener(sensorListener);
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+
+        if (selectedFeederId != null && sensorListener != null) {
+            dbRef.child("devices").child(selectedFeederId)
+                    .child("sensors")
+                    .removeEventListener(sensorListener);
+        }
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+
+        if (selectedFeederId != null && sensorListener != null) {
+            dbRef.child("devices").child(selectedFeederId)
+                    .child("sensors")
+                    .removeEventListener(sensorListener);
+            sensorListener = null;
+        }
     }
 
 }
