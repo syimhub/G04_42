@@ -25,13 +25,16 @@ import com.google.firebase.database.ValueEventListener;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Locale;
 
 public class UserDashboardActivity extends AppCompatActivity {
 
     private FirebaseAuth mAuth;
     private MaterialButton btnManualFeed;
     private MaterialButton btnHistory;
-    private TextView tvFoodLevel;
+    private TextView tvFoodLevel, tvLowFoodWarning;
     private TextView tvFoodWeight;
     private TextView tvNextFeedingTime;
     private TextView tvWelcome;
@@ -64,6 +67,7 @@ public class UserDashboardActivity extends AppCompatActivity {
         btnManualFeed = findViewById(R.id.btnManualFeed);
         btnHistory = findViewById(R.id.btnHistory);
         tvFoodLevel = findViewById(R.id.tvFoodLevel);
+        tvLowFoodWarning = findViewById(R.id.tvLowFoodWarning);
         tvFoodWeight = findViewById(R.id.tvFoodWeight);
         tvNextFeedingTime = findViewById(R.id.tvNextFeedingTime);
         tvWelcome = findViewById(R.id.tvWelcome);
@@ -305,6 +309,7 @@ public class UserDashboardActivity extends AppCompatActivity {
             public void onDataChange(DataSnapshot snapshot) {
                 if (!snapshot.exists()) {
                     tvFoodLevel.setText("No data");
+                    tvLowFoodWarning.setVisibility(View.GONE); // hide warning when no data
                     tvFoodWeight.setText("No data");
                     tvNextFeedingTime.setText("--:--");
                     tvFeedingTime1.setText("--:--");
@@ -322,6 +327,30 @@ public class UserDashboardActivity extends AppCompatActivity {
                         else if (levelValue instanceof String) foodLevel = (String) levelValue;
                         tvFoodLevel.setText(foodLevel + "%");
                     } else tvFoodLevel.setText("N/A");
+
+                    // 🔹 Check and update low food level
+                    try {
+                        int foodLevelValue = Integer.parseInt(foodLevel);
+                        DatabaseReference alertsRef = deviceRef.child("alerts");
+
+                        if (foodLevelValue < 20) {
+                            // Show warning
+                            tvLowFoodWarning.setVisibility(View.VISIBLE);
+
+                            // Update Firebase alerts if not already true
+                            alertsRef.child("lowFoodLevel").setValue(true);
+                            String currentTime = new SimpleDateFormat("HH:mm", Locale.getDefault()).format(new Date());
+                            alertsRef.child("lastTriggered").setValue(currentTime);
+
+                        } else {
+                            tvLowFoodWarning.setVisibility(View.GONE);
+
+                            // Reset alert if food level normal
+                            alertsRef.child("lowFoodLevel").setValue(false);
+                        }
+                    } catch (NumberFormatException e) {
+                        tvLowFoodWarning.setVisibility(View.GONE);
+                    }
 
                     String foodWeight = "N/A";
                     if (snapshot.child("sensors").child("food").child("weight").exists()) {
