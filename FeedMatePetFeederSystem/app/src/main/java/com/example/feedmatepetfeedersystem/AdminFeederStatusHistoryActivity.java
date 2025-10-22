@@ -46,8 +46,7 @@ public class AdminFeederStatusHistoryActivity extends AppCompatActivity {
     private View layoutFeederStatus;
     private ProgressBar progressBar;
     private ValueEventListener sensorListener;
-
-    // ✅ New: Sensor section TextViews
+    private DatabaseReference sensorRef;
     private TextView textFoodLevel, textFoodWeight;
 
     @Override
@@ -299,7 +298,7 @@ public class AdminFeederStatusHistoryActivity extends AppCompatActivity {
     private void loadSensorData() {
         if (selectedFeederId == null) return;
 
-        DatabaseReference sensorRef = dbRef.child("devices").child(selectedFeederId).child("sensors");
+        sensorRef = dbRef.child("devices").child(selectedFeederId).child("sensors");
 
         sensorListener = new ValueEventListener() {
             @Override
@@ -307,9 +306,21 @@ public class AdminFeederStatusHistoryActivity extends AppCompatActivity {
                 Long level = snapshot.child("food").child("level").getValue(Long.class);
                 Long weight = snapshot.child("food").child("weight").getValue(Long.class);
 
-                textFoodLevel.setText("Current Food Level: " + (level != null ? level : 0) + "%");
-                textFoodWeight.setText("Current Food Weight: " + (weight != null ? weight : 0) + "g");
+                int foodLevel = (level != null) ? level.intValue() : 0;
+                int foodWeight = (weight != null) ? weight.intValue() : 0;
+
+                textFoodLevel.setText("Current Food Level: " + foodLevel + "%");
+                textFoodWeight.setText("Current Food Weight: " + foodWeight + "g");
+
+                // ✅ Add low food alert logic
+                if (foodLevel < 30) {
+                    textFoodLevel.setTextColor(getResources().getColor(android.R.color.holo_red_dark));
+                    textFoodLevel.setText("⚠️ Low Food Level: " + foodLevel + "%");
+                } else {
+                    textFoodLevel.setTextColor(getResources().getColor(android.R.color.black));
+                }
             }
+
 
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
@@ -326,23 +337,18 @@ public class AdminFeederStatusHistoryActivity extends AppCompatActivity {
     @Override
     protected void onStop() {
         super.onStop();
-
-        if (selectedFeederId != null && sensorListener != null) {
-            dbRef.child("devices").child(selectedFeederId)
-                    .child("sensors")
-                    .removeEventListener(sensorListener);
+        if (sensorRef != null && sensorListener != null) {
+            sensorRef.removeEventListener(sensorListener);
         }
     }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
-
-        if (selectedFeederId != null && sensorListener != null) {
-            dbRef.child("devices").child(selectedFeederId)
-                    .child("sensors")
-                    .removeEventListener(sensorListener);
+        if (sensorRef != null && sensorListener != null) {
+            sensorRef.removeEventListener(sensorListener);
             sensorListener = null;
+            sensorRef = null;
         }
     }
 
