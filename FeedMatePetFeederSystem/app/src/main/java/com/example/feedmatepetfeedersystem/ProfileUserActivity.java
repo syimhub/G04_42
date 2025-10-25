@@ -200,21 +200,31 @@ public class ProfileUserActivity extends AppCompatActivity {
         findViewById(R.id.btnCancelPetBreed).setOnClickListener(v ->
                 cancelField("petBreed", editPetBreed, petBreedButtonsLayout));
 
-        // 🔑 Change Password
+        // 🔑 Change Password (with confirmation)
         findViewById(R.id.btnChangePassword).setOnClickListener(v -> {
-            if (currentUser.getEmail() != null) {
-                mAuth.sendPasswordResetEmail(currentUser.getEmail())
-                        .addOnSuccessListener(unused ->
-                                Toast.makeText(this,
-                                        "Password reset email sent to " + currentUser.getEmail(),
-                                        Toast.LENGTH_LONG).show())
-                        .addOnFailureListener(e ->
-                                Toast.makeText(this,
-                                        "Failed to send reset email: " + e.getMessage(),
-                                        Toast.LENGTH_LONG).show());
-            } else {
+            if (currentUser.getEmail() == null) {
                 Toast.makeText(this, "No email linked to account", Toast.LENGTH_SHORT).show();
+                return;
             }
+
+            new androidx.appcompat.app.AlertDialog.Builder(this)
+                    .setTitle("Change Password?")
+                    .setMessage("A password reset link will be sent to your email: " + currentUser.getEmail() +
+                            "\n\nDo you want to continue?")
+                    .setPositiveButton("Yes", (dialog, which) -> {
+                        mAuth.sendPasswordResetEmail(currentUser.getEmail())
+                                .addOnSuccessListener(unused ->
+                                        Toast.makeText(this,
+                                                "Password reset email sent to " + currentUser.getEmail(),
+                                                Toast.LENGTH_LONG).show())
+                                .addOnFailureListener(e ->
+                                        Toast.makeText(this,
+                                                "Failed to send reset email: " + e.getMessage(),
+                                                Toast.LENGTH_LONG).show());
+                    })
+                    .setNegativeButton("Cancel", (dialog, which) -> dialog.dismiss())
+                    .setCancelable(true)
+                    .show();
         });
 
         // Profile picture change

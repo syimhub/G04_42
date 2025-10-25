@@ -161,23 +161,31 @@ public class ProfileAdminActivity extends AppCompatActivity {
             }
         });
 
+        // 🔑 Change Password (with confirmation)
         findViewById(R.id.btnChangePassword).setOnClickListener(v -> {
-            FirebaseUser user = mAuth.getCurrentUser();
-            if (user != null && user.getEmail() != null) {
-                mAuth.sendPasswordResetEmail(user.getEmail())
-                        .addOnSuccessListener(unused ->
-                                Toast.makeText(ProfileAdminActivity.this,
-                                        "Password reset email sent to " + user.getEmail(),
-                                        Toast.LENGTH_LONG).show())
-                        .addOnFailureListener(e ->
-                                Toast.makeText(ProfileAdminActivity.this,
-                                        "Failed: " + e.getMessage(),
-                                        Toast.LENGTH_LONG).show());
-            } else {
-                Toast.makeText(ProfileAdminActivity.this,
-                        "No email found for this admin",
-                        Toast.LENGTH_SHORT).show();
+            if (currentUser.getEmail() == null) {
+                Toast.makeText(this, "No email linked to account", Toast.LENGTH_SHORT).show();
+                return;
             }
+
+            new androidx.appcompat.app.AlertDialog.Builder(this)
+                    .setTitle("Change Password?")
+                    .setMessage("A password reset link will be sent to your email: " + currentUser.getEmail() +
+                            "\n\nDo you want to continue?")
+                    .setPositiveButton("Yes", (dialog, which) -> {
+                        mAuth.sendPasswordResetEmail(currentUser.getEmail())
+                                .addOnSuccessListener(unused ->
+                                        Toast.makeText(this,
+                                                "Password reset email sent to " + currentUser.getEmail(),
+                                                Toast.LENGTH_LONG).show())
+                                .addOnFailureListener(e ->
+                                        Toast.makeText(this,
+                                                "Failed to send reset email: " + e.getMessage(),
+                                                Toast.LENGTH_LONG).show());
+                    })
+                    .setNegativeButton("Cancel", (dialog, which) -> dialog.dismiss())
+                    .setCancelable(true)
+                    .show();
         });
 
         imgAdmin.setOnClickListener(v -> openImageChooser());
