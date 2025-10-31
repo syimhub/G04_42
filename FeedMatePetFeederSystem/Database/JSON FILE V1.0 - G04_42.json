@@ -1,1 +1,1537 @@
-
+{
+  "devices": {
+    "HGxcHbt7LKMwCTsEDEivQqv5DO13": {
+      "alerts": {
+        "lastTriggered": "15:09",
+        "lowFoodLevel": true
+      },
+      "config": {
+        "schedule": {
+          "feedingTimes": [
+            "14:51",
+            "13:26",
+            "14:04"
+          ],
+          "nextFeedingTime": "13:26"
+        }
+      },
+      "history": {
+        "1970-01-01": {
+          "08:00": {
+            "level": 100,
+            "source": "manual",
+            "weight": 0
+          },
+          "08:00:35": {
+            "level": 0,
+            "source": "manual",
+            "weight": 0
+          },
+          "08:01": {
+            "level": 100,
+            "source": "manual",
+            "weight": 0
+          },
+          "08:01:07": {
+            "level": 88,
+            "source": "manual",
+            "weight": 0
+          },
+          "08:01:16": {
+            "level": 0,
+            "source": "manual",
+            "weight": 0
+          },
+          "08:01:24": {
+            "level": 0,
+            "source": "manual",
+            "weight": -1607.40735
+          },
+          "08:01:33": {
+            "level": 0,
+            "source": "manual",
+            "weight": 0.27994
+          },
+          "08:02": {
+            "level": 100,
+            "source": "manual",
+            "weight": 0
+          },
+          "08:03:09": {
+            "level": 0,
+            "source": "manual",
+            "weight": 1568.43457
+          },
+          "08:05:07": {
+            "level": 0,
+            "source": "system",
+            "weight": 1918.06335
+          },
+          "08:06:52": {
+            "level": 0,
+            "source": "manual",
+            "weight": 1917.5365
+          }
+        },
+        "2025-09-28": {
+          "16:17": {
+            "level": 0,
+            "source": "manual",
+            "weight": 0
+          },
+          "16:21": {
+            "level": 0,
+            "source": "scheduled",
+            "weight": 0
+          },
+          "16:26": {
+            "level": 0,
+            "source": "system",
+            "weight": 0
+          },
+          "16:31": {
+            "level": 0,
+            "source": "system",
+            "weight": 0
+          },
+          "16:36": {
+            "level": 0,
+            "source": "system",
+            "weight": 0
+          },
+          "16:41": {
+            "level": 0,
+            "source": "system",
+            "weight": 0
+          },
+          "16:46": {
+            "level": 65,
+            "source": "system",
+            "weight": 0
+          },
+          "16:51": {
+            "level": 0,
+            "source": "system",
+            "weight": 0
+          },
+          "16:56": {
+            "level": 0,
+            "source": "system",
+            "weight": 0
+          }
+        },
+        "2025-10-05": {
+          "15:36": {
+            "level": 0,
+            "source": "admin",
+            "weight": 0
+          },
+          "15:58": {
+            "level": 0,
+            "source": "admin",
+            "weight": 0
+          }
+        },
+        "2025-10-08": {
+          "23:01": {
+            "level": 0,
+            "source": "admin",
+            "weight": 0
+          }
+        },
+        "2025-10-12": {
+          "16:00": {
+            "level": 0,
+            "source": "admin",
+            "weight": 0
+          }
+        },
+        "2025-10-25": {
+          "12:15": {
+            "level": 100,
+            "source": "manual",
+            "weight": 0
+          },
+          "12:20": {
+            "level": 100,
+            "source": "manual",
+            "weight": 0
+          },
+          "12:21": {
+            "level": 100,
+            "source": "scheduled",
+            "weight": 0
+          },
+          "12:26": {
+            "level": 100,
+            "source": "system",
+            "weight": 0
+          },
+          "12:31": {
+            "level": 100,
+            "source": "manual",
+            "weight": 0
+          },
+          "12:33": {
+            "level": 100,
+            "source": "manual",
+            "weight": 0
+          },
+          "12:34": {
+            "level": 70,
+            "source": "manual",
+            "weight": 0
+          },
+          "13:09": {
+            "level": 0,
+            "source": "admin",
+            "weight": 0
+          },
+          "13:12": {
+            "level": 0,
+            "source": "admin",
+            "weight": 0
+          },
+          "13:13": {
+            "level": 0,
+            "source": "admin",
+            "weight": 0
+          },
+          "13:26": {
+            "level": 100,
+            "source": "manual",
+            "weight": 500
+          },
+          "13:27": {
+            "level": 100,
+            "source": "manual",
+            "weight": 500
+          },
+          "13:32": {
+            "level": 100,
+            "source": "system",
+            "weight": 500
+          },
+          "13:37": {
+            "level": 100,
+            "source": "system",
+            "weight": 500
+          },
+          "13:49": {
+            "level": 100,
+            "source": "system",
+            "weight": 500
+          },
+          "13:52": {
+            "level": 100,
+            "source": "manual",
+            "weight": 500
+          },
+          "13:56": {
+            "level": 0,
+            "source": "manual",
+            "weight": 0
+          },
+          "14:01": {
+            "level": 0,
+            "source": "system",
+            "weight": 0
+          },
+          "14:06": {
+            "level": 53,
+            "source": "system",
+            "weight": 0
+          },
+          "14:11": {
+            "level": 0,
+            "source": "system",
+            "weight": 0
+          },
+          "14:17": {
+            "level": 0,
+            "source": "system",
+            "weight": 0
+          },
+          "14:23": {
+            "level": 0,
+            "source": "system",
+            "weight": 0
+          },
+          "15:45": {
+            "level": 0,
+            "source": "scheduled",
+            "weight": 0
+          },
+          "15:50": {
+            "level": 0,
+            "source": "system",
+            "weight": 0
+          },
+          "15:55": {
+            "level": 0,
+            "source": "system",
+            "weight": 0
+          },
+          "16:00": {
+            "level": 0,
+            "source": "system",
+            "weight": 0
+          },
+          "16:05": {
+            "level": 0,
+            "source": "system",
+            "weight": 0
+          },
+          "16:10": {
+            "level": 0,
+            "source": "system",
+            "weight": 0
+          },
+          "16:15": {
+            "level": 0,
+            "source": "system",
+            "weight": 500
+          },
+          "16:20": {
+            "level": 0,
+            "source": "system",
+            "weight": 500
+          },
+          "16:25": {
+            "level": 0,
+            "source": "system",
+            "weight": 500
+          },
+          "17:28": {
+            "level": 66,
+            "source": "system",
+            "weight": 0
+          },
+          "17:47": {
+            "level": 0,
+            "source": "system",
+            "weight": 0
+          },
+          "17:52": {
+            "level": 0,
+            "source": "system",
+            "weight": 0
+          },
+          "19:22": {
+            "level": 92,
+            "source": "system",
+            "weight": 0
+          },
+          "19:27": {
+            "level": 0,
+            "source": "system",
+            "weight": 0
+          },
+          "19:37": {
+            "level": 0,
+            "source": "system",
+            "weight": 0
+          },
+          "19:46": {
+            "level": 0,
+            "source": "system",
+            "weight": 0
+          },
+          "20:37": {
+            "level": 100,
+            "source": "manual",
+            "weight": 0
+          },
+          "20:45": {
+            "level": 0,
+            "source": "manual",
+            "weight": 0
+          },
+          "20:48": {
+            "level": 0,
+            "source": "manual",
+            "weight": 0
+          },
+          "20:57": {
+            "level": 0,
+            "source": "system",
+            "weight": 0
+          },
+          "21:09": {
+            "level": 0,
+            "source": "manual",
+            "weight": 0
+          },
+          "21:12:20": {
+            "level": 0,
+            "source": "manual",
+            "weight": 0
+          },
+          "21:12:39": {
+            "level": 0,
+            "source": "manual",
+            "weight": 0
+          },
+          "21:13:06": {
+            "level": 0,
+            "source": "manual",
+            "weight": 0
+          },
+          "21:13:33": {
+            "level": 0,
+            "source": "manual",
+            "weight": 0
+          },
+          "21:33": {
+            "level": 0,
+            "source": "system",
+            "weight": 0
+          },
+          "21:38": {
+            "level": 0,
+            "source": "system",
+            "weight": 0
+          },
+          "21:46:13": {
+            "level": 0,
+            "source": "manual",
+            "weight": 0
+          },
+          "21:46:19": {
+            "level": 0,
+            "source": "manual",
+            "weight": 0
+          },
+          "21:51:21": {
+            "level": 77,
+            "source": "system",
+            "weight": 0
+          },
+          "21:56:22": {
+            "level": 0,
+            "source": "system",
+            "weight": 0
+          },
+          "22:00:20": {
+            "level": 0,
+            "source": "manual",
+            "weight": 0
+          },
+          "22:05:20": {
+            "level": 0,
+            "source": "system",
+            "weight": 0
+          },
+          "22:10:22": {
+            "level": 0,
+            "source": "system",
+            "weight": 0
+          },
+          "23:00": {
+            "level": 100,
+            "source": "system",
+            "weight": 0
+          },
+          "23:05": {
+            "level": 100,
+            "source": "system",
+            "weight": 0
+          },
+          "23:11:32": {
+            "level": 0,
+            "source": "manual",
+            "weight": 0
+          },
+          "23:16:35": {
+            "level": 0,
+            "source": "system",
+            "weight": 0
+          }
+        },
+        "2025-10-26": {
+          "04:28:55": {
+            "level": 0,
+            "source": "system",
+            "weight": 0
+          },
+          "04:33:56": {
+            "level": 0,
+            "source": "system",
+            "weight": 0
+          },
+          "04:43:50": {
+            "level": 0,
+            "source": "system",
+            "weight": 0.8
+          },
+          "04:50:31": {
+            "level": 0,
+            "source": "manual",
+            "weight": 3.8
+          },
+          "04:55:32": {
+            "level": 0,
+            "source": "system",
+            "weight": 0
+          },
+          "05:02:38": {
+            "level": 0,
+            "source": "system",
+            "weight": 834.79999
+          },
+          "12:55:44": {
+            "level": 83,
+            "source": "system",
+            "weight": 832.29999
+          },
+          "13:00:45": {
+            "level": 83,
+            "source": "system",
+            "weight": 829.29999
+          },
+          "13:05:47": {
+            "level": 83,
+            "source": "system",
+            "weight": 831.09998
+          },
+          "13:10:48": {
+            "level": 83,
+            "source": "system",
+            "weight": 827.20001
+          },
+          "13:19:58": {
+            "level": 0,
+            "source": "system",
+            "weight": 0.00005
+          },
+          "13:25:05": {
+            "level": 0,
+            "source": "system",
+            "weight": 0.00005
+          },
+          "13:34:21": {
+            "level": 0,
+            "source": "system",
+            "weight": 0
+          },
+          "13:40:05": {
+            "level": 0,
+            "source": "manual",
+            "weight": 0
+          },
+          "13:41:40": {
+            "level": 0,
+            "source": "manual",
+            "weight": 0
+          },
+          "13:41:50": {
+            "level": 0,
+            "source": "manual",
+            "weight": 0
+          },
+          "13:42:00": {
+            "level": 0,
+            "source": "manual",
+            "weight": 0
+          },
+          "13:56:19": {
+            "level": 0,
+            "source": "manual",
+            "weight": 0
+          },
+          "13:56:34": {
+            "level": 95,
+            "source": "manual",
+            "weight": 0
+          },
+          "13:56:53": {
+            "level": 42,
+            "source": "manual",
+            "weight": 0
+          },
+          "13:57:48": {
+            "level": 0,
+            "source": "manual",
+            "weight": 0
+          },
+          "13:59:38": {
+            "level": 100,
+            "source": "manual",
+            "weight": 0
+          },
+          "14:02:22": {
+            "level": 100,
+            "source": "manual",
+            "weight": 0
+          },
+          "14:02:35": {
+            "level": 0,
+            "source": "manual",
+            "weight": 0
+          },
+          "14:03:04": {
+            "level": 0,
+            "source": "scheduled",
+            "weight": 0
+          },
+          "14:03:52": {
+            "level": 79,
+            "source": "manual",
+            "weight": 0
+          },
+          "14:04:06": {
+            "level": 0,
+            "source": "manual",
+            "weight": 0
+          },
+          "14:05:07": {
+            "level": 0,
+            "source": "scheduled",
+            "weight": 0
+          },
+          "14:07:07": {
+            "level": 0,
+            "source": "scheduled",
+            "weight": 0
+          },
+          "14:07:26": {
+            "level": 0,
+            "source": "manual",
+            "weight": 0
+          },
+          "14:07:35": {
+            "level": 0,
+            "source": "manual",
+            "weight": 0
+          },
+          "14:07:55": {
+            "level": 0,
+            "source": "manual",
+            "weight": 0
+          },
+          "14:12:55": {
+            "level": 0,
+            "source": "system",
+            "weight": 0
+          },
+          "14:17:57": {
+            "level": 0,
+            "source": "system",
+            "weight": 0
+          },
+          "14:23:27": {
+            "level": 0,
+            "source": "system",
+            "weight": 0
+          },
+          "18:13:09": {
+            "level": 0,
+            "source": "system",
+            "weight": 500
+          },
+          "18:18:10": {
+            "level": 0,
+            "source": "system",
+            "weight": 500
+          },
+          "18:28:16": {
+            "level": 0,
+            "source": "system",
+            "weight": 500
+          },
+          "18:33:18": {
+            "level": 0,
+            "source": "system",
+            "weight": 500
+          },
+          "18:38:19": {
+            "level": 0,
+            "source": "system",
+            "weight": 500
+          },
+          "18:43:20": {
+            "level": 0,
+            "source": "system",
+            "weight": 500
+          },
+          "18:48:20": {
+            "level": 0,
+            "source": "system",
+            "weight": 500
+          },
+          "18:58:30": {
+            "level": 0,
+            "source": "manual",
+            "weight": 500
+          },
+          "18:58:43": {
+            "level": 0,
+            "source": "manual",
+            "weight": 500
+          },
+          "18:58:55": {
+            "level": 0,
+            "source": "manual",
+            "weight": 500
+          },
+          "19:00:31": {
+            "level": 0,
+            "source": "manual",
+            "weight": 500
+          },
+          "19:02:05": {
+            "level": 0,
+            "source": "scheduled",
+            "weight": 500
+          },
+          "19:07:08": {
+            "level": 0,
+            "source": "system",
+            "weight": 500
+          },
+          "19:12:08": {
+            "level": 0,
+            "source": "system",
+            "weight": 500
+          },
+          "19:17:12": {
+            "level": 61,
+            "source": "system",
+            "weight": 500
+          },
+          "19:23:54": {
+            "level": 0,
+            "source": "system",
+            "weight": 500
+          },
+          "20:59:32": {
+            "level": 0,
+            "source": "manual",
+            "weight": 0
+          },
+          "21:00:37": {
+            "level": 0,
+            "source": "scheduled",
+            "weight": 0
+          },
+          "21:00:54": {
+            "level": 0,
+            "source": "manual",
+            "weight": 0
+          },
+          "21:11:02": {
+            "level": 0,
+            "source": "system",
+            "weight": 0
+          },
+          "21:16:05": {
+            "level": 0,
+            "source": "manual",
+            "weight": 0
+          },
+          "21:17:24": {
+            "level": 0,
+            "source": "manual",
+            "weight": 0
+          }
+        },
+        "2025-10-27": {
+          "05:32:21": {
+            "level": 0,
+            "source": "system",
+            "weight": 9.41235
+          },
+          "05:42:21": {
+            "level": 0,
+            "source": "system",
+            "weight": 7.26574
+          },
+          "05:52:24": {
+            "level": 0,
+            "source": "system",
+            "weight": 0
+          },
+          "06:05:16": {
+            "level": 0,
+            "source": "manual",
+            "weight": -1578.30859
+          },
+          "07:34:47": {
+            "level": 0,
+            "source": "system",
+            "weight": 0
+          },
+          "07:44:13": {
+            "level": 0,
+            "source": "manual",
+            "weight": -1.94321
+          },
+          "07:44:47": {
+            "level": 0,
+            "source": "manual",
+            "weight": -2.68148
+          },
+          "07:46:13": {
+            "level": 0,
+            "source": "manual",
+            "weight": -0.4642
+          },
+          "07:56:16": {
+            "level": 0,
+            "source": "system",
+            "weight": 0
+          },
+          "07:58:27": {
+            "level": 0,
+            "source": "manual",
+            "weight": 28.69383
+          },
+          "07:58:58": {
+            "level": 87,
+            "source": "manual",
+            "weight": 28.21235
+          },
+          "07:59:31": {
+            "level": 84,
+            "source": "manual",
+            "weight": 219.87161
+          },
+          "08:00:23": {
+            "level": 0,
+            "source": "manual",
+            "weight": 27.9358
+          },
+          "08:00:44": {
+            "level": 0,
+            "source": "manual",
+            "weight": 27.8642
+          },
+          "08:02:27": {
+            "level": 0,
+            "source": "manual",
+            "weight": 28.32593
+          },
+          "08:11:13": {
+            "level": 0,
+            "source": "manual",
+            "weight": -0.64198
+          },
+          "08:11:36": {
+            "level": 0,
+            "source": "manual",
+            "weight": 0.19506
+          },
+          "08:11:49": {
+            "level": 0,
+            "source": "manual",
+            "weight": -0.78025
+          },
+          "08:15:56": {
+            "level": 0,
+            "source": "manual",
+            "weight": -4.29877
+          },
+          "08:16:15": {
+            "level": 0,
+            "source": "manual",
+            "weight": -4.73827
+          },
+          "08:16:57": {
+            "level": 0,
+            "source": "manual",
+            "weight": -5.92593
+          },
+          "08:17:44": {
+            "level": 0,
+            "source": "manual",
+            "weight": -5.9358
+          },
+          "08:21:18": {
+            "level": 0,
+            "source": "manual",
+            "weight": 1.9358
+          },
+          "08:31:18": {
+            "level": 0,
+            "source": "system",
+            "weight": 7.63951
+          },
+          "08:41:19": {
+            "level": 0,
+            "source": "system",
+            "weight": 7.66173
+          },
+          "08:51:27": {
+            "level": 0,
+            "source": "manual",
+            "weight": 205.34814
+          },
+          "08:52:13": {
+            "level": 0,
+            "source": "scheduled",
+            "weight": 205.5358
+          },
+          "09:08:45": {
+            "level": 0,
+            "source": "system",
+            "weight": 0.47654
+          },
+          "09:21:06": {
+            "level": 0,
+            "source": "manual",
+            "weight": -20.1037
+          },
+          "09:46:06": {
+            "level": 0,
+            "source": "system",
+            "weight": 0
+          },
+          "09:55:11": {
+            "level": 85,
+            "source": "manual",
+            "weight": -33.25679
+          },
+          "10:03:02": {
+            "level": 84,
+            "source": "manual",
+            "weight": -31.63457
+          },
+          "10:22:50": {
+            "level": 0,
+            "source": "system",
+            "weight": 103.41235
+          },
+          "11:40:46": {
+            "level": 100,
+            "source": "manual",
+            "weight": 32.37284
+          },
+          "11:50:48": {
+            "level": 0,
+            "source": "system",
+            "weight": 0.72099
+          },
+          "11:58:24": {
+            "level": 0,
+            "source": "manual",
+            "weight": 147.17778
+          },
+          "12:08:29": {
+            "level": 0,
+            "source": "system",
+            "weight": 0
+          },
+          "12:22:54": {
+            "level": 88,
+            "source": "manual",
+            "weight": 147.3679
+          },
+          "12:23:09": {
+            "level": 0,
+            "source": "manual",
+            "weight": 147.7605
+          },
+          "12:23:17": {
+            "level": 0,
+            "source": "manual",
+            "weight": 148.07654
+          },
+          "12:23:57": {
+            "level": 0,
+            "source": "manual",
+            "weight": 147.08148
+          },
+          "12:41:26": {
+            "level": 0,
+            "source": "manual",
+            "weight": 147.11111
+          },
+          "12:41:44": {
+            "level": 0,
+            "source": "manual",
+            "weight": 146.8
+          },
+          "13:17:41": {
+            "level": 0,
+            "source": "manual",
+            "weight": 6.96049
+          },
+          "13:18:37": {
+            "level": 0,
+            "source": "manual",
+            "weight": 4.12346
+          },
+          "13:21:55": {
+            "level": 0,
+            "source": "manual",
+            "weight": 4.42469
+          },
+          "13:22:01": {
+            "level": 0,
+            "source": "manual",
+            "weight": 4.02716
+          },
+          "13:22:06": {
+            "level": 0,
+            "source": "manual",
+            "weight": 4.41481
+          },
+          "13:23:12": {
+            "level": 0,
+            "source": "manual",
+            "weight": 3.17778
+          },
+          "13:25:57": {
+            "level": 0,
+            "source": "manual",
+            "weight": 2.69136
+          },
+          "13:26:12": {
+            "level": 0,
+            "source": "scheduled",
+            "weight": 2.79753
+          },
+          "13:27:08": {
+            "level": 0,
+            "source": "manual",
+            "weight": 2.90617
+          },
+          "13:57:55": {
+            "level": 26,
+            "source": "system",
+            "weight": 3.07407
+          },
+          "14:03:01": {
+            "level": 0,
+            "source": "manual",
+            "weight": 1.89383
+          },
+          "14:03:06": {
+            "level": 0,
+            "source": "manual",
+            "weight": 69.30864
+          },
+          "14:03:17": {
+            "level": 0,
+            "source": "manual",
+            "weight": 0.00494
+          },
+          "14:04:04": {
+            "level": 0,
+            "source": "scheduled",
+            "weight": 0.54815
+          },
+          "14:04:46": {
+            "level": 0,
+            "source": "manual",
+            "weight": -1.38519
+          },
+          "14:10:19": {
+            "level": 0,
+            "source": "manual",
+            "weight": 6.68889
+          },
+          "14:10:24": {
+            "level": 0,
+            "source": "manual",
+            "weight": 19.53333
+          },
+          "14:12:26": {
+            "level": 0,
+            "source": "manual",
+            "weight": 0.52346
+          },
+          "14:12:56": {
+            "level": 26,
+            "source": "manual",
+            "weight": 107.3679
+          },
+          "14:13:07": {
+            "level": 0,
+            "source": "manual",
+            "weight": 2.8642
+          },
+          "14:13:26": {
+            "level": 26,
+            "source": "manual",
+            "weight": 4.32593
+          },
+          "14:13:37": {
+            "level": 0,
+            "source": "manual",
+            "weight": 3.30864
+          },
+          "14:13:51": {
+            "level": 0,
+            "source": "manual",
+            "weight": 1.5284
+          },
+          "14:15:23": {
+            "level": 0,
+            "source": "manual",
+            "weight": 17.74321
+          },
+          "14:24:16": {
+            "level": 13,
+            "source": "manual",
+            "weight": -0.59259
+          },
+          "14:26:22": {
+            "level": 13,
+            "source": "manual",
+            "weight": 0.98272
+          },
+          "14:26:28": {
+            "level": 13,
+            "source": "manual",
+            "weight": 0.65679
+          },
+          "14:27:48": {
+            "level": 100,
+            "source": "manual",
+            "weight": -1.39753
+          },
+          "14:33:11": {
+            "level": 7,
+            "source": "manual",
+            "weight": 2.19506
+          },
+          "14:33:34": {
+            "level": 100,
+            "source": "manual",
+            "weight": 1.79259
+          },
+          "14:35:01": {
+            "level": 100,
+            "source": "manual",
+            "weight": 5.86914
+          },
+          "14:36:36": {
+            "level": 100,
+            "source": "manual",
+            "weight": 0.98765
+          },
+          "14:37:21": {
+            "level": 100,
+            "source": "manual",
+            "weight": 2.61235
+          },
+          "14:37:39": {
+            "level": 7,
+            "source": "manual",
+            "weight": 0.3358
+          },
+          "14:39:54": {
+            "level": 100,
+            "source": "manual",
+            "weight": 1.31358
+          },
+          "14:40:18": {
+            "level": 9,
+            "source": "manual",
+            "weight": 2.3358
+          },
+          "14:40:29": {
+            "level": 100,
+            "source": "manual",
+            "weight": 0.17778
+          },
+          "14:40:50": {
+            "level": 100,
+            "source": "manual",
+            "weight": 5.8963
+          },
+          "14:50": {
+            "level": 0,
+            "source": "admin",
+            "weight": 0
+          },
+          "14:50:46": {
+            "level": 100,
+            "source": "manual",
+            "weight": 1.88642
+          },
+          "14:51": {
+            "level": 0,
+            "source": "admin",
+            "weight": 0
+          },
+          "14:51:55": {
+            "level": 100,
+            "source": "manual",
+            "weight": 3.10864
+          },
+          "15:01:38": {
+            "level": 100,
+            "source": "manual",
+            "weight": 2.49383
+          },
+          "15:11:39": {
+            "level": 7,
+            "source": "system",
+            "weight": 379.75308
+          }
+        },
+        "2036-02-07": {
+          "14:28:52": {
+            "level": 0,
+            "source": "system",
+            "weight": 0
+          },
+          "14:30:37": {
+            "level": 0,
+            "source": "system",
+            "weight": 500
+          }
+        }
+      },
+      "owner": "HGxcHbt7LKMwCTsEDEivQqv5DO13",
+      "sensors": {
+        "distance": 0,
+        "food": {
+          "distance": 33.966,
+          "level": 9,
+          "weight": 0
+        },
+        "objectDetected": false
+      },
+      "state": {
+        "controls": {
+          "feedNow": false
+        },
+        "servo": {
+          "angle": -1
+        },
+        "system": {
+          "feedingInProgress": false,
+          "feedingProgress": 0,
+          "lastUpdate": "15:21:49",
+          "status": 0
+        }
+      }
+    },
+    "MyFoX3KPIKWXncXEwQB4eGpkWwO2": {
+      "alerts": {
+        "lastTriggered": "12:02",
+        "lowFoodLevel": true
+      },
+      "config": {
+        "schedule": {
+          "feedingTimes": [
+            "08:00",
+            "12:00",
+            "18:00"
+          ],
+          "nextFeedingTime": "18:00"
+        }
+      },
+      "owner": "MyFoX3KPIKWXncXEwQB4eGpkWwO2",
+      "sensors": {
+        "distance": 0,
+        "food": {
+          "level": 0,
+          "weight": 0
+        },
+        "objectDetected": false
+      },
+      "state": {
+        "controls": {
+          "feedNow": false
+        },
+        "servo": {
+          "angle": -1
+        },
+        "system": {
+          "feedingInProgress": false,
+          "lastUpdate": "",
+          "status": 0
+        }
+      }
+    },
+    "Sf5BdMzTqvZbxCyZks3KVndmCml1": {
+      "alerts": {
+        "lastTriggered": "07:24",
+        "lowFoodLevel": true
+      },
+      "config": {
+        "schedule": {
+          "feedingTimes": [
+            "09:38",
+            "12:00",
+            "18:00"
+          ],
+          "nextFeedingTime": "09:38"
+        }
+      },
+      "history": {
+        "2025-10-26": {
+          "09:50": {
+            "level": 0,
+            "source": "admin",
+            "weight": 0
+          }
+        },
+        "2025-10-27": {
+          "09:41": {
+            "level": 0,
+            "source": "admin",
+            "weight": 0
+          }
+        }
+      },
+      "owner": "Sf5BdMzTqvZbxCyZks3KVndmCml1",
+      "sensors": {
+        "distance": 0,
+        "food": {
+          "level": 0,
+          "weight": 0
+        },
+        "objectDetected": false
+      },
+      "state": {
+        "controls": {
+          "feedNow": true
+        },
+        "servo": {
+          "angle": -1
+        },
+        "system": {
+          "feedingInProgress": false,
+          "lastUpdate": "",
+          "status": 0
+        }
+      }
+    },
+    "VXyoacUNT2Vwg5TmJIPNUOrSm7e2": {
+      "alerts": {
+        "lastTriggered": "",
+        "lowFoodLevel": false
+      },
+      "config": {
+        "schedule": {
+          "feedingTimes": [
+            "08:00",
+            "12:00",
+            "18:00"
+          ],
+          "nextFeedingTime": "12:00"
+        }
+      },
+      "owner": "VXyoacUNT2Vwg5TmJIPNUOrSm7e2",
+      "sensors": {
+        "distance": 0,
+        "food": {
+          "level": 0,
+          "weight": 0
+        },
+        "objectDetected": false
+      },
+      "state": {
+        "controls": {
+          "feedNow": false
+        },
+        "servo": {
+          "angle": -1
+        },
+        "system": {
+          "feedingInProgress": false,
+          "lastUpdate": "",
+          "status": 0
+        }
+      }
+    },
+    "es9QWCyYlJSbYafZnTeI8EyevC72": {
+      "alerts": {
+        "lastTriggered": "",
+        "lowFoodLevel": false
+      },
+      "config": {
+        "schedule": {
+          "feedingTimes": [
+            "08:00",
+            "12:00",
+            "18:00"
+          ],
+          "nextFeedingTime": "12:00"
+        }
+      },
+      "owner": "es9QWCyYlJSbYafZnTeI8EyevC72",
+      "sensors": {
+        "distance": 0,
+        "food": {
+          "level": 0,
+          "weight": 0
+        },
+        "objectDetected": false
+      },
+      "state": {
+        "controls": {
+          "feedNow": false
+        },
+        "servo": {
+          "angle": -1
+        },
+        "system": {
+          "feedingInProgress": false,
+          "lastUpdate": "",
+          "status": 0
+        }
+      }
+    },
+    "h9P6NQ5g0xdt9dr486z7cHQ43PA3": {
+      "alerts": {
+        "lastTriggered": "",
+        "lowFoodLevel": false
+      },
+      "config": {
+        "schedule": {
+          "feedingTimes": [
+            "08:00",
+            "12:00",
+            "18:00"
+          ],
+          "nextFeedingTime": "12:00"
+        }
+      },
+      "owner": "h9P6NQ5g0xdt9dr486z7cHQ43PA3",
+      "sensors": {
+        "distance": 0,
+        "food": {
+          "level": 0,
+          "weight": 0
+        },
+        "objectDetected": false
+      },
+      "state": {
+        "controls": {
+          "feedNow": false
+        },
+        "servo": {
+          "angle": -1
+        },
+        "system": {
+          "feedingInProgress": false,
+          "lastUpdate": "",
+          "status": 0
+        }
+      }
+    },
+    "mYWapiYKfCZcTZTGKg77AgAEC0k1": {
+      "alerts": {
+        "lastTriggered": "",
+        "lowFoodLevel": false
+      },
+      "config": {
+        "schedule": {
+          "feedingTimes": [
+            "08:00",
+            "12:00",
+            "18:00"
+          ],
+          "nextFeedingTime": "12:00"
+        }
+      },
+      "owner": "mYWapiYKfCZcTZTGKg77AgAEC0k1",
+      "sensors": {
+        "distance": 0,
+        "food": {
+          "level": 0,
+          "weight": 0
+        },
+        "objectDetected": false
+      },
+      "state": {
+        "controls": {
+          "feedNow": false
+        },
+        "servo": {
+          "angle": -1
+        },
+        "system": {
+          "feedingInProgress": false,
+          "lastUpdate": "",
+          "status": 0
+        }
+      }
+    }
+  },
+  "users": {
+    "HGxcHbt7LKMwCTsEDEivQqv5DO13": {
+      "email": "syimiraidilr2@gmail.com",
+      "feederId": "HGxcHbt7LKMwCTsEDEivQqv5DO13",
+      "fullName": "Syimir Aidil",
+      "petAge": "3",
+      "petBreed": "British Longhair",
+      "petName": "Oren",
+      "profileImageUrl": "https://firebasestorage.googleapis.com/v0/b/feedmate-pet-feeder-system.firebasestorage.app/o/profile_images%2FHGxcHbt7LKMwCTsEDEivQqv5DO13.jpg?alt=media&token=2df248aa-c5b3-4176-b839-79032040fbeb",
+      "role": "user",
+      "uid": "HGxcHbt7LKMwCTsEDEivQqv5DO13"
+    },
+    "MyFoX3KPIKWXncXEwQB4eGpkWwO2": {
+      "email": "ammarsyazani3120@gmail.com",
+      "feederId": "MyFoX3KPIKWXncXEwQB4eGpkWwO2",
+      "fullName": "Ammar Syazani",
+      "petAge": "3",
+      "petBreed": "Siamese",
+      "petName": "Comot",
+      "profileImageUrl": "https://firebasestorage.googleapis.com/v0/b/feedmate-pet-feeder-system.firebasestorage.app/o/profile_images%2FMyFoX3KPIKWXncXEwQB4eGpkWwO2.jpg?alt=media&token=85fa2963-ec6e-4185-9ba5-5fbeb762fd35",
+      "role": "user",
+      "uid": "MyFoX3KPIKWXncXEwQB4eGpkWwO2"
+    },
+    "Sf5BdMzTqvZbxCyZks3KVndmCml1": {
+      "email": "aimanmc5@gmail.com",
+      "feederId": "Sf5BdMzTqvZbxCyZks3KVndmCml1",
+      "fullName": "Aqil Aiman",
+      "petAge": "3",
+      "petBreed": "Persian",
+      "petName": "Miko",
+      "profileImageUrl": "https://firebasestorage.googleapis.com/v0/b/feedmate-pet-feeder-system.firebasestorage.app/o/profile_images%2FSf5BdMzTqvZbxCyZks3KVndmCml1.jpg?alt=media&token=e52fef21-c288-4dbf-af63-5a3f92f09133",
+      "role": "user",
+      "uid": "Sf5BdMzTqvZbxCyZks3KVndmCml1"
+    },
+    "VXyoacUNT2Vwg5TmJIPNUOrSm7e2": {
+      "email": "syimwannastudy@gmail.com",
+      "feederId": "VXyoacUNT2Vwg5TmJIPNUOrSm7e2",
+      "fullName": "Admin One",
+      "petAge": "",
+      "petBreed": "",
+      "petName": "",
+      "profileImageUrl": "",
+      "role": "admin",
+      "uid": "VXyoacUNT2Vwg5TmJIPNUOrSm7e2"
+    },
+    "es9QWCyYlJSbYafZnTeI8EyevC72": {
+      "email": "gamingonlyacc5@gmail.com",
+      "feederId": "es9QWCyYlJSbYafZnTeI8EyevC72",
+      "fullName": "",
+      "petAge": "",
+      "petBreed": "",
+      "petName": "",
+      "profileImageUrl": "",
+      "role": "user",
+      "uid": "es9QWCyYlJSbYafZnTeI8EyevC72"
+    },
+    "h9P6NQ5g0xdt9dr486z7cHQ43PA3": {
+      "email": "isyrafaiman11@gmail.com",
+      "feederId": "h9P6NQ5g0xdt9dr486z7cHQ43PA3",
+      "fullName": "Isyraf Aiman",
+      "petAge": "6",
+      "petBreed": "Maine Coon",
+      "petName": "Tompok",
+      "profileImageUrl": "",
+      "role": "user",
+      "uid": "h9P6NQ5g0xdt9dr486z7cHQ43PA3"
+    },
+    "mYWapiYKfCZcTZTGKg77AgAEC0k1": {
+      "email": "safiyakmal05@gmail.com",
+      "feederId": "mYWapiYKfCZcTZTGKg77AgAEC0k1",
+      "fullName": "Akmal Safiy",
+      "petAge": "5",
+      "petBreed": "Burmese",
+      "petName": "Augustine",
+      "profileImageUrl": "",
+      "role": "user",
+      "uid": "mYWapiYKfCZcTZTGKg77AgAEC0k1"
+    }
+  }
+}
