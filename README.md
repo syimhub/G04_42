@@ -119,6 +119,7 @@ Before installation, ensure you have:
 
 
 You're done! You should now be able to run your app and the feeder.
+
 ---
 
 ## Link of GitHub
