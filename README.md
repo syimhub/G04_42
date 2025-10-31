@@ -33,31 +33,28 @@ Before installation, ensure you have:
 1. **Create a Firebase Project**
    - Go to [Firebase Console](https://console.firebase.google.com/).
    - Click **Add project**, enter project name (e.g., FeedMate) and continue.
-   - Enable and click continue for AI assistance
-   - Disable Google Analytics and create project
+   - Enable and click continue for AI assistance.
+   - Disable Google Analytics and create project.
 
 
 2. **Enable Realtime Database**
    - Navigate to **Build → Realtime Database → Create Database**.
-   - For Realtime Database Location, select Singapore (asia-southeast1) or closest region
+   - For Realtime Database Location, select Singapore (asia-southeast1) or closest region.
    - For Securty Rules, select **Start in locked mode**
-   - Import JSON file from the System Folder
-   - Copy and replace the existing database path in the Android app with the current database URL
+   - Import provided JSON file from the System Folder to initialize databasee.
+   - Copy the **Database URL**
+   - Open Android Studio project and replace the 'DB_URL' in the app with the current database URL (Change URL in related java files that has the URL code line)
+   
+   > ⚠ Note: The app connects to Firebase using the database URL, so `google-services.json` is **not required** for this project.
 
 3. **Enable Firebase Authentication**
    - Navigate to **Build → Authentication → Get Started → Sign-in Method → Email/Password → Enable**.
 
 4. **Enable Firebase Storage**
-   - Navigate to **Build → Storage → Upgrade → Link to Billing Account → Get Started**.
+   - Navigate to **Build → Storage → Get Started**.
    - For Bucket Options, select "All locations" and choose "ASIA-SOUTHEAST1" for location and "Standard" for access frequency.
    - For Security Rules. select **Start in production mode**
    - Adjust storage rules to this :
-     ```
-     app/ directory
-     ```
-
-5. **Download `google-services.json`**
-   - Add it to your Android Studio project under:
      ```
      rules_version = '2';
       service firebase.storage {
@@ -75,21 +72,28 @@ Before installation, ensure you have:
 1. **Clone or Download the Project**
    - Clone from GitHub:
      ```bash
-     git clone <repository_url>
+     git clone <https://github.com/syimhub/G04_42.git>
      ```
    - Or download the ZIP and extract it.
 
+   **Clone Using GitHub Desktop**
+   - Install GitHub Desktop from https://desktop.github.com/.
+   - Open GitHub Desktop and sign in with your GitHub account.
+   - Click **File → Clone Repository**
+   - In the dialog :
+        1. Select the **URL tab**.
+        2. Paste repository URL → https://github.com/syimhub/G04_42.git
+        3. Choose the **local path** where the project folder should be saved.
+        4. Click **Clone**
+
 2. **Open Project in Android Studio**
-   - File → Open → Select project directory.
+   - Once cloned, open **Android Studio → File → Open → Select cloned project directory**.
    - Let Gradle sync complete.
 
 3. **Configure Firebase in Android Studio**
-   - Verify `google-services.json` is present in `app/`.
-   - Check `build.gradle` files for:
-     ```gradle
-     classpath 'com.google.gms:google-services:4.3.15'
-     apply plugin: 'com.google.gms.google-services'
-     ```
+   - This project uses direct Firebase database URLs, so `google-services.json` is **not required**.
+   - Verify that the Firebase database URLs in the code (e.g., `UserDashboardActivity.java`) and any java files that includes the database URLs match your Firebase Realtime Database
+   - No further configuration of `google-services.json` is needed. 
 
 4. **Build and Run the App**
    - Connect an Android device or use an emulator.
@@ -115,35 +119,4 @@ Before installation, ensure you have:
 
 ---
 
-## 6. Connecting App and Device
-1. **Sign Up / Login**
-   - Open the mobile app.
-   - Sign up as an **Admin** or **User**.
-   - Admins manage feeding schedules and devices.
-   - Users control assigned feeders.
-
-2. **Link Device**
-   - Enter the feeder ID in the app.
-   - The app syncs with Firebase, and device appears in the dashboard.
-
-3. **Test Feeding**
-   - Use **Feed Now** button in the app.
-   - Verify servo motor moves and sensors update food level in the app.
-
----
-
-## 7. Post-Installation Checks
-- Ensure Firebase database shows `users` and `devices` nodes.
-- Confirm profile image uploads and updates work.
-- Verify feeding schedule triggers notifications or device actions.
-- Confirm app navigation: Home, Profile, Logout functions correctly.
-
----
-
-## 8. Troubleshooting
-| Issue | Possible Solution |
-|-------|------------------|
-| App fails to sync with Firebase | Check internet connection, correct database URL, and authentication |
-| ESP32 not connecting | Verify Wi-Fi credentials in code and correct feeder ID |
-| Profile image upload fails | Check Firebase Storage rules and image size (<1MB recommended) |
-| Feeding schedule not triggering | Ensure ESP32 is powered and sensors are connected |
+## 
