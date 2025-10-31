@@ -1,3 +1,5 @@
+![UTM Logo](https://upload.wikimedia.org/wikipedia/commons/c/cb/UTM-LOGO-FULL.png)
+
 # FeedMate Pet Feeder System - Installation Manual
 
 ## 1. Overview
