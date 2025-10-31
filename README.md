@@ -44,10 +44,8 @@ Before installation, ensure you have:
    - Import provided **JSON file** from the **System Folder or Google Drive** to initialize database.
    - Copy the **Database URL**
    - Open **Android Studio project** and replace the 'DB_URL' in the **java files** with **your current database URL**
-   **Important:** In the Android project, the code uses hard-coded database URLs in several Java files (e.g. `UserDashboardActivity.java`, `ProfileAdminActivity.java`). If you use your own Firebase project, replace the existing URL(s) with your Realtime Database URL. Search for `https://feedmate-pet-feeder-system-default-rtdb...` to find all occurrences.
 
-   
-   > **Note :** The app connects to Firebase using the database URL, so `google-services.json` is **not required** for this project.
+   **Important :** In the Android project, the code uses hard-coded database URLs in several Java files (e.g. `UserDashboardActivity.java`, `ProfileAdminActivity.java`). If you use your own Firebase project, replace the existing URL(s) with your Realtime Database URL. Search for `https://feedmate-pet-feeder-system-default-rtdb...` to find all occurrences.
 
 3. **Enable Firebase Authentication**
    - Navigate to **Build → Authentication → Get Started → Sign-in Method → Email/Password → Enable**.
