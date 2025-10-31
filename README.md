@@ -126,7 +126,7 @@ You're done! You should now be able to run your app and the feeder.
 [GitHub](https://github.com/syimhub/G04_42.git)
 
 ## Link for the Application
-[FeedMate Pet Feeder System](https://drive.google.com/file/d/1sxgJA5x_dyVM__Wi0i8OXlF-DCYBWxVs/view?usp=drive_link)
+[FeedMate Pet Feeder System](https://drive.google.com/uc?export=download&id=1sxgJA5x_dyVM__Wi0i8OXlF-DCYBWxVs)
 
 ## Demo Accounts (for testing)
 > **Security note :** Accounts shown are only for demo. Sensitive credentials are not included and should not be included.
