@@ -32,15 +32,17 @@ Before installation, ensure you have:
 ## 3. Firebase Setup
 1. **Create a Firebase Project**
    - Go to [Firebase Console](https://console.firebase.google.com/).
-   - Click **Add project**, enter project name (e.g., FeedMate), and follow the steps.
+   - Click **Add project**, enter project name (e.g., FeedMate).
+   - Enable and click continue for AI assistance
+   - Disable Google Analytics and create project
+
 
 2. **Enable Realtime Database**
    - Navigate to **Build → Realtime Database → Create Database**.
-   - Select **Start in locked mode** (recommended).
-   - Use the database URL in your Android app:
-     ```
-     https://feedmate-pet-feeder-system-default-rtdb.asia-southeast1.firebasedatabase.app/
-     ```
+   - For Realtime Database Location, select Singapore (asia-southeast1) or closest region
+   - For Securty Rules, select **Start in locked mode**
+   - Import JSON file from the System Folder
+   - Copy and replace the existing database path in the Android app with the current database URL
 
 3. **Enable Firebase Authentication**
    - Navigate to **Authentication → Sign-in Method → Email/Password → Enable**.
@@ -96,7 +98,6 @@ Before installation, ensure you have:
    - Upload to the ESP32 via USB.
 
 2. **Assemble the Feeder Device**
-   - Connect servo motor and sensors to ESP32 according to circuit diagram.
    - Ensure power source is connected.
    - Confirm all hardware connections are secure.
 
