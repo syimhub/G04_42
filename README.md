@@ -60,13 +60,13 @@ Before installation, ensure you have:
    - Add it to your Android Studio project under:
      ```
      rules_version = '2';
-service firebase.storage {
-  match /b/{bucket}/o {
-    match /{allPaths=**} {
-      allow read, write: if request.auth != null;
-    }
-  }
-}
+      service firebase.storage {
+        match /b/{bucket}/o {
+           match /{allPaths=**} {
+              allow read, write: if request.auth != null;
+           }
+        }
+      }
      ```
 
 ---
