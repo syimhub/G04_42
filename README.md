@@ -39,13 +39,13 @@ Before installation, ensure you have:
 
 2. **Enable Realtime Database**
    - Navigate to **Build → Realtime Database → Create Database**.
-   - For Realtime Database Location, select Singapore (asia-southeast1) or closest region.
-   - For Securty Rules, select **Start in locked mode**
-   - Import provided JSON file from the System Folder to initialize databasee.
+   - For Realtime Database Location, select **Singapore (asia-southeast1)** or closest region.
+   - For **Securty Rules**, select **Start in locked mode**
+   - Import provided **JSON file** from the **System Folder or Google Drive** to initialize database.
    - Copy the **Database URL**
-   - Open Android Studio project and replace the 'DB_URL' in the app with the current database URL (Change URL in related java files that has the URL code line)
+   - Open **Android Studio project** and replace the 'DB_URL' in the **java files** with **your current database URL**
    
-   > ⚠ Note: The app connects to Firebase using the database URL, so `google-services.json` is **not required** for this project.
+   > **Note :** The app connects to Firebase using the database URL, so `google-services.json` is **not required** for this project.
 
 3. **Enable Firebase Authentication**
    - Navigate to **Build → Authentication → Get Started → Sign-in Method → Email/Password → Enable**.
