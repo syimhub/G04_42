@@ -52,9 +52,9 @@ Before installation, ensure you have:
 
 4. **Enable Firebase Storage**
    - Navigate to **Build → Storage → Get Started**.
-   - For Bucket Options, select "All locations" and choose "ASIA-SOUTHEAST1" for location and "Standard" for access frequency.
-   - For Security Rules. select **Start in production mode**
-   - Adjust storage rules to this :
+   - For **Bucket Options**, select **"All locations"** and choose **"ASIA-SOUTHEAST1"** for location and **"Standard"** for **access frequency**.
+   - For **Security Rules**, select **Start in production mode**
+   - Adjust **storage rules** to this :
      ```
      rules_version = '2';
       service firebase.storage {
@@ -88,11 +88,11 @@ Before installation, ensure you have:
 
 2. **Open Project in Android Studio**
    - Once cloned, open **Android Studio → File → Open → Select cloned project directory**.
-   - Let Gradle sync complete.
+   - Wait for Gradle sync to complete.
 
 3. **Configure Firebase in Android Studio**
-   - This project uses direct Firebase database URLs, so `google-services.json` is **not required**.
-   - Verify that the Firebase database URLs in the code (e.g., `UserDashboardActivity.java`) and any java files that includes the database URLs match your Firebase Realtime Database
+   - This project uses **direct Firebase database URLs**, so `google-services.json` is **not required**.
+   - Verify that the Firebase URLs in Java files (e.g., `UserDashboardActivity.java`) match your Firebase Realtime Database.
    - No further configuration of `google-services.json` is needed. 
 
 4. **Build and Run the App**
@@ -119,4 +119,28 @@ Before installation, ensure you have:
 
 ---
 
-## 
+You're done! You should now be able to run your app and the feeder.
+
+## Link of GitHub
+[GitHub](https://github.com/syimhub/G04_42.git)
+
+---
+
+## Demo Accounts (for testing)
+> **Security note :** Accounts shown are only for demo. Sensitive credentials are not included and should not be included.
+### Admin (demo)
+- **Email :** syimwannastudy@gmail.com
+- **Password :** 123456
+
+### User (demo)
+- **Email :** syimiraidilr2@gmail.com
+- **Password :** 123456
+
+- **Email :** ammarsyazani3120@gmail.com
+- **Password :** 123456
+
+- **Email :** safiyakmal05@gmail.com
+- **Password :** 123456
+
+- **Email :** isyrafaiman11@gmail.com
+- **Password :** 123456
