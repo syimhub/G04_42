@@ -32,7 +32,7 @@ Before installation, ensure you have:
 ## 3. Firebase Setup
 1. **Create a Firebase Project**
    - Go to [Firebase Console](https://console.firebase.google.com/).
-   - Click **Add project**, enter project name (e.g., FeedMate).
+   - Click **Add project**, enter project name (e.g., FeedMate) and continue.
    - Enable and click continue for AI assistance
    - Disable Google Analytics and create project
 
@@ -45,16 +45,28 @@ Before installation, ensure you have:
    - Copy and replace the existing database path in the Android app with the current database URL
 
 3. **Enable Firebase Authentication**
-   - Navigate to **Authentication → Sign-in Method → Email/Password → Enable**.
+   - Navigate to **Build → Authentication → Get Started → Sign-in Method → Email/Password → Enable**.
 
 4. **Enable Firebase Storage**
-   - Navigate to **Storage → Get Started**.
-   - Configure storage rules to allow authenticated users to upload profile images.
+   - Navigate to **Build → Storage → Upgrade → Link to Billing Account → Get Started**.
+   - For Bucket Options, select "All locations" and choose "ASIA-SOUTHEAST1" for location and "Standard" for access frequency.
+   - For Security Rules. select **Start in production mode**
+   - Adjust storage rules to this :
+     ```
+     app/ directory
+     ```
 
 5. **Download `google-services.json`**
    - Add it to your Android Studio project under:
      ```
-     app/ directory
+     rules_version = '2';
+service firebase.storage {
+  match /b/{bucket}/o {
+    match /{allPaths=**} {
+      allow read, write: if request.auth != null;
+    }
+  }
+}
      ```
 
 ---
