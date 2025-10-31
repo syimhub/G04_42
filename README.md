@@ -117,9 +117,9 @@ Before installation, ensure you have:
    - Ensure power source is connected.
    - Confirm all hardware connections are secure.
 
----
 
 You're done! You should now be able to run your app and the feeder.
+---
 
 ## Link of GitHub
 [GitHub](https://github.com/syimhub/G04_42.git)
@@ -133,14 +133,18 @@ You're done! You should now be able to run your app and the feeder.
 - **Password :** 123456
 
 ### User (demo)
+1. User 1
 - **Email :** syimiraidilr2@gmail.com
 - **Password :** 123456
 
+2. User 2
 - **Email :** ammarsyazani3120@gmail.com
 - **Password :** 123456
 
+3. User 3
 - **Email :** safiyakmal05@gmail.com
 - **Password :** 123456
 
+4. User 4
 - **Email :** isyrafaiman11@gmail.com
 - **Password :** 123456
